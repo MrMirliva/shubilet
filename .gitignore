@@ -79,7 +79,6 @@ composer.lock
 
 # Docker
 **/docker-compose.override.yml
-*.dockerignore
 docker-compose*.tmp
 
 # Kubernetes / Helm (local)
