@@ -1,0 +1,120 @@
+version: "3.9"
+
+
+services:
+  #Eureka Server
+  eureka-server:
+    build: ./backend/eureka-server
+    container_name: eureka-server
+    ports:
+      - "8761:8761"
+    environment:
+      - EUREKA_CLIENT_REGISTER_WITH_EUREKA=false
+      - EUREKA_CLIENT_FETCH_REGISTRY=false
+    networks:
+      - spring-net
+
+  #API Gateway
+  api-gateway:
+    build: ./backend/api-gateway
+    container_name: api-gateway
+    depends_on:
+      - eureka-server
+    ports:
+      - "8080:8080"
+    environment:
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka/
+    networks:
+      - spring-net
+
+  #Member Service
+  member-service:
+    build: ./backend/member-service
+    container_name: member-service
+    depends_on:
+      - eureka-server
+      - postgres
+    ports:
+      - "8081:8081"
+    environment:
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka/
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/shubiletRootDB
+      - SPRING_DATASOURCE_USERNAME=postgres
+      - SPRING_DATASOURCE_PASSWORD=123
+    networks:
+      - spring-net
+
+  #Expedition Service
+  expedition-service:
+    build: ./backend/expedition-service
+    container_name: expedition-service
+    depends_on:
+      - eureka-server
+      - postgres
+    ports:
+      - "8082:8081"
+    environment:
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka/
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/shubiletRootDB
+      - SPRING_DATASOURCE_USERNAME=postgres
+      - SPRING_DATASOURCE_PASSWORD=123
+    networks:
+      - spring-net
+
+  #Payment Service
+  payment-service:
+    build: ./backend/payment-service
+    container_name: payment-service
+    depends_on:
+      - eureka-server
+      - postgres
+    ports:
+      - "8083:8081"
+    environment:
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka/
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/shubiletPaymentDB
+      - SPRING_DATASOURCE_USERNAME=postgres
+      - SPRING_DATASOURCE_PASSWORD=123
+    networks:
+      - spring-net
+
+  #Security Service
+  security-service:
+    build: ./backend/security-service
+    container_name: security-service
+    depends_on:
+      - eureka-server
+      - postgres
+    ports:
+      - "8084:8084"
+    environment:
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka/
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/shubiletRootDB
+      - SPRING_DATASOURCE_USERNAME=postgres
+      - SPRING_DATASOURCE_PASSWORD=123
+    networks:
+      - spring-net
+
+  #PostgreSQL
+  postgres:
+    image: postgres:15
+    container_name: postgres
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 123
+      POSTGRES_DB: main
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+      - ./db/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    networks:
+      - spring-net
+
+networks:
+  spring-net:
+    driver: bridge
+
+volumes:
+  postgres-data:
