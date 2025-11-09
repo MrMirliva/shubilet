@@ -112,9 +112,26 @@ services:
     networks:
       - spring-net
 
+  # pgAdmin (web UI for PostgreSQL)
+  pgadmin:
+    image: dpage/pgadmin4:8.12
+    container_name: pgadmin
+    depends_on:
+      - postgres
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@example.com
+      PGADMIN_DEFAULT_PASSWORD: admin
+    ports:
+      - "5051:80"
+    volumes:
+      - pgadmin-data:/var/lib/pgadmin
+    networks:
+      - spring-net
+
 networks:
   spring-net:
     driver: bridge
 
 volumes:
   postgres-data:
+  pgadmin-data:
