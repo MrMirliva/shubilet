@@ -8,6 +8,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
+import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import java.io.Serializable;
@@ -46,6 +47,12 @@ public class Company implements Serializable {
     @Column(nullable = false)
     private String password;
 
+    @NotBlank
+    @Email
+    @Size(max = 100)
+    @Column(nullable = false, unique = true, length = 100)
+    private String email;
+
     // Reference to the admin who verified or created this company
     @Column(name = "ref_admin_id", nullable = true)
     private Integer refAdminId;
@@ -68,11 +75,12 @@ public class Company implements Serializable {
     public Company() {
     }
 
-    public Company(String name, String password, Integer refAdminId) {
+    public Company(String name, String password, Integer refAdminId, String email) {
         this.name = name;
         this.password = password;
         this.refAdminId = refAdminId;
         this.isVerified = false;
+        this.email = email;
     }
 
     // ------------------------
@@ -142,6 +150,13 @@ public class Company implements Serializable {
         this.verifiedAt = verifiedAt;
     }
 
+    public String getEmail() {
+        return email;
+    }
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
     // ------------------------
     // Utility Methods
     // ------------------------
@@ -157,14 +172,14 @@ public class Company implements Serializable {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof Company)) return false;
+        if (o == null || getClass() != o.getClass()) return false;
         Company company = (Company) o;
-        return id == company.id && name.equals(company.name);
+        return id == company.id && java.util.Objects.equals(name, company.name);
     }
 
     @Override
     public int hashCode() {
-        return java.util.Objects.hash(id, name);
+        return java.util.Objects.hash(id, email);
     }
 
     // ------------------------
@@ -175,6 +190,7 @@ public class Company implements Serializable {
         return "Company{" +
                 "id=" + id +
                 ", name='" + name + '\'' +
+                ", email='" + email + '\'' +
                 ", isVerified=" + isVerified +
                 ", refAdminId=" + refAdminId +
                 ", createdAt=" + createdAt +

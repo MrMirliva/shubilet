@@ -13,11 +13,11 @@ import java.io.Serializable;
 import java.time.Instant;
 
 /**
- * Represents a user session with a unique session code and expiration time.
+ * Represents a customer session with a unique session code and expiration time.
  */
 @Entity
-@Table(name = "user_sessions")
-public class UserSession implements Serializable {
+@Table(name = "customer_sessions")
+public class CustomerSession implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
@@ -32,8 +32,8 @@ public class UserSession implements Serializable {
     // Fields
     // ------------------------
     @NotNull
-    @Column(name = "user_id", nullable = false)
-    private Integer userId;
+    @Column(name = "customer_id", nullable = false)
+    private Integer customerId;
 
     @NotBlank
     @Column(nullable = false, unique = true, length = 64)
@@ -48,11 +48,11 @@ public class UserSession implements Serializable {
     // ------------------------
     // Constructors
     // ------------------------
-    public UserSession() {
+    public CustomerSession() {
     }
 
-    public UserSession(Integer userId, String code, Instant expiresAt) {
-        this.userId = userId;
+    public CustomerSession(Integer customerId, String code, Instant expiresAt) {
+        this.customerId = customerId;
         this.code = code;
         this.expiresAt = expiresAt;
     }
@@ -79,11 +79,11 @@ public class UserSession implements Serializable {
         this.id = id;
     }
 
-    public Integer getUserId() {
-        return userId;
+    public Integer getCustomerId() {
+        return customerId;
     }
-    public void setUserId(Integer userId) {
-        this.userId = userId;
+    public void setCustomerId(Integer customerId) {
+        this.customerId = customerId;
     }
 
     public String getCode() {
@@ -117,8 +117,8 @@ public class UserSession implements Serializable {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof UserSession)) return false;
-        UserSession that = (UserSession) o;
+        if (!(o instanceof CustomerSession)) return false;
+        CustomerSession that = (CustomerSession) o;
         return id == that.id && code.equals(that.code);
     }
 
@@ -132,9 +132,9 @@ public class UserSession implements Serializable {
     // ------------------------
     @Override
     public String toString() {
-        return "UserSession{" +
+        return "CustomerSession{" +
                 "id=" + id +
-                ", userId=" + userId +
+                ", customerId=" + customerId +
                 ", code='" + code + '\'' +
                 ", createdAt=" + createdAt +
                 ", expiresAt=" + expiresAt +

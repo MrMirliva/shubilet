@@ -15,17 +15,15 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import java.io.Serializable;
 import java.time.Instant;
-import java.util.HashSet;
 import java.util.Objects;
-import java.util.Set;
 
 /**
- * Represents a user within the system.
- * Users have personal details and password-based authentication.
+ * Represents a customer within the system.
+ * Customers have personal details and password-based authentication.
  */
 @Entity
-@Table(name = "users")
-public class User implements Serializable {
+@Table(name = "customers")
+public class Customer implements Serializable {
     
     private static final long serialVersionUID = 1L;
 
@@ -76,11 +74,11 @@ public class User implements Serializable {
     // ------------------------
     // Constructors
     // ------------------------
-    public User() {
+    public Customer() {
     
     }
 
-    public User(String name, String surname, Gender gender, String email, String password) {
+    public Customer(String name, String surname, Gender gender, String email, String password) {
         this.name = name;
         this.surname = surname;
         this.gender = (gender != null ? gender : Gender.MALE);
@@ -167,8 +165,8 @@ public class User implements Serializable {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        User user = (User) o;
-        return id == user.id;
+        Customer customer = (Customer) o;
+        return id == customer.id;
     }
 
     @Override
@@ -181,7 +179,7 @@ public class User implements Serializable {
     // ------------------------
     @Override
     public String toString() {
-        return "User{" +
+        return "Customer{" +
                 "id=" + id +
                 ", name='" + name + '\'' +
                 ", surname='" + surname + '\'' +
