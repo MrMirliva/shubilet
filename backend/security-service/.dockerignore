@@ -1,9 +1,10 @@
 target/
-!.mvn/
-.mvn/wrapper/maven-wrapper.jar
+.git/
+.gitignore
 .idea/
+.vscode/
 *.iml
-*.class
-*.log
-.DS_Store
-*.swp
+**/.DS_Store
+**/Thumbs.db
+docker-compose.yml
+Dockerfile*

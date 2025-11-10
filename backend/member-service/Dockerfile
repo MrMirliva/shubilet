@@ -1,15 +1,17 @@
-# -------- Stage 1: Build --------
-FROM eclipse-temurin:21-jdk AS build
+# -------- Stage 1: Build (Maven image, cached deps) --------
+FROM maven:3.9.8-eclipse-temurin-21 AS build
 WORKDIR /app
 
-# Copy project
-COPY . .
+# Cache dependencies
+COPY pom.xml ./
+RUN mvn -q -e -DskipTests dependency:go-offline
 
-# Build the application (skip tests for faster image builds)
-RUN [ -f "./mvnw" ] && ./mvnw -q clean package -DskipTests || mvn -q clean package -DskipTests
+# Copy sources and build
+COPY src ./src
+RUN mvn -q -DskipTests package
 
-# -------- Stage 2: Run --------
-FROM eclipse-temurin:21-jdk
+# -------- Stage 2: Run (JRE) --------
+FROM eclipse-temurin:21-jre
 WORKDIR /app
 
 # Copy the fat JAR from the build stage
