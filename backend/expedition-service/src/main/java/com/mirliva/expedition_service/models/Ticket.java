@@ -26,12 +26,6 @@ public class Ticket implements Serializable {
     // Primary Key
     // ------------------------
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int id;
-
-    // ------------------------
-    // Fields
-    // ------------------------
     @NotBlank
     @Column(nullable = false, unique = true, length = 12)
     private String pnr;
@@ -70,12 +64,6 @@ public class Ticket implements Serializable {
     // ------------------------
     // Getters and Setters
     // ------------------------
-    public int getId() {
-        return id;
-    }
-    public void setId(int id) {
-        this.id = id;
-    }
 
     public String getPnr() {
         return pnr;
@@ -110,12 +98,12 @@ public class Ticket implements Serializable {
         if (this == o) return true;
         if (!(o instanceof Ticket)) return false;
         Ticket ticket = (Ticket) o;
-        return id == ticket.id && pnr.equals(ticket.pnr);
+        return pnr.equals(ticket.pnr);
     }
 
     @Override
     public int hashCode() {
-        return java.util.Objects.hash(id, pnr);
+        return java.util.Objects.hash(pnr);
     }
 
     // ------------------------
@@ -124,7 +112,6 @@ public class Ticket implements Serializable {
     @Override
     public String toString() {
         return "Ticket{" +
-                "id=" + id +
                 ", pnr='" + pnr + '\'' +
                 ", seatId=" + seatId +
                 ", paymentId=" + paymentId +

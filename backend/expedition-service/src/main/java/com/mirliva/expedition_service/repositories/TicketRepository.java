@@ -6,6 +6,6 @@ import com.mirliva.expedition_service.models.Ticket;
 
 
 @Repository
-public interface TicketRepository extends JpaRepository<Ticket, Integer> {
+public interface TicketRepository extends JpaRepository<Ticket, String> {
     
 }

@@ -7,7 +7,7 @@ import com.mirliva.payment_service.services.CardService;
 
 ///TODO: CARD SERVICE INTERFACE IMPLEMENTATION
 @Service
-public class CardServiceImpl extends CardService {
+public class CardServiceImpl implements CardService {
 
 	private final CardRepository cardRepository;
 
