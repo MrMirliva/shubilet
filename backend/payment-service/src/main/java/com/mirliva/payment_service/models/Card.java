@@ -6,14 +6,11 @@ import jakarta.persistence.Id;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Column;
-import jakarta.persistence.PrePersist;
-import jakarta.persistence.PreUpdate;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import java.io.Serializable;
-import java.time.Instant;
 
 /**
  * Represents a credit/debit card registered by a user for payment operations.
@@ -41,14 +38,14 @@ public class Card implements Serializable {
     private String cardNo;
 
     @NotBlank
-    @Pattern(regexp = "(0[1-9]|1[0-2])/([0-9]{2})", message = "SKT must be in MM/YY format")
+    @Pattern(regexp = "(0[1-9]|1[0-2])/([0-9]{2})", message = "Expration Date must be in MM/YY format")
     @Column(nullable = false, length = 5)
-    private String skt; // Son Kullanma Tarihi (Expiration Date)
+    private String expriationDate; // skt
 
     @NotBlank
     @Pattern(regexp = "\\d{3}", message = "CVC must be exactly 3 digits")
     @Column(nullable = false, length = 3)
-    private String cvc;
+    private String CVC;
 
     @NotBlank
     @Size(max = 100)
@@ -61,14 +58,8 @@ public class Card implements Serializable {
     private String surname;
 
     @NotNull
-    @Column(name = "user_id", nullable = false)
-    private Integer userId;
-
-    @Column(nullable = false, updatable = false)
-    private Instant createdAt;
-
-    @Column(nullable = false)
-    private Instant updatedAt;
+    @Column(name = "customer_id", nullable = false)
+    private Integer customerId;
 
     // ------------------------
     // Constructors
@@ -76,27 +67,13 @@ public class Card implements Serializable {
     public Card() {
     }
 
-    public Card(String cardNo, String skt, String cvc, String name, String surname, Integer userId) {
+    public Card(String cardNo, String expriationDate, String CVC, String name, String surname, Integer customerId) {
         this.cardNo = cardNo;
-        this.skt = skt;
-        this.cvc = cvc;
+        this.expriationDate = expriationDate;
+        this.CVC = CVC;
         this.name = name;
         this.surname = surname;
-        this.userId = userId;
-    }
-
-    // ------------------------
-    // Lifecycle Callbacks
-    // ------------------------
-    @PrePersist
-    protected void onCreate() {
-        this.createdAt = Instant.now();
-        this.updatedAt = this.createdAt;
-    }
-
-    @PreUpdate
-    protected void onUpdate() {
-        this.updatedAt = Instant.now();
+        this.customerId = customerId;
     }
 
     // ------------------------
@@ -116,18 +93,18 @@ public class Card implements Serializable {
         this.cardNo = cardNo;
     }
 
-    public String getSkt() {
-        return skt;
+    public String getExpirationDate() {
+        return expriationDate;
     }
-    public void setSkt(String skt) {
-        this.skt = skt;
+    public void setExpirationDate(String expriationDate) {
+        this.expriationDate = expriationDate;
     }
 
-    public String getCvc() {
-        return cvc;
+    public String getCVC() {
+        return CVC;
     }
-    public void setCvc(String cvc) {
-        this.cvc = cvc;
+    public void setCVC(String CVC) {
+        this.CVC = CVC;
     }
 
     public String getName() {
@@ -144,18 +121,11 @@ public class Card implements Serializable {
         this.surname = surname;
     }
 
-    public Integer getUserId() {
-        return userId;
+    public Integer getCustomerId() {
+        return customerId;
     }
-    public void setUserId(Integer userId) {
-        this.userId = userId;
-    }
-
-    public Instant getCreatedAt() {
-        return createdAt;
-    }
-    public Instant getUpdatedAt() {
-        return updatedAt;
+    public void setCustomerId(Integer customerId) {
+        this.customerId = customerId;
     }
 
     // ------------------------
@@ -190,12 +160,10 @@ public class Card implements Serializable {
         return "Card{" +
                 "id=" + id +
                 ", cardNo='" + getMaskedCardNo() + '\'' +
-                ", skt='" + skt + '\'' +
+                ", expirationDate='" + getExpirationDate() + '\'' +
                 ", name='" + name + '\'' +
                 ", surname='" + surname + '\'' +
-                ", userId=" + userId +
-                ", createdAt=" + createdAt +
-                ", updatedAt=" + updatedAt +
+                ", customerId=" + customerId +
                 '}';
     }
 }
