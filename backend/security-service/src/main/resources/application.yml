@@ -1,6 +1,6 @@
 spring:
     application:
-        name: expedition-service
+        name: security-service
 
     jpa:
         hibernate:

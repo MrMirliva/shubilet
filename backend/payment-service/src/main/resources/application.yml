@@ -1,6 +1,6 @@
 spring:
     application:
-        name: expedition-service
+        name: payment-service
 
     jpa:
         hibernate:
@@ -16,7 +16,7 @@ spring:
             on-profile: docker
 
     datasource:
-        url: jdbc:postgresql://postgres:5432/mainDB
+        url: jdbc:postgresql://postgres:5432/paymentDB
         username: postgres
         password: 123
     jpa:
