@@ -132,6 +132,3 @@ bower_components/
 .eslintcache
 *.db
 *.sqlite
-
-# Spring Boot specific
-application.properties
