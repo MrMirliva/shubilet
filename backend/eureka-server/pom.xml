@@ -14,13 +14,13 @@
         <relativePath/>
     </parent>
 
-    <groupId>com.mirliva</groupId>
+    <groupId>com.shubilet</groupId>
     <artifactId>eureka-server</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <name>Eureka Server</name>
     <description>Service Discovery Server for Microservices</description>
 
-    <!-- ✅ Java ve Spring Cloud versiyonu -->
+    <!-- Java ve Spring Cloud versiyonu -->
     <properties>
         <java.version>21</java.version>
         <spring-cloud.version>2023.0.3</spring-cloud.version>

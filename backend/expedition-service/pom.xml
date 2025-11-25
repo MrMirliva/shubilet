@@ -13,7 +13,7 @@
         <relativePath/>
     </parent>
 
-    <groupId>com.mirliva</groupId>
+    <groupId>com.shubilet</groupId>
     <artifactId>expedition-service</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <name>Expedition Service</name>

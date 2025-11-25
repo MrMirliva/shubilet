@@ -13,7 +13,7 @@
         <relativePath/>
     </parent>
 
-    <groupId>com.mirliva</groupId>
+    <groupId>com.shubilet</groupId>
     <artifactId>security-service</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <name>Security Service</name>
