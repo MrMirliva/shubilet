@@ -33,6 +33,7 @@ services:
       - eureka-server
       - postgres
     ports:
+      # ///TODO: Exposed for Test Close it Later from Outside
       - "8081:8081"
     environment:
       - EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE=http://eureka-server:8761/eureka/
