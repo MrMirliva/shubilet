@@ -12,5 +12,7 @@ public interface CompanySessionService {
     public ResponseEntity<Boolean> check(int id, String token);
 
     public boolean hasEmail(String email);
+
+    public boolean isVerifiedEmail(String email);
 }
 

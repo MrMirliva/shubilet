@@ -34,4 +34,9 @@ public class AdminSessionServiceImpl implements AdminSessionService {
         // Implementation here
         return false;
     }
+
+    public boolean isVerifiedEmail(String email) {
+        // Implementation here
+        return false;
+    }
 }
