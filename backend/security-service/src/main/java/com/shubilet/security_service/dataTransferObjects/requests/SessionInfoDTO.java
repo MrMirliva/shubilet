@@ -1,11 +1,13 @@
 package com.shubilet.security_service.dataTransferObjects.requests;
 
+import com.shubilet.security_service.common.enums.UserType;
+
 public class SessionInfoDTO {
     private int userId;
-    private String userType;
+    private UserType userType;
     private String authCode;
 
-    public SessionInfoDTO(int userId, String userType, String authCode) {
+    public SessionInfoDTO(int userId, UserType userType, String authCode) {
         this.userId = userId;
         this.userType = userType;
         this.authCode = authCode;
@@ -20,10 +22,10 @@ public class SessionInfoDTO {
     }
 
     public String getUserType() {
-        return userType;
+        return userType.getCode();
     }
 
-    public void setUserType(String userType) {
+    public void setUserType(UserType userType) {
         this.userType = userType;
     }
 
