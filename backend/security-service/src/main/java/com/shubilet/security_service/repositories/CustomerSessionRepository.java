@@ -10,22 +10,32 @@ import com.shubilet.security_service.models.CustomerSession;
 
 @Repository
 public interface CustomerSessionRepository extends JpaRepository<CustomerSession, Integer> {
-   
+
     ///TODO: Yorum satırları eklenecek.
 
-    @Query("""
-        SELECT COUNT(a) > 0
-        FROM Customer a
-        WHERE a.email = :email
-            AND a.password = :password
-    """)
-    boolean isEmailAndPasswordValid(@Param("email") String email, @Param("password") String password);
+    @Query(
+        value = """
+                SELECT COUNT(*) > 0
+                FROM customers c
+                WHERE c.email = :email
+                    AND c.password = :password
+                """,
+        nativeQuery = true
+    )
+    boolean isEmailAndPasswordValid(
+            @Param("email") String email,
+            @Param("password") String password
+    );
 
-    @Query("""
-        SELECT a.id
-        FROM Customer a
-        WHERE a.email = :email
-    """)
+
+    @Query(
+        value = """
+                SELECT c.id
+                FROM customers c
+                WHERE c.email = :email
+                """,
+        nativeQuery = true
+    )
     int getCustomerIdByEmail(@Param("email") String email);
 
     @Query("""
@@ -41,12 +51,19 @@ public interface CustomerSessionRepository extends JpaRepository<CustomerSession
         WHERE s.customerId = :customerId
             AND s.code = :code
     """)
-    boolean existsByCustomerIdAndCode( @Param("customerId") int customerId, @Param("code") String code);
+    boolean existsByCustomerIdAndCode(
+            @Param("customerId") int customerId, 
+            @Param("code") String code
+    );
 
-    @Query("""
-        SELECT COUNT(a) > 0
-        FROM Customer a
-        WHERE a.email = :email
-    """)
+    @Query(
+        value = """
+                SELECT COUNT(*) > 0
+                FROM customers c
+                WHERE c.email = :email
+                """,
+        nativeQuery = true
+    )
     boolean hasEmail(@Param("email") String email);
+
 }

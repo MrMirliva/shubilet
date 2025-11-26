@@ -12,19 +12,29 @@ public interface CompanySessionRepository extends JpaRepository<CompanySession, 
     
     ///TODO: Yorum satırları eklenecek.
 
-    @Query("""
-        SELECT COUNT(a) > 0
-        FROM Company a
-        WHERE a.email = :email
-            AND a.password = :password
-    """)
-    boolean isEmailAndPasswordValid(@Param("email") String email, @Param("password") String password);
+    @Query(
+        value = """
+                SELECT COUNT(*) > 0
+                FROM companies c
+                WHERE c.email = :email
+                    AND c.password = :password
+                """,
+        nativeQuery = true
+    )
+    boolean isEmailAndPasswordValid(
+            @Param("email") String email,
+            @Param("password") String password
+    );
 
-    @Query("""
-        SELECT a.id
-        FROM Company a
-        WHERE a.email = :email
-    """)
+
+    @Query(
+        value = """
+                SELECT c.id
+                FROM companies c
+                WHERE c.email = :email
+                """,
+        nativeQuery = true
+    )
     int getCompanyIdByEmail(@Param("email") String email);
 
     @Query("""
@@ -40,23 +50,32 @@ public interface CompanySessionRepository extends JpaRepository<CompanySession, 
         WHERE s.companyId = :companyId
             AND s.code = :code
     """)
-    boolean existsByCompanyIdAndCode( @Param("companyId") int companyId, @Param("code") String code);
-    
-    @Query("""
-        SELECT COUNT(a) > 0
-        FROM Company a
-        WHERE a.email = :email
-    """)
+    boolean existsByCompanyIdAndCode(
+            @Param("companyId") int companyId, 
+            @Param("code") String code
+    );
+
+    @Query(
+        value = """
+                SELECT COUNT(*) > 0
+                FROM companies c
+                WHERE c.email = :email
+                """,
+        nativeQuery = true
+    )
     boolean hasEmail(@Param("email") String email);
 
 
     ///TODO: ileride değişebilir.
-    @Query("""
-        SELECT COUNT(a) > 0
-        FROM Company a
-        WHERE a.email = :email
-            AND a.refAdminId IS NOT NULL
-            AND a.refAdminId > 0
-    """)
+    @Query(
+        value = """
+                SELECT COUNT(*) > 0
+                FROM companies c
+                WHERE c.email = :email
+                    AND c.ref_admin_id IS NOT NULL
+                    AND c.ref_admin_id > 0
+                """,
+        nativeQuery = true
+    )
     boolean isVerifiedEmail(@Param("email") String email);
 }

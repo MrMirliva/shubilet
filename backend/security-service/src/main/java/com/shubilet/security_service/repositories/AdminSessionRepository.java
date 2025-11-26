@@ -13,21 +13,31 @@ public interface AdminSessionRepository extends JpaRepository<AdminSession, Inte
     
     ///TODO: Yorum satırları eklenecek.
 
-    @Query("""
-        SELECT COUNT(a) > 0
-        FROM Admin a
-        WHERE a.email = :email
-            AND a.password = :password
-    """)
-    boolean isEmailAndPasswordValid(@Param("email") String email, @Param("password") String password);
+    @Query(
+        value = """
+                SELECT COUNT(*) > 0
+                FROM admins a
+                WHERE a.email = :email
+                    AND a.password = :password
+                """,
+        nativeQuery = true
+    )
+    boolean isEmailAndPasswordValid(
+            @Param("email") String email,
+            @Param("password") String password
+    );
 
-    @Query("""
-        SELECT a.id
-        FROM Admin a
-        WHERE a.email = :email
-    """)
+
+    @Query(
+        value = """
+                SELECT a.id
+                FROM admins a
+                WHERE a.email = :email
+                """,
+        nativeQuery = true
+    )
     int getAdminIdByEmail(@Param("email") String email);
-
+    
     @Query("""
         SELECT COUNT(s) > 0
         FROM AdminSession s
@@ -41,23 +51,32 @@ public interface AdminSessionRepository extends JpaRepository<AdminSession, Inte
         WHERE s.adminId = :adminId
             AND s.code = :code
     """)
-    boolean existsByAdminIdAndCode( @Param("adminId") int adminId, @Param("code") String code);
+    boolean existsByAdminIdAndCode(
+            @Param("adminId") int adminId, 
+            @Param("code") String code
+    );
 
-    @Query("""
-        SELECT COUNT(a) > 0
-        FROM Admin a
-        WHERE a.email = :email
-    """)
+    @Query(
+        value = """
+                SELECT COUNT(*) > 0
+                FROM admins a
+                WHERE a.email = :email
+                """,
+        nativeQuery = true
+    )
     boolean hasEmail(@Param("email") String email);
 
 
     ///TODO: ileride değişebilir.
-    @Query("""
-        SELECT COUNT(a) > 0
-        FROM Admin a
-        WHERE a.email = :email
-            AND a.refAdminId IS NOT NULL
-            AND a.refAdminId > 0
-    """)
+    @Query(
+        value = """
+                SELECT COUNT(*) > 0
+                FROM admins a
+                WHERE a.email = :email
+                    AND a.ref_admin_id IS NOT NULL
+                    AND a.ref_admin_id > 0
+                """,
+        nativeQuery = true
+    )
     boolean isVerifiedEmail(@Param("email") String email);
 }
