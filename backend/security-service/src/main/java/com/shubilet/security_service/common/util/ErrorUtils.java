@@ -1,6 +1,7 @@
 package com.shubilet.security_service.common.util;
 
 import com.shubilet.security_service.common.constants.ErrorMessages;
+import com.shubilet.security_service.common.enums.UserType;
 import com.shubilet.security_service.dataTransferObjects.responses.MessageDTO;
 
 public final class ErrorUtils {
@@ -26,5 +27,21 @@ public final class ErrorUtils {
 
     public static MessageDTO isIncorrect(String fieldName) {
         return new MessageDTO(fieldName + ErrorMessages.INCORRECT);
+    }
+
+    public static MessageDTO isNotVerified(UserType userType) {
+        return new MessageDTO(userType.getCode() + ErrorMessages.NOT_VERIFIED);
+    }
+
+    public static MessageDTO sessionNotFound() {
+        return new MessageDTO(ErrorMessages.SESSION_NOT_FOUND);
+    }
+
+    public static MessageDTO sessionExpired() {
+        return new MessageDTO(ErrorMessages.SESSION_EXPIRED);
+    }
+
+    public static MessageDTO invalidSession() {
+        return new MessageDTO(ErrorMessages.INVALID_SESSION);
     }
 }
