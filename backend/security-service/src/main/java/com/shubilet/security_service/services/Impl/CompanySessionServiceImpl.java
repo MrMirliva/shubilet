@@ -26,7 +26,7 @@ public class CompanySessionServiceImpl implements CompanySessionService {
             return ResponseEntity.status(401).build();
         }
 
-        int userId = companySessionRepository.getUserIdByEmail(email);
+        int companyId = companySessionRepository.getCompanyIdByEmail(email);
         String code = "";
 
         while (true) {
@@ -36,11 +36,11 @@ public class CompanySessionServiceImpl implements CompanySessionService {
             }
         }
 
-        CompanySession companySession = new CompanySession(userId, code, AppConstants.DEFAULT_SESSION_EXPIRATION_DURATION);
+        CompanySession companySession = new CompanySession(companyId, code, AppConstants.DEFAULT_SESSION_EXPIRATION_DURATION);
 
         companySessionRepository.save(companySession);
 
-        return ResponseEntity.ok(new SessionInfoDTO(userId, UserType.COMPANY, code));
+        return ResponseEntity.ok(new SessionInfoDTO(companyId, UserType.COMPANY, code));
     }
 
     public ResponseEntity<Boolean> logout(int id) {
@@ -52,8 +52,8 @@ public class CompanySessionServiceImpl implements CompanySessionService {
         return ResponseEntity.ok(true);
     }
 
-    public ResponseEntity<Boolean> check(int id, String token) {
-        return ResponseEntity.ok(companySessionRepository.existsByUserIdAndCode(id, token));
+    public ResponseEntity<Boolean> check(int companyId, String token) {
+        return ResponseEntity.ok(companySessionRepository.existsByCompanyIdAndCode(companyId, token));
     }
 
     public boolean hasEmail(String email) {

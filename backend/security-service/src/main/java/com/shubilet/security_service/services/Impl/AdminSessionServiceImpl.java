@@ -27,7 +27,7 @@ public class AdminSessionServiceImpl implements AdminSessionService {
             return ResponseEntity.status(401).build();
         }
 
-        int userId = adminSessionRepository.getUserIdByEmail(email);
+        int adminId = adminSessionRepository.getAdminIdByEmail(email);
         String code = "";
 
         while (true) {
@@ -37,11 +37,11 @@ public class AdminSessionServiceImpl implements AdminSessionService {
             }
         }
 
-        AdminSession adminSession = new AdminSession(userId, code, AppConstants.DEFAULT_SESSION_EXPIRATION_DURATION);
+        AdminSession adminSession = new AdminSession(adminId, code, AppConstants.DEFAULT_SESSION_EXPIRATION_DURATION);
 
         adminSessionRepository.save(adminSession);
 
-        return ResponseEntity.ok(new SessionInfoDTO(userId, UserType.ADMIN, code));
+        return ResponseEntity.ok(new SessionInfoDTO(adminId, UserType.ADMIN, code));
     }
 
     public ResponseEntity<Boolean> logout(int id) {
@@ -53,8 +53,8 @@ public class AdminSessionServiceImpl implements AdminSessionService {
         return ResponseEntity.ok(true);
     }
 
-    public ResponseEntity<Boolean> check(int userId, String code) {
-        return ResponseEntity.ok(adminSessionRepository.existsByUserIdAndCode(userId, code));
+    public ResponseEntity<Boolean> check(int adminId, String code) {
+        return ResponseEntity.ok(adminSessionRepository.existsByAdminIdAndCode(adminId, code));
     }
 
     public boolean hasEmail(String email) {

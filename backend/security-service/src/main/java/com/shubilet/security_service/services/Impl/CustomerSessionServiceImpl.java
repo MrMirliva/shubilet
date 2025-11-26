@@ -26,7 +26,7 @@ public class CustomerSessionServiceImpl implements CustomerSessionService {
             return ResponseEntity.status(401).build();
         }
 
-        int userId = customerSessionRepository.getUserIdByEmail(email);
+        int customerId = customerSessionRepository.getCustomerIdByEmail(email);
         String code = "";
 
         while (true) {
@@ -36,11 +36,11 @@ public class CustomerSessionServiceImpl implements CustomerSessionService {
             }
         }
 
-        CustomerSession customerSession = new CustomerSession(userId, code, AppConstants.DEFAULT_SESSION_EXPIRATION_DURATION);
+        CustomerSession customerSession = new CustomerSession(customerId, code, AppConstants.DEFAULT_SESSION_EXPIRATION_DURATION);
 
         customerSessionRepository.save(customerSession);
 
-        return ResponseEntity.ok(new SessionInfoDTO(userId, UserType.CUSTOMER, code));
+        return ResponseEntity.ok(new SessionInfoDTO(customerId, UserType.CUSTOMER, code));
     }
 
     public ResponseEntity<Boolean> logout(int id) {
@@ -52,8 +52,8 @@ public class CustomerSessionServiceImpl implements CustomerSessionService {
         return ResponseEntity.ok(true);
     }
 
-    public ResponseEntity<Boolean> check(int id, String token) {
-        return ResponseEntity.ok(customerSessionRepository.existsByUserIdAndCode(id, token));
+    public ResponseEntity<Boolean> check(int customerId, String token) {
+        return ResponseEntity.ok(customerSessionRepository.existsByCustomerIdAndCode(customerId, token));
     }
 
     public boolean hasEmail(String email) {
