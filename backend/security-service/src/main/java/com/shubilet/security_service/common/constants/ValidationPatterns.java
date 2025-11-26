@@ -1,5 +1,7 @@
 package com.shubilet.security_service.common.constants;
 
+import com.shubilet.security_service.common.regex.SessionKeyRegex;
+
 public final class ValidationPatterns {
 
         private ValidationPatterns() {
@@ -16,5 +18,5 @@ public final class ValidationPatterns {
                 "^\\+?90[0-9]{10}$";
 
         public static final String SESSION_KEY_REGEX = 
-                "^[A-Za-z0-9]+$";
+                SessionKeyRegex.build();
 }
