@@ -10,16 +10,16 @@ import com.shubilet.security_service.models.CompanySession;
 public interface CompanySessionRepository extends JpaRepository<CompanySession, Integer> {
     
     ///TODO: Query düzenlenip aktifleştirilecek.
-    //@Query("SELECT CASE WHEN COUNT(a) > 0 THEN true ELSE false END FROM CompanySession a WHERE a.email = ?1 AND a.password = ?2")
-    //boolean isEmailAndPasswordValid(String email, String password);
+    //@Query("SELECT CASE WHEN COUNT(a) > 0 THEN true ELSE false END FROM AdminSession a WHERE a.email = ?1 AND a.password = ?2")
+    boolean isEmailAndPasswordValid(String email, String password);
 
-    // boolean createSession(CompanySession companySession);
+    public int getUserIdByEmail(String email);
 
-    // boolean deleteSession(int id);
+    public boolean hasCode(String code);
 
-    // boolean isIdExist(int id);
+    public boolean existsByUserIdAndCode(int userId, String code);
 
-    // boolean isCodeExist(String code);
+    public boolean hasEmail(String email);
 
-    // boolean sessionExist(int id, String code);
+    public boolean isVerifiedEmail(String email);
 }
