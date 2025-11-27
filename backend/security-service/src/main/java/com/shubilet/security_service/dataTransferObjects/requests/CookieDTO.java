@@ -2,12 +2,12 @@ package com.shubilet.security_service.dataTransferObjects.requests;
 
 import com.shubilet.security_service.common.enums.UserType;
 
-public class SessionInfoDTO {
+public class CookieDTO {
     private int userId;
     private UserType userType;
     private String authCode;
 
-    public SessionInfoDTO(int userId, UserType userType, String authCode) {
+    public CookieDTO(int userId, UserType userType, String authCode) {
         this.userId = userId;
         this.userType = userType;
         this.authCode = authCode;
