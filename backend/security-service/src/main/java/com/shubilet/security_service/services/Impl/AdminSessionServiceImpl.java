@@ -3,11 +3,13 @@ package com.shubilet.security_service.services.Impl;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
-import com.shubilet.security_service.dataTransferObjects.requests.SessionInfoDTO;
+import com.shubilet.security_service.dataTransferObjects.requests.CookieDTO;
+import com.shubilet.security_service.dataTransferObjects.requests.StatusDTO;
 import com.shubilet.security_service.models.AdminSession;
 import com.shubilet.security_service.repositories.AdminSessionRepository;
 import com.shubilet.security_service.services.AdminSessionService;
 import com.shubilet.security_service.common.constants.AppConstants;
+import com.shubilet.security_service.common.enums.SessionStatus;
 import com.shubilet.security_service.common.enums.UserType;
 import com.shubilet.security_service.common.util.SessionKeyGenerator;
 
@@ -21,7 +23,7 @@ public class AdminSessionServiceImpl implements AdminSessionService {
 
     ///TODO: Yorum satırları eklenecek
     
-    public ResponseEntity<SessionInfoDTO> login(String email, String password) {
+    public ResponseEntity<CookieDTO> login(String email, String password) {
 
         if(!adminSessionRepository.isEmailAndPasswordValid(email, password)) {
             return ResponseEntity.status(401).build();
@@ -41,7 +43,7 @@ public class AdminSessionServiceImpl implements AdminSessionService {
 
         adminSessionRepository.save(adminSession);
 
-        return ResponseEntity.ok(new SessionInfoDTO(adminId, UserType.ADMIN, code));
+        return ResponseEntity.ok(new CookieDTO(adminId, UserType.ADMIN, code));
     }
 
     public ResponseEntity<Boolean> logout(int id) {
@@ -53,8 +55,21 @@ public class AdminSessionServiceImpl implements AdminSessionService {
         return ResponseEntity.ok(true);
     }
 
-    public ResponseEntity<Boolean> check(int adminId, String code) {
-        return ResponseEntity.ok(adminSessionRepository.existsByAdminIdAndCode(adminId, code));
+    public ResponseEntity<StatusDTO> check(int adminId, String code) {
+
+        if(!adminSessionRepository.existsByAdminIdAndCode(adminId, code)) {
+            return ResponseEntity.badRequest().body(new StatusDTO(SessionStatus.NOT_FOUND));
+        }
+
+        if(adminSessionRepository.isExpired(adminId, code)) {
+            return ResponseEntity.badRequest().body(new StatusDTO(SessionStatus.EXPIRED));
+        }
+
+        if(!adminSessionRepository.isVerifiedAdmin(adminId)) {
+            return ResponseEntity.badRequest().body(new StatusDTO(SessionStatus.NOT_VERIFIED));
+        }
+
+        return ResponseEntity.ok(new StatusDTO(SessionStatus.VALID));
     }
 
     public boolean hasEmail(String email) {

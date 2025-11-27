@@ -78,4 +78,10 @@ public interface CompanySessionRepository extends JpaRepository<CompanySession, 
         nativeQuery = true
     )
     boolean isVerifiedEmail(@Param("email") String email);
+
+    ///TDOD: Query eklenecek.
+    boolean isVerifiedCompany(int companyId);
+
+    ///TDOD: Query eklenecek.
+    boolean isExpired(int companyId, String code);
 }

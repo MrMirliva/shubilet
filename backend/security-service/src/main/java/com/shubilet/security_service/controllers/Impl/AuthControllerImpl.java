@@ -1,22 +1,32 @@
 package com.shubilet.security_service.controllers.Impl;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RestController;
+
+import jakarta.servlet.http.HttpSession;
 
 import com.shubilet.security_service.common.constants.SessionKeys;
+import com.shubilet.security_service.common.enums.SessionStatus;
 import com.shubilet.security_service.common.enums.UserType;
 import com.shubilet.security_service.common.util.ErrorUtils;
 import com.shubilet.security_service.common.util.StringUtils;
 import com.shubilet.security_service.common.util.ValidationUtils;
 import com.shubilet.security_service.controllers.AuthController;
-import com.shubilet.security_service.dataTransferObjects.requests.SessionInfoDTO;
+import com.shubilet.security_service.dataTransferObjects.requests.CookieDTO;
+import com.shubilet.security_service.dataTransferObjects.requests.StatusDTO;
 import com.shubilet.security_service.dataTransferObjects.responses.MessageDTO;
 import com.shubilet.security_service.services.AdminSessionService;
 import com.shubilet.security_service.services.CompanySessionService;
 import com.shubilet.security_service.services.CustomerSessionService;
 
-import jakarta.servlet.http.HttpSession;
 
-
+@RestController
+@RequestMapping("/api/auth")
+@CrossOrigin(origins = "*", allowedHeaders = "*", methods = { RequestMethod.POST})
 public class AuthControllerImpl implements AuthController {
     private final AdminSessionService adminSessionService;
     private final CompanySessionService companySessionService;
@@ -36,6 +46,7 @@ public class AuthControllerImpl implements AuthController {
     ///TODO: Loglama eklenecek
     ///TODO: Süresi geçmiş oturum kontrolü eklenecek 
     
+    @PostMapping("/login")
     public ResponseEntity<MessageDTO> login(String email, String password, HttpSession session) {
         if(session == null) {
             return ResponseEntity.badRequest().body(ErrorUtils.invalidSession());
@@ -71,10 +82,10 @@ public class AuthControllerImpl implements AuthController {
 
         if(adminSessionService.hasEmail(email)) {
             if(adminSessionService.isVerifiedEmail(email)) {
-                ResponseEntity<SessionInfoDTO> response = adminSessionService.login(email, password);
+                ResponseEntity<CookieDTO> response = adminSessionService.login(email, password);
 
                 if(response.getStatusCode().is2xxSuccessful()) {
-                    SessionInfoDTO sessionInfo = response.getBody();
+                    CookieDTO sessionInfo = response.getBody();
                     if(sessionInfo != null) {
                         userId = String.valueOf(sessionInfo.getUserId());
                         userType = sessionInfo.getUserType();
@@ -91,10 +102,10 @@ public class AuthControllerImpl implements AuthController {
         }
         else if(companySessionService.hasEmail(email)) {
             if(companySessionService.isVerifiedEmail(email)) {
-                ResponseEntity<SessionInfoDTO> response = companySessionService.login(email, password);
+                ResponseEntity<CookieDTO> response = companySessionService.login(email, password);
 
                 if(response.getStatusCode().is2xxSuccessful()) {
-                    SessionInfoDTO sessionInfo = response.getBody();
+                    CookieDTO sessionInfo = response.getBody();
                     if(sessionInfo != null) {
                         userId = String.valueOf(sessionInfo.getUserId());
                         userType = sessionInfo.getUserType();
@@ -110,10 +121,10 @@ public class AuthControllerImpl implements AuthController {
             }
         }
         else if(customerSessionService.hasEmail(email)) {
-            ResponseEntity<SessionInfoDTO> response = customerSessionService.login(email, password);
+            ResponseEntity<CookieDTO> response = customerSessionService.login(email, password);
 
             if(response.getStatusCode().is2xxSuccessful()) {
-                SessionInfoDTO sessionInfo = response.getBody();
+                CookieDTO sessionInfo = response.getBody();
                 if(sessionInfo != null) {
                     userId = String.valueOf(sessionInfo.getUserId());
                     userType = sessionInfo.getUserType();
@@ -135,6 +146,7 @@ public class AuthControllerImpl implements AuthController {
         return ResponseEntity.ok().body(new MessageDTO("Login successful."));
     }
 
+    @PostMapping("/logout")
     public ResponseEntity<MessageDTO> logout(HttpSession session) {
         if(session == null) {
             return ResponseEntity.badRequest().body(ErrorUtils.invalidSession());
@@ -195,6 +207,7 @@ public class AuthControllerImpl implements AuthController {
         return ResponseEntity.ok().body(new MessageDTO("Logout successful."));
     }
 
+    @PostMapping("/check")
     public ResponseEntity<MessageDTO> check(HttpSession session) {
         if(session == null) {
             return ResponseEntity.badRequest().body(ErrorUtils.sessionNotFound());
@@ -223,42 +236,30 @@ public class AuthControllerImpl implements AuthController {
         }
 
         if(userType.equals(UserType.ADMIN.getCode())) {
-            ResponseEntity<Boolean> response = adminSessionService.check(Integer.parseInt(userId), authCode);
+            ResponseEntity<StatusDTO> response = adminSessionService.check(Integer.parseInt(userId), authCode);
 
-            if(!response.getStatusCode().is2xxSuccessful() || response.getBody() == null) {
-                clearSession(session);
-                return ResponseEntity.status(response.getStatusCode()).body(ErrorUtils.sessionNotFound());
-            }
+            ResponseEntity<MessageDTO> validationResponse = validateSessionStatus(response, session, UserType.ADMIN);
 
-            if(!response.getBody()) {
-                clearSession(session);
-                return ResponseEntity.badRequest().body(ErrorUtils.sessionNotFound());
+            if(!validationResponse.getStatusCode().is2xxSuccessful()) {
+                return validationResponse;
             }
         }
         else if(userType.equals(UserType.COMPANY.getCode())) {
-            ResponseEntity<Boolean> response = companySessionService.check(Integer.parseInt(userId), authCode);
+            ResponseEntity<StatusDTO> response = companySessionService.check(Integer.parseInt(userId), authCode);
 
-            if(!response.getStatusCode().is2xxSuccessful() || response.getBody() == null) {
-                clearSession(session);
-                return ResponseEntity.status(response.getStatusCode()).body(ErrorUtils.sessionNotFound());
-            }
+            ResponseEntity<MessageDTO> validationResponse = validateSessionStatus(response, session, UserType.COMPANY);
 
-            if(!response.getBody()) {
-                clearSession(session);
-                return ResponseEntity.badRequest().body(ErrorUtils.sessionNotFound());
+            if(!validationResponse.getStatusCode().is2xxSuccessful()) {
+                return validationResponse;
             }
         }
         else if(userType.equals(UserType.CUSTOMER.getCode())) {
-            ResponseEntity<Boolean> response = customerSessionService.check(Integer.parseInt(userId), authCode);
+            ResponseEntity<StatusDTO> response = customerSessionService.check(Integer.parseInt(userId), authCode);
 
-            if(!response.getStatusCode().is2xxSuccessful() || response.getBody() == null) {
-                clearSession(session);
-                return ResponseEntity.status(response.getStatusCode()).body(ErrorUtils.sessionNotFound());
-            }
+            ResponseEntity<MessageDTO> validationResponse = validateSessionStatus(response, session, UserType.CUSTOMER);
 
-            if(!response.getBody()) {
-                clearSession(session);
-                return ResponseEntity.badRequest().body(ErrorUtils.sessionNotFound());
+            if(!validationResponse.getStatusCode().is2xxSuccessful()) {
+                return validationResponse;
             }
         }
         else {
@@ -269,6 +270,7 @@ public class AuthControllerImpl implements AuthController {
         return ResponseEntity.ok().body(new MessageDTO("Session is valid."));
     }
 
+    @PostMapping("/checkAdmin")
     public ResponseEntity<MessageDTO> checkAdminSession(HttpSession session) {
         ResponseEntity<MessageDTO> response = handleValidUserSession(session);
         if(!response.getStatusCode().is2xxSuccessful()) {
@@ -283,17 +285,18 @@ public class AuthControllerImpl implements AuthController {
             return ResponseEntity.badRequest().body(ErrorUtils.invalidSession());
         }
 
-        if( adminSessionService.check(
-                Integer.parseInt(userId),
-                authCode
-            ).getBody() != Boolean.TRUE
-        ) {
-            clearSession(session);
-            return ResponseEntity.badRequest().body(ErrorUtils.sessionNotFound());
+        ResponseEntity<StatusDTO> checkResponse = adminSessionService.check(Integer.parseInt(userId), authCode);
+
+        ResponseEntity<MessageDTO> validationResponse = validateSessionStatus(checkResponse, session, UserType.ADMIN);
+
+        if(!validationResponse.getStatusCode().is2xxSuccessful()) {
+            return validationResponse;
         }
+        
         return ResponseEntity.ok().body(new MessageDTO("Session is valid."));
     }
 
+    @PostMapping("/checkCompany")
     public ResponseEntity<MessageDTO> checkCompanySession(HttpSession session) {
         ResponseEntity<MessageDTO> response = handleValidUserSession(session);
         if(!response.getStatusCode().is2xxSuccessful()) {
@@ -308,17 +311,18 @@ public class AuthControllerImpl implements AuthController {
             return ResponseEntity.badRequest().body(ErrorUtils.invalidSession());
         }
 
-        if( companySessionService.check(
-                Integer.parseInt(userId),
-                authCode
-            ).getBody() != Boolean.TRUE
-        ) {
-            clearSession(session);
-            return ResponseEntity.badRequest().body(ErrorUtils.sessionNotFound());
+        ResponseEntity<StatusDTO> checkResponse = companySessionService.check(Integer.parseInt(userId), authCode);
+
+        ResponseEntity<MessageDTO> validationResponse = validateSessionStatus(checkResponse, session, UserType.COMPANY);
+
+        if(!validationResponse.getStatusCode().is2xxSuccessful()) {
+            return validationResponse;
         }
+
         return ResponseEntity.ok().body(new MessageDTO("Session is valid."));
     }
 
+    @PostMapping("/checkCustomer")
     public ResponseEntity<MessageDTO> checkCustomerSession(HttpSession session) {
         ResponseEntity<MessageDTO> response = handleValidUserSession(session);
         if(!response.getStatusCode().is2xxSuccessful()) {
@@ -333,14 +337,14 @@ public class AuthControllerImpl implements AuthController {
             return ResponseEntity.badRequest().body(ErrorUtils.invalidSession());
         }
 
-        if( customerSessionService.check(
-                Integer.parseInt(userId),
-                authCode
-            ).getBody() != Boolean.TRUE
-        ) {
-            clearSession(session);
-            return ResponseEntity.badRequest().body(ErrorUtils.sessionNotFound());
+        ResponseEntity<StatusDTO> checkResponse = customerSessionService.check(Integer.parseInt(userId), authCode);
+
+        ResponseEntity<MessageDTO> validationResponse = validateSessionStatus(checkResponse, session, UserType.CUSTOMER);
+
+        if(!validationResponse.getStatusCode().is2xxSuccessful()) {
+            return validationResponse;
         }
+
         return ResponseEntity.ok().body(new MessageDTO("Session is valid."));
     }
 
@@ -399,6 +403,53 @@ public class AuthControllerImpl implements AuthController {
                 return ResponseEntity.badRequest().body(ErrorUtils.invalidSession());
             }
 
+        }
+
+        return ResponseEntity.ok().body(new MessageDTO("Session is valid."));
+    }
+
+
+    /**
+     * Validates the session status based on the response from the session service.
+     * @param response The ResponseEntity containing the StatusDTO from the session service.
+     * @param session  The HttpSession object to potentially clear.
+     * @param userType The type of user (ADMIN, COMPANY, CUSTOMER).
+     * @return ResponseEntity containing a MessageDTO indicating the result of the validation.
+     */
+    private ResponseEntity<MessageDTO> validateSessionStatus(ResponseEntity<StatusDTO> response, HttpSession session, UserType userType) {
+    
+        // Validate response body
+        if(response.getBody() == null) {
+            clearSession(session);
+            return ResponseEntity.status(response.getStatusCode()).body(ErrorUtils.sessionNotFound());
+        }
+
+        // Get session status
+        SessionStatus status = response.getBody().getStatus();
+
+        // Handle non-successful responses
+        if(!response.getStatusCode().is2xxSuccessful()) {
+            clearSession(session);
+
+            if(status == SessionStatus.NOT_FOUND) {
+                return ResponseEntity.status(response.getStatusCode()).body(ErrorUtils.sessionNotFound());
+            }
+                
+            if(status == SessionStatus.EXPIRED) {
+                return ResponseEntity.status(response.getStatusCode()).body(ErrorUtils.sessionExpired());
+            }
+
+            if(status == SessionStatus.NOT_VERIFIED) {
+                if(userType == UserType.CUSTOMER) {
+                    return ResponseEntity.status(response.getStatusCode()).body(ErrorUtils.criticalError());
+                }
+                return ResponseEntity.status(response.getStatusCode()).body(ErrorUtils.sessionNotVerified(userType));
+            }
+
+            if(status != SessionStatus.VALID) {
+                clearSession(session);
+                return ResponseEntity.badRequest().body(ErrorUtils.sessionNotFound());
+            }
         }
 
         return ResponseEntity.ok().body(new MessageDTO("Session is valid."));

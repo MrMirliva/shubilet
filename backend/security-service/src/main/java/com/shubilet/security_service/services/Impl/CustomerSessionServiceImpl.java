@@ -4,9 +4,11 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import com.shubilet.security_service.common.constants.AppConstants;
+import com.shubilet.security_service.common.enums.SessionStatus;
 import com.shubilet.security_service.common.enums.UserType;
 import com.shubilet.security_service.common.util.SessionKeyGenerator;
-import com.shubilet.security_service.dataTransferObjects.requests.SessionInfoDTO;
+import com.shubilet.security_service.dataTransferObjects.requests.CookieDTO;
+import com.shubilet.security_service.dataTransferObjects.requests.StatusDTO;
 import com.shubilet.security_service.models.CustomerSession;
 import com.shubilet.security_service.repositories.CustomerSessionRepository;
 import com.shubilet.security_service.services.CustomerSessionService;
@@ -21,7 +23,7 @@ public class CustomerSessionServiceImpl implements CustomerSessionService {
 
     ///TODO: Yorum satırları eklenecek
     
-    public ResponseEntity<SessionInfoDTO> login(String email, String password) {
+    public ResponseEntity<CookieDTO> login(String email, String password) {
         if(!customerSessionRepository.isEmailAndPasswordValid(email, password)) {
             return ResponseEntity.status(401).build();
         }
@@ -40,7 +42,7 @@ public class CustomerSessionServiceImpl implements CustomerSessionService {
 
         customerSessionRepository.save(customerSession);
 
-        return ResponseEntity.ok(new SessionInfoDTO(customerId, UserType.CUSTOMER, code));
+        return ResponseEntity.ok(new CookieDTO(customerId, UserType.CUSTOMER, code));
     }
 
     public ResponseEntity<Boolean> logout(int id) {
@@ -52,8 +54,17 @@ public class CustomerSessionServiceImpl implements CustomerSessionService {
         return ResponseEntity.ok(true);
     }
 
-    public ResponseEntity<Boolean> check(int customerId, String token) {
-        return ResponseEntity.ok(customerSessionRepository.existsByCustomerIdAndCode(customerId, token));
+    public ResponseEntity<StatusDTO> check(int adminId, String code) {
+
+        if(!customerSessionRepository.existsByCustomerIdAndCode(adminId, code)) {
+            return ResponseEntity.badRequest().body(new StatusDTO(SessionStatus.NOT_FOUND));
+        }
+
+        if(customerSessionRepository.isExpired(adminId, code)) {
+            return ResponseEntity.badRequest().body(new StatusDTO(SessionStatus.EXPIRED));
+        }
+
+        return ResponseEntity.ok(new StatusDTO(SessionStatus.VALID));
     }
 
     public boolean hasEmail(String email) {

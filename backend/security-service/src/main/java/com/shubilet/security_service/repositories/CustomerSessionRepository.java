@@ -66,4 +66,6 @@ public interface CustomerSessionRepository extends JpaRepository<CustomerSession
     )
     boolean hasEmail(@Param("email") String email);
 
+    ///TDOD: Query eklenecek.
+    boolean isExpired(int adminId, String code);
 }

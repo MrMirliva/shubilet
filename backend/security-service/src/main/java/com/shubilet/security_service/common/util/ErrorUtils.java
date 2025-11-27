@@ -17,6 +17,10 @@ public final class ErrorUtils {
         return new MessageDTO(fieldName + ErrorMessages.INVALID_FORMAT);
     }
 
+    public static MessageDTO criticalError() {
+        return new MessageDTO(ErrorMessages.CRITICAL_ERROR);
+    }
+
     public static MessageDTO userAlreadyLoggedIn() {
         return new MessageDTO(ErrorMessages.USER_ALREADY_LOGGED_IN);
     }
@@ -43,5 +47,9 @@ public final class ErrorUtils {
 
     public static MessageDTO invalidSession() {
         return new MessageDTO(ErrorMessages.INVALID_SESSION);
+    }
+
+    public static MessageDTO sessionNotVerified(UserType userType) {
+        return new MessageDTO(userType.getCode() + ErrorMessages.SESSION_NOT_VERIFIED);
     }
 }

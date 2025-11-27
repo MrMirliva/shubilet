@@ -4,9 +4,11 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import com.shubilet.security_service.common.constants.AppConstants;
+import com.shubilet.security_service.common.enums.SessionStatus;
 import com.shubilet.security_service.common.enums.UserType;
 import com.shubilet.security_service.common.util.SessionKeyGenerator;
-import com.shubilet.security_service.dataTransferObjects.requests.SessionInfoDTO;
+import com.shubilet.security_service.dataTransferObjects.requests.CookieDTO;
+import com.shubilet.security_service.dataTransferObjects.requests.StatusDTO;
 import com.shubilet.security_service.models.CompanySession;
 import com.shubilet.security_service.repositories.CompanySessionRepository;
 import com.shubilet.security_service.services.CompanySessionService;
@@ -21,7 +23,7 @@ public class CompanySessionServiceImpl implements CompanySessionService {
 
     ///TODO: Yorum satırları eklenecek
 
-    public ResponseEntity<SessionInfoDTO> login(String email, String password) {
+    public ResponseEntity<CookieDTO> login(String email, String password) {
         if(!companySessionRepository.isEmailAndPasswordValid(email, password)) {
             return ResponseEntity.status(401).build();
         }
@@ -40,7 +42,7 @@ public class CompanySessionServiceImpl implements CompanySessionService {
 
         companySessionRepository.save(companySession);
 
-        return ResponseEntity.ok(new SessionInfoDTO(companyId, UserType.COMPANY, code));
+        return ResponseEntity.ok(new CookieDTO(companyId, UserType.COMPANY, code));
     }
 
     public ResponseEntity<Boolean> logout(int id) {
@@ -52,8 +54,21 @@ public class CompanySessionServiceImpl implements CompanySessionService {
         return ResponseEntity.ok(true);
     }
 
-    public ResponseEntity<Boolean> check(int companyId, String token) {
-        return ResponseEntity.ok(companySessionRepository.existsByCompanyIdAndCode(companyId, token));
+    public ResponseEntity<StatusDTO> check(int companyId, String code) {
+
+        if(!companySessionRepository.existsByCompanyIdAndCode(companyId, code)) {
+            return ResponseEntity.badRequest().body(new StatusDTO(SessionStatus.NOT_FOUND));
+        }
+
+        if(companySessionRepository.isExpired(companyId, code)) {
+            return ResponseEntity.badRequest().body(new StatusDTO(SessionStatus.EXPIRED));
+        }
+
+        if(!companySessionRepository.isVerifiedCompany(companyId)) {
+            return ResponseEntity.badRequest().body(new StatusDTO(SessionStatus.NOT_VERIFIED));
+        }
+
+        return ResponseEntity.ok(new StatusDTO(SessionStatus.VALID));
     }
 
     public boolean hasEmail(String email) {

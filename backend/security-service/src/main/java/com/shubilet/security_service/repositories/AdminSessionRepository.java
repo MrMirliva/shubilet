@@ -79,4 +79,10 @@ public interface AdminSessionRepository extends JpaRepository<AdminSession, Inte
         nativeQuery = true
     )
     boolean isVerifiedEmail(@Param("email") String email);
+
+    ///TDOD: Query eklenecek.
+    boolean isVerifiedAdmin(int adminId);
+
+    ///TDOD: Query eklenecek.
+    boolean isExpired(int adminId, String code);
 }
