@@ -34,8 +34,7 @@ public class AuthControllerImpl implements AuthController {
 
     public AuthControllerImpl(AdminSessionService adminSessionService,
                             CompanySessionService companySessionService,
-                            CustomerSessionService customerSessionService,
-                            StringUtils stringUtils
+                            CustomerSessionService customerSessionService
                         ) {
         this.adminSessionService = adminSessionService;
         this.companySessionService = companySessionService;
