@@ -1,5 +1,6 @@
 package com.shubilet.member_service.models;
 
+import com.shubilet.member_service.common.enums.Gender;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -25,7 +26,7 @@ import java.util.Objects;
 @Entity
 @Table(name = "customers")
 public class Customer implements Serializable {
-    
+
     private static final long serialVersionUID = 1L;
 
     // ------------------------
@@ -76,7 +77,7 @@ public class Customer implements Serializable {
     // Constructors
     // ------------------------
     public Customer() {
-    
+
     }
 
     public Customer(String name, String surname, Gender gender, String email, String password) {
@@ -107,6 +108,7 @@ public class Customer implements Serializable {
     public int getId() {
         return id;
     }
+
     public void setId(int id) {
         this.id = id;
     }
@@ -114,6 +116,7 @@ public class Customer implements Serializable {
     public String getName() {
         return name;
     }
+
     public void setName(String name) {
         this.name = name;
     }
@@ -121,6 +124,7 @@ public class Customer implements Serializable {
     public String getSurname() {
         return surname;
     }
+
     public void setSurname(String surname) {
         this.surname = surname;
     }
@@ -128,12 +132,15 @@ public class Customer implements Serializable {
     public Gender getGender() {
         return gender;
     }
+
     public void setGender(Gender gender) {
         this.gender = gender;
     }
+
     public void setMaleGender() {
         this.gender = Gender.MALE;
     }
+
     public void setFemaleGender() {
         this.gender = Gender.FEMALE;
     }
@@ -141,6 +148,7 @@ public class Customer implements Serializable {
     public String getEmail() {
         return email;
     }
+
     public void setEmail(String email) {
         this.email = email;
     }
@@ -148,6 +156,7 @@ public class Customer implements Serializable {
     public String getPassword() {
         return password;
     }
+
     public void setPassword(String password) {
         this.password = password;
     }
@@ -155,6 +164,7 @@ public class Customer implements Serializable {
     public Instant getCreatedAt() {
         return createdAt;
     }
+
     public Instant getUpdatedAt() {
         return updatedAt;
     }
@@ -191,8 +201,4 @@ public class Customer implements Serializable {
                 '}';
     }
 
-    // ------------------------
-    // Enums
-    // ------------------------
-    public enum Gender { MALE, FEMALE}
 }

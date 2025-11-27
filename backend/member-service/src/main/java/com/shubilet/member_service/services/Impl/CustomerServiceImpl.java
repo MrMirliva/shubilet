@@ -14,8 +14,7 @@ public class CustomerServiceImpl implements CustomerService {
         this.customerRepository = customerRepository;
     }
 
-    ///TODO: Just a test method, remove later.
-    public void saveCustomer(Customer customer) {
+    public void createCustomer(Customer customer) {
         customerRepository.save(customer);
     }
 }
