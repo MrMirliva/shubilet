@@ -44,7 +44,6 @@ public class AuthControllerImpl implements AuthController {
 
     ///TODO: Yorum satırları eklenecek
     ///TODO: Loglama eklenecek
-    ///TODO: Süresi geçmiş oturum kontrolü eklenecek 
     
     @PostMapping("/login")
     public ResponseEntity<MessageDTO> login(String email, String password, HttpSession session) {
