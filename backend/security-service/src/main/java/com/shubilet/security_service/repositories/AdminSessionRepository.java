@@ -80,9 +80,25 @@ public interface AdminSessionRepository extends JpaRepository<AdminSession, Inte
     )
     boolean isVerifiedEmail(@Param("email") String email);
 
-    ///TDOD: Query eklenecek.
-    boolean isVerifiedAdmin(int adminId);
+    ///TODO: ileride değişebilir.
+    @Query(
+        value = """
+                SELECT COUNT(*) > 0
+                FROM admins a
+                WHERE a.id = :adminId
+                    AND a.ref_admin_id IS NOT NULL
+                    AND a.ref_admin_id > 0
+                """,
+        nativeQuery = true
+    )
+    boolean isVerifiedAdmin(@Param("adminId") int adminId);
 
-    ///TDOD: Query eklenecek.
-    boolean isExpired(int adminId, String code);
+    @Query("""
+        SELECT COUNT(s) > 0
+        FROM AdminSession s
+        WHERE s.adminId = :adminId
+            AND s.code = :code
+            AND s.expiresAt <= CURRENT_TIMESTAMP
+    """)
+    boolean isExpired(@Param("adminId") int adminId, @Param("code") String code);
 }

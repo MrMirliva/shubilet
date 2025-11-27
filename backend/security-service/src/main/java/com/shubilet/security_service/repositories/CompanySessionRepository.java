@@ -79,9 +79,25 @@ public interface CompanySessionRepository extends JpaRepository<CompanySession, 
     )
     boolean isVerifiedEmail(@Param("email") String email);
 
-    ///TDOD: Query eklenecek.
-    boolean isVerifiedCompany(int companyId);
+    ///TODO: ileride değişebilir.
+    @Query(
+        value = """
+                SELECT COUNT(*) > 0
+                FROM companies c
+                WHERE c.id = :companyId
+                    AND c.ref_admin_id IS NOT NULL
+                    AND c.ref_admin_id > 0
+                """,
+        nativeQuery = true
+    )
+    boolean isVerifiedCompany(@Param("companyId") int companyId);
 
-    ///TDOD: Query eklenecek.
-    boolean isExpired(int companyId, String code);
+    @Query("""
+        SELECT COUNT(s) > 0
+        FROM CompanySession s
+        WHERE s.companyId = :companyId
+            AND s.code = :code
+            AND s.expiresAt <= CURRENT_TIMESTAMP
+    """)
+    boolean isExpired(@Param("companyId") int companyId, @Param("code") String code);
 }
