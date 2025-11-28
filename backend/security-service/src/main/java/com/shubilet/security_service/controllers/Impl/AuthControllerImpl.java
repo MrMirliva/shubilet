@@ -1,10 +1,9 @@
 package com.shubilet.security_service.controllers.Impl;
 
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import jakarta.servlet.http.HttpSession;
@@ -17,6 +16,7 @@ import com.shubilet.security_service.common.util.StringUtils;
 import com.shubilet.security_service.common.util.ValidationUtils;
 import com.shubilet.security_service.controllers.AuthController;
 import com.shubilet.security_service.dataTransferObjects.requests.CookieDTO;
+import com.shubilet.security_service.dataTransferObjects.requests.LoginDTO;
 import com.shubilet.security_service.dataTransferObjects.requests.StatusDTO;
 import com.shubilet.security_service.dataTransferObjects.responses.MessageDTO;
 import com.shubilet.security_service.services.AdminSessionService;
@@ -26,7 +26,7 @@ import com.shubilet.security_service.services.CustomerSessionService;
 
 @RestController
 @RequestMapping("/api/auth")
-@CrossOrigin(origins = "*", allowedHeaders = "*", methods = { RequestMethod.POST})
+//@CrossOrigin(origins = "*", allowedHeaders = "*", methods = { RequestMethod.POST})
 public class AuthControllerImpl implements AuthController {
     private final AdminSessionService adminSessionService;
     private final CompanySessionService companySessionService;
@@ -44,8 +44,13 @@ public class AuthControllerImpl implements AuthController {
     ///TODO: Yorum satırları eklenecek
     ///TODO: Loglama eklenecek
     
+    ///TODO: API beklenmedik durumlarda hata fırlatıyor, burası handle edilecek.
     @PostMapping("/login")
-    public ResponseEntity<MessageDTO> login(String email, String password, HttpSession session) {
+    public ResponseEntity<MessageDTO> login( @RequestBody LoginDTO loginDTO, HttpSession session) {
+
+        String email = loginDTO.getEmail();
+        String password = loginDTO.getPassword();
+
         if(session == null) {
             return ResponseEntity.badRequest().body(ErrorUtils.invalidSession());
         }
@@ -144,6 +149,7 @@ public class AuthControllerImpl implements AuthController {
         return ResponseEntity.ok().body(new MessageDTO("Login successful."));
     }
 
+    ///TODO: API beklenmedik durumlarda hata fırlatıyor, burası handle edilecek.
     @PostMapping("/logout")
     public ResponseEntity<MessageDTO> logout(HttpSession session) {
         if(session == null) {
