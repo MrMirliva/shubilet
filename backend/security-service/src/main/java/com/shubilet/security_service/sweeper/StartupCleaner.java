@@ -1,4 +1,4 @@
-package com.shubilet.security_service.config;
+package com.shubilet.security_service.sweeper;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
