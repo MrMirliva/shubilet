@@ -1,5 +1,8 @@
 package com.shubilet.security_service.controllers.Impl;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -28,6 +31,8 @@ import com.shubilet.security_service.services.CustomerSessionService;
 @RequestMapping("/api/auth")
 //@CrossOrigin(origins = "*", allowedHeaders = "*", methods = { RequestMethod.POST})
 public class AuthControllerImpl implements AuthController {
+    private static final Logger logger = LoggerFactory.getLogger(AuthControllerImpl.class);
+
     private final AdminSessionService adminSessionService;
     private final CompanySessionService companySessionService;
     private final CustomerSessionService customerSessionService;
@@ -42,20 +47,23 @@ public class AuthControllerImpl implements AuthController {
     }
 
     ///TODO: Yorum satırları eklenecek
-    ///TODO: Loglama eklenecek
-    
     ///TODO: API beklenmedik durumlarda hata fırlatıyor, burası handle edilecek.
+    
     @PostMapping("/login")
     public ResponseEntity<MessageDTO> login( @RequestBody LoginDTO loginDTO, HttpSession session) {
 
         String email = loginDTO.getEmail();
         String password = loginDTO.getPassword();
 
+        logger.info("Login attempt for email {}", email);
+
         if(session == null) {
+            logger.warn("Login failed for email {} due to missing session", email);
             return ResponseEntity.badRequest().body(ErrorUtils.invalidSession());
         }
 
         if(StringUtils.isNullOrBlank(email)) {
+            logger.warn("Login failed due to missing email");
             return ResponseEntity.badRequest().body(ErrorUtils.isNull("Email"));
         }
 
@@ -72,14 +80,17 @@ public class AuthControllerImpl implements AuthController {
             !StringUtils.isNullOrBlank(authCode)
         ) {
             clearSession(session);
+            logger.warn("Login blocked for email {} because a user is already logged in", email);
             return ResponseEntity.badRequest().body(ErrorUtils.userAlreadyLoggedIn());
         }
 
         if( !ValidationUtils.isValidEmail(email) ) {
+            logger.warn("Login failed for email {} due to invalid email format", email);
             return ResponseEntity.badRequest().body(ErrorUtils.isInvalidFormat("Email"));
         }
 
         if( !ValidationUtils.isValidPassword(password) ) {
+            logger.warn("Login failed for email {} due to invalid password format", email);
             return ResponseEntity.badRequest().body(ErrorUtils.isInvalidFormat("Password"));
         }
 
@@ -94,12 +105,18 @@ public class AuthControllerImpl implements AuthController {
                         userType = sessionInfo.getUserType();
                         authCode = sessionInfo.getAuthCode();
                     }
+                    else {
+                        logger.warn("Login failed for email {}: missing session info in response", email);
+                        return ResponseEntity.status(response.getStatusCode()).body(ErrorUtils.criticalError());
+                    }
                 }
                 else {
+                    logger.warn("Login failed for email {}: incorrect admin password", email);
                     return ResponseEntity.status(response.getStatusCode()).body(ErrorUtils.isIncorrect("Password"));
                 }
             }
             else {
+                logger.warn("Login failed for email {}: admin email not verified", email);
                 return ResponseEntity.badRequest().body(ErrorUtils.isNotVerified(UserType.ADMIN));
             }
         }
@@ -114,12 +131,18 @@ public class AuthControllerImpl implements AuthController {
                         userType = sessionInfo.getUserType();
                         authCode = sessionInfo.getAuthCode();
                     }
+                    else {
+                        logger.warn("Login failed for email {}: missing session info in response", email);
+                        return ResponseEntity.status(response.getStatusCode()).body(ErrorUtils.criticalError());
+                    }
                 }
                 else {
+                    logger.warn("Login failed for email {}: incorrect company password", email);
                     return ResponseEntity.status(response.getStatusCode()).body(ErrorUtils.isIncorrect("Password"));
                 }
             }
             else {
+                logger.warn("Login failed for email {}: company email not verified", email);
                 return ResponseEntity.badRequest().body(ErrorUtils.isNotVerified(UserType.COMPANY));
             }
         }
@@ -133,12 +156,18 @@ public class AuthControllerImpl implements AuthController {
                     userType = sessionInfo.getUserType();
                     authCode = sessionInfo.getAuthCode();
                 }
+                else {
+                    logger.warn("Login failed for email {}: missing session info in response", email);
+                    return ResponseEntity.status(response.getStatusCode()).body(ErrorUtils.criticalError());
+                }
             }
             else {
+                logger.warn("Login failed for email {}: incorrect customer password", email);
                 return ResponseEntity.status(response.getStatusCode()).body(ErrorUtils.isIncorrect("Password"));
             }
         }
         else {
+            logger.warn("Login failed for email {}: email not found", email);
             return ResponseEntity.badRequest().body(ErrorUtils.notFound("Email"));
         }
 
@@ -146,6 +175,7 @@ public class AuthControllerImpl implements AuthController {
         session.setAttribute(SessionKeys.USER_ID, userId);
         session.setAttribute(SessionKeys.USER_TYPE, userType);
         session.setAttribute(SessionKeys.AUTH_CODE, authCode);
+        logger.info("Login successful for userId {} as {}", userId, userType);
         return ResponseEntity.ok().body(new MessageDTO("Login successful."));
     }
 
@@ -153,6 +183,7 @@ public class AuthControllerImpl implements AuthController {
     @PostMapping("/logout")
     public ResponseEntity<MessageDTO> logout(HttpSession session) {
         if(session == null) {
+            logger.warn("Logout failed due to missing session");
             return ResponseEntity.badRequest().body(ErrorUtils.invalidSession());
         }
 
@@ -160,21 +191,26 @@ public class AuthControllerImpl implements AuthController {
         String userType = (String) session.getAttribute(SessionKeys.USER_TYPE);
         String authCode = (String) session.getAttribute(SessionKeys.AUTH_CODE);
 
+        logger.info("Logout attempt for userId {} of type {}", userId, userType);
+
         if( StringUtils.isNullOrBlank(userId) ||
             StringUtils.isNullOrBlank(userType) ||
             StringUtils.isNullOrBlank(authCode)
         ) {
             clearSession(session);
+            logger.warn("Logout failed due to invalid session attributes");
             return ResponseEntity.badRequest().body(ErrorUtils.invalidSession());
         }
 
         if(!ValidationUtils.isValidSessionKey(authCode)) {
             clearSession(session);
+            logger.warn("Logout failed due to invalid auth code format");
             return ResponseEntity.badRequest().body(ErrorUtils.invalidSession());
         } 
 
         if(!StringUtils.isNumeric(userId)) {
             clearSession(session);
+            logger.warn("Logout failed due to non-numeric userId");
             return ResponseEntity.badRequest().body(ErrorUtils.invalidSession());
         }
 
@@ -183,6 +219,7 @@ public class AuthControllerImpl implements AuthController {
 
             if(!response.getStatusCode().is2xxSuccessful() || response.getBody() == null || !response.getBody()) {
                 clearSession(session);
+                logger.warn("Logout failed for admin userId {}", userId);
                 return ResponseEntity.status(response.getStatusCode()).body(ErrorUtils.sessionNotFound());
             }
         }
@@ -191,6 +228,7 @@ public class AuthControllerImpl implements AuthController {
 
             if(!response.getStatusCode().is2xxSuccessful() || response.getBody() == null || !response.getBody()) {
                 clearSession(session);
+                logger.warn("Logout failed for company userId {}", userId);
                 return ResponseEntity.status(response.getStatusCode()).body(ErrorUtils.sessionNotFound());
             }
         }
@@ -199,21 +237,25 @@ public class AuthControllerImpl implements AuthController {
 
             if(!response.getStatusCode().is2xxSuccessful() || response.getBody() == null || !response.getBody()) {
                 clearSession(session);
+                logger.warn("Logout failed for customer userId {}", userId);
                 return ResponseEntity.status(response.getStatusCode()).body(ErrorUtils.sessionNotFound());
             }
         }
         else {
             clearSession(session);
+            logger.warn("Logout failed due to invalid user type {}", userType);
             return ResponseEntity.badRequest().body(ErrorUtils.invalidSession());
         }
 
         clearSession(session);
+        logger.info("Logout successful for userId {} of type {}", userId, userType);
         return ResponseEntity.ok().body(new MessageDTO("Logout successful."));
     }
 
     @PostMapping("/check")
     public ResponseEntity<MessageDTO> check(HttpSession session) {
         if(session == null) {
+            logger.warn("Session check failed due to missing session");
             return ResponseEntity.badRequest().body(ErrorUtils.sessionNotFound());
         }
 
@@ -226,16 +268,19 @@ public class AuthControllerImpl implements AuthController {
             StringUtils.isNullOrBlank(authCode)
         ) {
             clearSession(session);
+            logger.warn("Session check failed due to invalid session attributes");
             return ResponseEntity.badRequest().body(ErrorUtils.invalidSession());
         }
 
         if(!ValidationUtils.isValidSessionKey(authCode)) {
             clearSession(session);
+            logger.warn("Session check failed due to invalid auth code format");
             return ResponseEntity.badRequest().body(ErrorUtils.invalidSession());
         }
 
         if(!StringUtils.isNumeric(userId)) {
             clearSession(session);
+            logger.warn("Session check failed due to non-numeric userId");
             return ResponseEntity.badRequest().body(ErrorUtils.invalidSession());
         }
 
@@ -245,6 +290,7 @@ public class AuthControllerImpl implements AuthController {
             ResponseEntity<MessageDTO> validationResponse = validateSessionStatus(response, session, UserType.ADMIN);
 
             if(!validationResponse.getStatusCode().is2xxSuccessful()) {
+                logger.warn("Session check failed for admin userId {}", userId);
                 return validationResponse;
             }
         }
@@ -254,6 +300,7 @@ public class AuthControllerImpl implements AuthController {
             ResponseEntity<MessageDTO> validationResponse = validateSessionStatus(response, session, UserType.COMPANY);
 
             if(!validationResponse.getStatusCode().is2xxSuccessful()) {
+                logger.warn("Session check failed for company userId {}", userId);
                 return validationResponse;
             }
         }
@@ -263,6 +310,7 @@ public class AuthControllerImpl implements AuthController {
             ResponseEntity<MessageDTO> validationResponse = validateSessionStatus(response, session, UserType.CUSTOMER);
 
             if(!validationResponse.getStatusCode().is2xxSuccessful()) {
+                logger.warn("Session check failed for customer userId {}", userId);
                 return validationResponse;
             }
         }
@@ -278,6 +326,7 @@ public class AuthControllerImpl implements AuthController {
     public ResponseEntity<MessageDTO> checkAdminSession(HttpSession session) {
         ResponseEntity<MessageDTO> response = handleValidUserSession(session);
         if(!response.getStatusCode().is2xxSuccessful()) {
+            logger.warn("Admin session check failed due to invalid user session");
             return response;
         }
 
@@ -286,6 +335,7 @@ public class AuthControllerImpl implements AuthController {
         String authCode = (String) session.getAttribute(SessionKeys.AUTH_CODE);
         
         if(!userType.equals(UserType.ADMIN.getCode())) {
+            logger.warn("Admin session check failed due to user type {}", userType);
             return ResponseEntity.badRequest().body(ErrorUtils.invalidSession());
         }
 
@@ -294,9 +344,11 @@ public class AuthControllerImpl implements AuthController {
         ResponseEntity<MessageDTO> validationResponse = validateSessionStatus(checkResponse, session, UserType.ADMIN);
 
         if(!validationResponse.getStatusCode().is2xxSuccessful()) {
+            logger.warn("Admin session check failed for admin userId {}", userId);
             return validationResponse;
         }
         
+        logger.info("Admin session check successful for admin userId {}", userId);
         return ResponseEntity.ok().body(new MessageDTO("Session is valid."));
     }
 
@@ -304,6 +356,7 @@ public class AuthControllerImpl implements AuthController {
     public ResponseEntity<MessageDTO> checkCompanySession(HttpSession session) {
         ResponseEntity<MessageDTO> response = handleValidUserSession(session);
         if(!response.getStatusCode().is2xxSuccessful()) {
+            logger.warn("Company session check failed due to invalid user session");
             return response;
         }
 
@@ -312,6 +365,7 @@ public class AuthControllerImpl implements AuthController {
         String authCode = (String) session.getAttribute(SessionKeys.AUTH_CODE);
         
         if(!userType.equals(UserType.COMPANY.getCode())) {
+            logger.warn("Company session check failed due to user type {}", userType);
             return ResponseEntity.badRequest().body(ErrorUtils.invalidSession());
         }
 
@@ -320,9 +374,11 @@ public class AuthControllerImpl implements AuthController {
         ResponseEntity<MessageDTO> validationResponse = validateSessionStatus(checkResponse, session, UserType.COMPANY);
 
         if(!validationResponse.getStatusCode().is2xxSuccessful()) {
+            logger.warn("Company session check failed for company userId {}", userId);
             return validationResponse;
         }
 
+        logger.info("Company session check successful for company userId {}", userId);
         return ResponseEntity.ok().body(new MessageDTO("Session is valid."));
     }
 
@@ -330,6 +386,7 @@ public class AuthControllerImpl implements AuthController {
     public ResponseEntity<MessageDTO> checkCustomerSession(HttpSession session) {
         ResponseEntity<MessageDTO> response = handleValidUserSession(session);
         if(!response.getStatusCode().is2xxSuccessful()) {
+            logger.warn("Customer session check failed due to invalid user session");
             return response;
         }
 
@@ -338,6 +395,7 @@ public class AuthControllerImpl implements AuthController {
         String authCode = (String) session.getAttribute(SessionKeys.AUTH_CODE);
         
         if(!userType.equals(UserType.CUSTOMER.getCode())) {
+            logger.warn("Customer session check failed due to user type {}", userType);
             return ResponseEntity.badRequest().body(ErrorUtils.invalidSession());
         }
 
@@ -346,9 +404,11 @@ public class AuthControllerImpl implements AuthController {
         ResponseEntity<MessageDTO> validationResponse = validateSessionStatus(checkResponse, session, UserType.CUSTOMER);
 
         if(!validationResponse.getStatusCode().is2xxSuccessful()) {
+            logger.warn("Customer session check failed for customer userId {}", userId);
             return validationResponse;
         }
 
+        logger.info("Customer session check successful for customer userId {}", userId);
         return ResponseEntity.ok().body(new MessageDTO("Session is valid."));
     }
 
@@ -364,6 +424,7 @@ public class AuthControllerImpl implements AuthController {
         session.removeAttribute(SessionKeys.USER_ID);
         session.removeAttribute(SessionKeys.USER_TYPE);
         session.removeAttribute(SessionKeys.AUTH_CODE);
+        logger.info("Session attributes cleared.");
     }
 
     /**
@@ -373,6 +434,7 @@ public class AuthControllerImpl implements AuthController {
      */
     private ResponseEntity<MessageDTO> handleValidUserSession(HttpSession session) {
         if(session == null) {
+            logger.warn("Session validation failed due to missing session");
             return ResponseEntity.badRequest().body(ErrorUtils.sessionNotFound());
         }
 
@@ -388,10 +450,12 @@ public class AuthControllerImpl implements AuthController {
                 StringUtils.isNullOrBlank(userType) &&
                 StringUtils.isNullOrBlank(authCode)
             ) {
+                logger.warn("Session validation failed due to missing session attributes");
                 return ResponseEntity.badRequest().body(ErrorUtils.sessionNotFound());
             }
             else {
                 clearSession(session);
+                logger.warn("Session validation failed due to invalid session attributes");
                 return ResponseEntity.badRequest().body(ErrorUtils.invalidSession());
             }
         }
@@ -399,11 +463,13 @@ public class AuthControllerImpl implements AuthController {
 
             if(!ValidationUtils.isValidSessionKey(authCode)) {
                 clearSession(session);
+                logger.warn("Session validation failed due to invalid auth code format");
                 return ResponseEntity.badRequest().body(ErrorUtils.invalidSession());
             }
 
             if(!StringUtils.isNumeric(userId)) {
                 clearSession(session);
+                logger.warn("Session validation failed due to non-numeric userId");
                 return ResponseEntity.badRequest().body(ErrorUtils.invalidSession());
             }
 
@@ -425,6 +491,7 @@ public class AuthControllerImpl implements AuthController {
         // Validate response body
         if(response.getBody() == null) {
             clearSession(session);
+            logger.warn("Session validation failed due to missing response body");
             return ResponseEntity.status(response.getStatusCode()).body(ErrorUtils.sessionNotFound());
         }
 
@@ -436,22 +503,27 @@ public class AuthControllerImpl implements AuthController {
             clearSession(session);
 
             if(status == SessionStatus.NOT_FOUND) {
+                logger.warn("Session validation failed: session not found");
                 return ResponseEntity.status(response.getStatusCode()).body(ErrorUtils.sessionNotFound());
             }
                 
             if(status == SessionStatus.EXPIRED) {
+                logger.warn("Session validation failed: session expired");
                 return ResponseEntity.status(response.getStatusCode()).body(ErrorUtils.sessionExpired());
             }
 
             if(status == SessionStatus.NOT_VERIFIED) {
                 if(userType == UserType.CUSTOMER) {
+                    logger.warn("Session validation failed: customer sessions cannot be unverified");
                     return ResponseEntity.status(response.getStatusCode()).body(ErrorUtils.criticalError());
                 }
+                logger.warn("Session validation failed: {} not verified", userType.getCode());
                 return ResponseEntity.status(response.getStatusCode()).body(ErrorUtils.sessionNotVerified(userType));
             }
 
             if(status != SessionStatus.VALID) {
                 clearSession(session);
+                logger.warn("Session validation failed: session not found");
                 return ResponseEntity.badRequest().body(ErrorUtils.sessionNotFound());
             }
         }
