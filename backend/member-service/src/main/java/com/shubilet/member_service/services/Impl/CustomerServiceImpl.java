@@ -14,7 +14,11 @@ public class CustomerServiceImpl implements CustomerService {
         this.customerRepository = customerRepository;
     }
 
-    public void createCustomer(Customer customer) {
+    public boolean createCustomer(Customer customer) {
         customerRepository.save(customer);
+        return true;
+    }
+    public boolean isCustomerExistsByEmail(String email) {
+        return customerRepository.isCustomerExistsByEmail(email);
     }
 }
