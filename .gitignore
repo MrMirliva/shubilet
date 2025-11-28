@@ -132,3 +132,6 @@ bower_components/
 .eslintcache
 *.db
 *.sqlite
+
+# Unused files
+*run.bat
