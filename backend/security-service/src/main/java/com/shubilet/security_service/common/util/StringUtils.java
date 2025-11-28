@@ -10,7 +10,7 @@ public final class StringUtils {
      * Checks if the given string is null or contains only whitespace.
      */
     public static boolean isNullOrBlank(String value) {
-        return value == null || value.trim().isEmpty();
+        return value == null || value.isBlank();
     }
 
     /**
