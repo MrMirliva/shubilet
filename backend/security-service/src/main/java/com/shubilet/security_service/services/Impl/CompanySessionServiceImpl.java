@@ -78,4 +78,8 @@ public class CompanySessionServiceImpl implements CompanySessionService {
     public boolean isVerifiedEmail(String email) {
         return companySessionRepository.isVerifiedEmail(email);
     }
+
+    public void cleanAllSessions() {
+        companySessionRepository.deleteAll();
+    }
 }

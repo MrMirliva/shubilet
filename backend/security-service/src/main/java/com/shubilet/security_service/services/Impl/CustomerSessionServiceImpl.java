@@ -70,4 +70,8 @@ public class CustomerSessionServiceImpl implements CustomerSessionService {
     public boolean hasEmail(String email) {
         return customerSessionRepository.hasEmail(email);
     }
+
+    public void cleanAllSessions() {
+        customerSessionRepository.deleteAll();
+    }
 }

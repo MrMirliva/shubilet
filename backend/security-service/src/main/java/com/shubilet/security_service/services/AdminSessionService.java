@@ -15,4 +15,7 @@ public interface AdminSessionService {
     public boolean hasEmail(String email);
 
     public boolean isVerifiedEmail(String email);
+
+    public void cleanAllSessions();
+    
 }

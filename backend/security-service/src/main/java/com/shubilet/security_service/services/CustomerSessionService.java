@@ -13,4 +13,7 @@ public interface CustomerSessionService {
     public ResponseEntity<StatusDTO> check(int id, String token);
 
     public boolean hasEmail(String email);
+    
+    public void cleanAllSessions();
+
 }

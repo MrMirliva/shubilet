@@ -79,4 +79,8 @@ public class AdminSessionServiceImpl implements AdminSessionService {
     public boolean isVerifiedEmail(String email) {
         return adminSessionRepository.isVerifiedEmail(email);
     }
+
+    public void cleanAllSessions() {
+        adminSessionRepository.deleteAll();
+    }
 }
