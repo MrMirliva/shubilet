@@ -74,4 +74,8 @@ public class CustomerSessionServiceImpl implements CustomerSessionService {
     public void cleanAllSessions() {
         customerSessionRepository.deleteAll();
     }
+
+    public void cleanExpiredSessions() {
+        customerSessionRepository.deleteExpiredSessions();
+    }
 }

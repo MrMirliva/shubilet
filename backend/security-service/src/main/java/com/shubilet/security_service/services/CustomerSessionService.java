@@ -16,4 +16,5 @@ public interface CustomerSessionService {
     
     public void cleanAllSessions();
 
+    public void cleanExpiredSessions();
 }

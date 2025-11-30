@@ -82,4 +82,8 @@ public class CompanySessionServiceImpl implements CompanySessionService {
     public void cleanAllSessions() {
         companySessionRepository.deleteAll();
     }
+
+    public void cleanExpiredSessions() {
+        companySessionRepository.deleteExpiredSessions();
+    }
 }

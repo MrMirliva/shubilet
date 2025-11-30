@@ -18,5 +18,6 @@ public interface CompanySessionService {
 
     public void cleanAllSessions();
 
+    public void cleanExpiredSessions();
 }
 

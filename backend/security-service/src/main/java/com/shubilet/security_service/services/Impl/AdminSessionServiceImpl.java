@@ -20,8 +20,6 @@ public class AdminSessionServiceImpl implements AdminSessionService {
     public AdminSessionServiceImpl(AdminSessionRepository adminSessionRepository) {
         this.adminSessionRepository = adminSessionRepository;
     }
-
-    ///TODO: Yorum satırları eklenecek
     
     public ResponseEntity<CookieDTO> login(String email, String password) {
 
@@ -82,5 +80,9 @@ public class AdminSessionServiceImpl implements AdminSessionService {
 
     public void cleanAllSessions() {
         adminSessionRepository.deleteAll();
+    }
+
+    public void cleanExpiredSessions() {
+        adminSessionRepository.deleteExpiredSessions();
     }
 }

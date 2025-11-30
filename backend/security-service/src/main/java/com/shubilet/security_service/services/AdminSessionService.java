@@ -18,4 +18,5 @@ public interface AdminSessionService {
 
     public void cleanAllSessions();
     
+    public void cleanExpiredSessions();
 }
