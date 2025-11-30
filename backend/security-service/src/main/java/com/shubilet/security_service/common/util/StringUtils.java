@@ -20,7 +20,7 @@ package com.shubilet.security_service.common.util;
 
     </p>
 
-    @author Abdullah (Mirliva) GÜNDÜZ — https://github.com/MrMilriva
+    @author Abdullah (Mirliva) GÜNDÜZ - https://github.com/MrMilriva
 
     @version 1.0
 */

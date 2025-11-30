@@ -25,7 +25,7 @@ import java.time.Instant;
 
     </p>
 
-    @author Abdullah (Mirliva) GÜNDÜZ — https://github.com/MrMilriva
+    @author Abdullah (Mirliva) GÜNDÜZ - https://github.com/MrMilriva
 
     @version 1.0
 */
@@ -40,7 +40,7 @@ public final class AppConstants {
     public static final int MAX_PAGE_SIZE = 100;
 
     public static final String ALPHABET = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
-    public static final Instant DEFAULT_SESSION_EXPIRATION_DURATION = Instant.now().plus(Duration.ofMinutes(2));//Instant.now().plus(Duration.ofHours(24));
+    public static final Instant DEFAULT_SESSION_EXPIRATION_DURATION = Instant.now().plus(Duration.ofHours(24));
 
     public static final String FIXED_DELAY_STRING = "${app.sweeper.session.cleanup-interval-ms:300000}"; // 5 minutes
     public static final String INITIAL_DELAY_STRING = "${app.sweeper.session.initial-delay-ms:60000}";  // 1 minute

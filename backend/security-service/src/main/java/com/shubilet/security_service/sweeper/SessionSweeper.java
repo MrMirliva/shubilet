@@ -11,9 +11,36 @@ import com.shubilet.security_service.services.CompanySessionService;
 import com.shubilet.security_service.services.CustomerSessionService;
 
 /**
- * Periodically sweeps and cleans up expired or invalid sessions
- * to keep the security-service session store healthy.
- */
+
+    Domain: Scheduling
+
+    Provides an automated session maintenance component responsible for periodically
+    sweeping and removing expired session records across all session domains
+    (admin, company, and customer). Operating as part of the application's scheduled
+    task infrastructure, this class ensures long-term data hygiene and prevents the
+    accumulation of stale or invalid session entries. Leveraging Spring's scheduling
+    capabilities, it triggers cleanup operations at intervals defined in the
+    application constants while logging the lifecycle of each cleanup cycle.
+
+    <p>
+
+        Technologies:
+
+        <ul>
+            <li>Spring Scheduling</li>
+            <li>Spring Component</li>
+            <li>SLF4J Logging</li>
+        </ul>
+    </p>
+
+    @see AdminSessionService
+
+    @see CompanySessionService
+
+    @see CustomerSessionService
+
+    @version 1.0
+*/
 @Component
 public class SessionSweeper {
 
@@ -34,23 +61,31 @@ public class SessionSweeper {
     }
 
     /**
-     * Operation: Cleanup
-     *
-     * Periodically scans and removes expired or invalid admin,
-     * company and customer sessions from the database in order
-     * to keep the session store clean and efficient.
-     *
-     * <p>
-     * Uses:
-     * <ul>
-     *   <li>AdminSessionService for admin session cleanup</li>
-     *   <li>CompanySessionService for company session cleanup</li>
-     *   <li>CustomerSessionService for customer session cleanup</li>
-     * </ul>
-     * </p>
-     *
-     * @return nothing; side effect is the removal of stale sessions
-     */
+
+        Operation: Cleanup
+
+        Performs a scheduled cleanup routine that removes expired sessions across all
+        admin, company, and customer session domains. This method is triggered at fixed
+        intervals defined by the application constants and logs both the start and
+        completion of the sweep. It ensures system hygiene by delegating cleanup tasks
+        to the corresponding session services, preventing accumulation of stale session
+        data.
+
+        <p>
+
+            Uses:
+
+            <ul>
+                <li>AdminSessionService for removing expired admin sessions</li>
+                <li>CompanySessionService for removing expired company sessions</li>
+                <li>CustomerSessionService for removing expired customer sessions</li>
+                <li>Spring Scheduling for timed task execution</li>
+            </ul>
+
+        </p>
+
+        @return nothing; performs cleanup as a scheduled side effect
+    */
     @Scheduled(
         fixedDelayString = AppConstants.FIXED_DELAY_STRING,
         initialDelayString = AppConstants.INITIAL_DELAY_STRING

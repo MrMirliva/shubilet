@@ -13,8 +13,32 @@ import java.io.Serializable;
 import java.time.Instant;
 
 /**
- * Represents a customer session with a unique session code and expiration time.
- */
+
+    Domain: Persistence
+
+    Represents the JPA entity used to persist and manage session records for customer users
+    within the authentication subsystem. Each session entry binds a customer identifier to a
+    unique session code, along with creation and expiration timestamps that determine the active
+    lifecycle of the session. Field-level validation helps ensure data integrity, while lifecycle
+    callbacks automatically initialize timestamps on persistence. Convenience methods such as
+    expiration checks assist higher-level services in enforcing session validity.
+
+    <p>
+
+        Technologies:
+
+        <ul>
+            <li>Jakarta Persistence (JPA) for ORM mapping</li>
+            <li>Hibernate Validator for field constraint enforcement</li>
+            <li>Java Time API for timestamp handling</li>
+        </ul>
+
+    </p>
+
+    @author Abdullah (Mirliva) GÜNDÜZ - https://github.com/MrMirliva
+
+    @version 1.0
+*/
 @Entity
 @Table(name = "customer_sessions")
 public class CustomerSession implements Serializable {

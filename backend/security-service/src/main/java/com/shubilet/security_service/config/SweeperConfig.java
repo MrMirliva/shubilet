@@ -25,7 +25,7 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 
     </p>
 
-    @author Abdullah (Mirliva) GÜNDÜZ — https://github.com/mirlivax
+    @author Abdullah (Mirliva) GÜNDÜZ - https://github.com/MrMirliva
 
     @version 1.0
 */

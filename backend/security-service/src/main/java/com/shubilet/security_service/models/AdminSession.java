@@ -13,8 +13,32 @@ import java.io.Serializable;
 import java.time.Instant;
 
 /**
- * Represents a admin session with a unique session code and expiration time.
- */
+
+    Domain: Persistence
+
+    Represents the JPA entity for storing and managing administrator session records within
+    the authentication system. Each session entry maps an admin user to a uniquely generated
+    session code, along with creation and expiration timestamps used for lifecycle management.
+    The entity enforces field-level constraints for data integrity, applies automatic timestamp
+    initialization through lifecycle callbacks, and provides helper methods for expiration checks.
+    It functions as the persistence backbone for admin-side session handling in the system.
+
+    <p>
+
+        Technologies:
+
+        <ul>
+            <li>Jakarta Persistence (JPA) for ORM mapping</li>
+            <li>Hibernate Validator annotations for field validation</li>
+            <li>Java Time API for timestamp management</li>
+        </ul>
+
+    </p>
+
+    @author Abdullah (Mirliva) GÜNDÜZ - https://github.com/MrMirliva
+
+    @version 1.0
+*/
 @Entity
 @Table(name = "admin_sessions")
 public class AdminSession implements Serializable {

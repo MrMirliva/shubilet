@@ -24,7 +24,7 @@ import com.shubilet.security_service.common.constants.AppConstants;
 
     </p>
 
-    @author Abdullah (Mirliva) GÜNDÜZ — https://github.com/MrMilriva
+    @author Abdullah (Mirliva) GÜNDÜZ - https://github.com/MrMilriva
 
     @version 1.0
 */

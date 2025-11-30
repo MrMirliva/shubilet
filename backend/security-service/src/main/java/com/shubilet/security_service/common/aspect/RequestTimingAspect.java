@@ -29,7 +29,7 @@ import org.springframework.stereotype.Component;
 
     </p>
 
-    @author Abdullah (Mirliva) GÜNDÜZ — https://github.com/MrMilriva
+    @author Abdullah (Mirliva) GÜNDÜZ - https://github.com/MrMilriva
 
     @version 1.0
 */

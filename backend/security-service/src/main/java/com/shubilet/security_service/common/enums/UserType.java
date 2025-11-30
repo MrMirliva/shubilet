@@ -20,7 +20,7 @@ package com.shubilet.security_service.common.enums;
 
     </p>
 
-    @author Abdullah (Mirliva) GÜNDÜZ — https://github.com/MrMilriva
+    @author Abdullah (Mirliva) GÜNDÜZ - https://github.com/MrMilriva
 
     @version 1.0
 */
