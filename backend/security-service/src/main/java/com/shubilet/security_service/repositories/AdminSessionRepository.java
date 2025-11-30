@@ -1,11 +1,14 @@
 package com.shubilet.security_service.repositories;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import com.shubilet.security_service.models.AdminSession;
+
+import jakarta.transaction.Transactional;
 
 
 @Repository
@@ -101,4 +104,15 @@ public interface AdminSessionRepository extends JpaRepository<AdminSession, Inte
             AND s.expiresAt <= CURRENT_TIMESTAMP
     """)
     boolean isExpired(@Param("adminId") int adminId, @Param("code") String code);
+
+    @Modifying
+    @Transactional
+    @Query(
+        value = """
+                DELETE FROM admin_sessions
+                WHERE expires_at < NOW()
+                """,
+        nativeQuery = true
+    )
+    void deleteExpiredSessions();
 }

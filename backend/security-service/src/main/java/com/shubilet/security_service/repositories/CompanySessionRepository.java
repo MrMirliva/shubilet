@@ -1,11 +1,14 @@
 package com.shubilet.security_service.repositories;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import com.shubilet.security_service.models.CompanySession;
+
+import jakarta.transaction.Transactional;
 
 @Repository
 public interface CompanySessionRepository extends JpaRepository<CompanySession, Integer> {
@@ -100,4 +103,15 @@ public interface CompanySessionRepository extends JpaRepository<CompanySession, 
             AND s.expiresAt <= CURRENT_TIMESTAMP
     """)
     boolean isExpired(@Param("companyId") int companyId, @Param("code") String code);
+
+    @Modifying
+    @Transactional
+    @Query(
+        value = """
+                DELETE FROM company_sessions
+                WHERE expires_at < NOW()
+                """,
+        nativeQuery = true
+    )
+    void deleteExpiredSessions();
 }
