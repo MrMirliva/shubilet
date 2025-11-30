@@ -4,6 +4,32 @@ import java.security.SecureRandom;
 
 import com.shubilet.security_service.common.constants.AppConstants;
 
+/**
+
+    Domain: Security
+
+    Provides a utility for generating structurally validated session or authentication keys.
+    This class implements a deterministic key-generation algorithm that embeds checksum-like
+    validation digits at fixed positions within a randomly generated alphanumeric sequence.
+    It produces a human-readable, dash-formatted 39-character key intended for secure session
+    tracking or verification workflows across the authentication subsystem. As a non-instantiable
+    utility class, it exposes only static functionality.
+
+    <p>
+
+        Technologies:
+
+        <ul>
+            <li>Java Security {@code SecureRandom} for cryptographically strong randomness</li>
+            <li>Core Java string and character utilities</li>
+        </ul>
+
+    </p>
+
+    @author Abdullah (Mirliva) GÜNDÜZ — https://github.com/MrMilriva
+
+    @version 1.0
+*/
 public class SessionKeyGenerator {
 
     private static final SecureRandom RANDOM = new SecureRandom();
@@ -17,10 +43,32 @@ public class SessionKeyGenerator {
     }
 
     /**
-     * Generates a session key with the following format:
-     * - Total length: 39 characters (including dashes)
-     * @return Generated session key
-     */
+
+        Operation: Generate
+
+        Produces a formatted 39-character authentication or session key consisting of randomly
+        generated alphanumeric characters with embedded validation digits. The algorithm ensures
+        structural integrity by computing three deterministic validation digits placed at fixed
+        positions (1st, 5th, and 17th), where the final validation digit is derived from the sum
+        of the prior two. All other positions are filled with random characters from the allowed
+        alphabet, and hyphens are inserted after every four characters to create a readable and
+        transport-friendly representation.
+
+        <p>
+
+            Uses:
+
+            <ul>
+                <li>{@code RANDOM} for generating digits and random characters</li>
+                <li>{@code ALPHABET} for selecting allowed alphanumeric characters</li>
+                <li>{@code RAW_LENGTH} to determine structural layout of the key</li>
+                <li>{@code StringBuilder} for efficient formatted output construction</li>
+            </ul>
+
+        </p>
+
+        @return a 39-character formatted key conforming to the validation and structure rules
+    */
     public static String generate() {
         char[] raw = new char[RAW_LENGTH];
 

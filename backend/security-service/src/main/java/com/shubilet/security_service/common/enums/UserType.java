@@ -1,5 +1,29 @@
 package com.shubilet.security_service.common.enums;
 
+/**
+
+    Domain: Authentication
+
+    Defines the supported user roles within the authentication and authorization system.
+    Each enum constant represents a logical user category (admin, company, customer) along
+    with a storable string code used for persistence and session handling. The enum also
+    provides a safe conversion method for resolving user types from external string values,
+    ensuring consistent interpretation of role identifiers throughout the application.
+
+    <p>
+
+        Technologies:
+
+        <ul>
+            <li>Core Java enum for role representation</li>
+        </ul>
+
+    </p>
+
+    @author Abdullah (Mirliva) GÜNDÜZ — https://github.com/MrMilriva
+
+    @version 1.0
+*/
 public enum UserType {
 
     ADMIN("ADMIN"),

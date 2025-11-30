@@ -2,6 +2,30 @@ package com.shubilet.security_service.common.enums;
 
 import org.springframework.http.HttpStatus;
 
+/**
+
+    Domain: Session
+
+    Represents the possible lifecycle and validity states of a user session within the
+    authentication subsystem. Each enum constant encapsulates whether the session is usable,
+    the corresponding HTTP status code that should be returned by the API, and a message key
+    used for localization or standardized error responses. This enum provides a clear and
+    maintainable mapping between backend session evaluation and API-facing behavior.
+
+    <p>
+
+        Technologies:
+
+        <ul>
+            <li>Spring Web {@code HttpStatus} for standardized HTTP response codes</li>
+        </ul>
+
+    </p>
+
+    @author Abdullah (Mirliva) GÜNDÜZ — https://github.com/MrMilriva
+
+    @version 1.0
+*/
 public enum SessionStatus {
 
     VALID(true, HttpStatus.OK, "SESSION_VALID"),

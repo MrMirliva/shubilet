@@ -1,5 +1,29 @@
 package com.shubilet.security_service.common.constants;
 
+/**
+
+    Domain: ErrorHandling
+
+    Defines a centralized collection of immutable error message templates used throughout the
+    application to ensure consistent construction of human-readable error responses. These
+    messages cover general validation failures as well as session-specific conditions such as
+    expiration, missing sessions, and verification issues. As a final utility class, it is
+    non-instantiable and serves purely as a static container for shared constant strings.
+
+    <p>
+
+        Technologies:
+
+        <ul>
+            <li>Core Java constant definition</li>
+        </ul>
+
+    </p>
+
+    @author Abdullah (Mirliva) GÜNDÜZ — https://github.com/MrMilriva
+
+    @version 1.0
+*/
 public final class ErrorMessages {
 
     private ErrorMessages() {
