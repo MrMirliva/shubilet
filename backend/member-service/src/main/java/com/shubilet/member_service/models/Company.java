@@ -77,11 +77,11 @@ public class Company implements Serializable {
     public Company() {
     }
 
-    public Company(String title, String password, String email) {
+    public Company(String title, String email, String password) {
         this.title = title;
+        this.email = email;
         this.password = password;
         this.isVerified = false;
-        this.email = email;
     }
 
     // ------------------------

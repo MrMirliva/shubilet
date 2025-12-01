@@ -72,7 +72,7 @@ public class RegistrationControllerImpl implements RegistrationController {
 
         // Uniqueness Check
         if (registrationService.isUserExistsByEmail(customerRegistrationDTO.getEmail())) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ErrorUtils.alreadyExists("Customer Email"));
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ErrorUtils.alreadyExists("User Email"));
         }
 
         Customer customer = new Customer(
@@ -118,7 +118,7 @@ public class RegistrationControllerImpl implements RegistrationController {
 
         // Uniqueness Check
         if (registrationService.isUserExistsByEmail(companyRegistrationDTO.getEmail())) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ErrorUtils.alreadyExists("Customer Email"));
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ErrorUtils.alreadyExists("User Email"));
         }
 
         Company company = new Company(
@@ -164,6 +164,11 @@ public class RegistrationControllerImpl implements RegistrationController {
         }
         if (!ValidationUtils.isValidPassword(adminRegistrationDTO.getPassword())) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ErrorUtils.isInvalidFormat("Password"));
+        }
+
+        // Uniqueness Check
+        if (registrationService.isUserExistsByEmail(adminRegistrationDTO.getEmail())) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ErrorUtils.alreadyExists("User Email"));
         }
 
         Admin admin = new Admin(
