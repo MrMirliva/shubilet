@@ -127,6 +127,19 @@ services:
     networks:
       - spring-net
 
+    # Frontend Service (React + Nginx)
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: DockerFile
+    container_name: frontend
+    depends_on:
+      - api-gateway
+    ports:
+      - "3000:80"
+    networks:
+      - spring-net    
+
 networks:
   spring-net:
     driver: bridge
