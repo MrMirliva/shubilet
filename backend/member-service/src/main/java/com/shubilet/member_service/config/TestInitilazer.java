@@ -3,15 +3,15 @@ package com.shubilet.member_service.config;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 
-import com.shubilet.member_service.services.CustomerService;
+import com.shubilet.member_service.services.RegistrationService;
 
 @Component
 public class TestInitilazer implements CommandLineRunner{
 
-    private final CustomerService customerService;
+    private final RegistrationService registrationService;
 
-    public TestInitilazer(CustomerService customerService) {
-        this.customerService = customerService;
+    public TestInitilazer(RegistrationService registrationService) {
+        this.registrationService = registrationService;
     }
 
     @Override

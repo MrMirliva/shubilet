@@ -1,25 +1,24 @@
 package com.shubilet.member_service.dataTransferObjects.requests;
 
 
-public class CustomerCreationDTO {
+public class AdminRegistrationDTO {
     private String name;
     private String surname;
-    private String gender;
     private String email;
     private String password;
 
-    CustomerCreationDTO() {
+    AdminRegistrationDTO() {
 
     }
 
-    CustomerCreationDTO(String name, String surname, String gender, String email, String password) {
+    AdminRegistrationDTO(String name, String surname, String email, String password) {
         this.name = name;
         this.surname = surname;
-        this.gender = gender;
         this.email = email;
         this.password = password;
     }
 
+    // Getters-Setters
     public String getName() {
         return name;
     }
@@ -34,14 +33,6 @@ public class CustomerCreationDTO {
 
     public void setSurname(String surname) {
         this.surname = surname;
-    }
-
-    public String getGender() {
-        return gender;
-    }
-
-    public void setGender(String gender) {
-        this.gender = gender;
     }
 
     public String getEmail() {

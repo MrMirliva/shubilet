@@ -11,6 +11,7 @@ import jakarta.persistence.Table;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
+
 import java.io.Serializable;
 import java.time.Instant;
 
@@ -37,15 +38,7 @@ public class Company implements Serializable {
     @NotBlank
     @Size(max = 150)
     @Column(nullable = false, length = 150)
-    private String name;
-
-    @Column(nullable = false)
-    private boolean isVerified = false;
-
-    @NotBlank
-    @Size(min = 8)
-    @Column(nullable = false)
-    private String password;
+    private String title;
 
     @NotBlank
     @Email
@@ -53,7 +46,16 @@ public class Company implements Serializable {
     @Column(nullable = false, unique = true, length = 100)
     private String email;
 
-    // Reference to the admin who verified or created this company
+    @NotBlank
+    @Size(min = 8)
+    @Column(nullable = false)
+    private String password;
+
+    @Column(nullable = false)
+    private boolean isVerified = false;
+
+
+    // Reference to the admin who verified this company
     @Column(name = "ref_admin_id", nullable = true)
     private Integer refAdminId;
 
@@ -75,10 +77,9 @@ public class Company implements Serializable {
     public Company() {
     }
 
-    public Company(String name, String password, Integer refAdminId, String email) {
-        this.name = name;
+    public Company(String title, String password, String email) {
+        this.title = title;
         this.password = password;
-        this.refAdminId = refAdminId;
         this.isVerified = false;
         this.email = email;
     }
@@ -103,20 +104,23 @@ public class Company implements Serializable {
     public int getId() {
         return id;
     }
+
     public void setId(int id) {
         this.id = id;
     }
 
     public String getName() {
-        return name;
+        return title;
     }
+
     public void setName(String name) {
-        this.name = name;
+        this.title = name;
     }
 
     public boolean isVerified() {
         return isVerified;
     }
+
     public void setVerified(boolean verified) {
         isVerified = verified;
         if (verified && this.verifiedAt == null)
@@ -126,6 +130,7 @@ public class Company implements Serializable {
     public String getPassword() {
         return password;
     }
+
     public void setPassword(String password) {
         this.password = password;
     }
@@ -133,6 +138,7 @@ public class Company implements Serializable {
     public Integer getRefAdminId() {
         return refAdminId;
     }
+
     public void setRefAdminId(Integer refAdminId) {
         this.refAdminId = refAdminId;
     }
@@ -140,12 +146,15 @@ public class Company implements Serializable {
     public Instant getCreatedAt() {
         return createdAt;
     }
+
     public Instant getUpdatedAt() {
         return updatedAt;
     }
+
     public Instant getVerifiedAt() {
         return verifiedAt;
     }
+
     public void setVerifiedAt(Instant verifiedAt) {
         this.verifiedAt = verifiedAt;
     }
@@ -153,6 +162,7 @@ public class Company implements Serializable {
     public String getEmail() {
         return email;
     }
+
     public void setEmail(String email) {
         this.email = email;
     }
@@ -174,7 +184,7 @@ public class Company implements Serializable {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Company company = (Company) o;
-        return id == company.id && java.util.Objects.equals(name, company.name);
+        return id == company.id && java.util.Objects.equals(title, company.title);
     }
 
     @Override
@@ -189,7 +199,7 @@ public class Company implements Serializable {
     public String toString() {
         return "Company{" +
                 "id=" + id +
-                ", name='" + name + '\'' +
+                ", name='" + title + '\'' +
                 ", email='" + email + '\'' +
                 ", isVerified=" + isVerified +
                 ", refAdminId=" + refAdminId +

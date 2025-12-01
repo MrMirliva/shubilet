@@ -7,7 +7,7 @@ public final class ErrorMessages {
     public static final String NOT_FOUND = " not Found.";
     public static final String INCORRECT = " is Incorrect.";
     public static final String NOT_VERIFIED = " is not Verified.";
-    public static final String CRITICAL_ERROR = "A Critical Error has Occurred.";
+    public static final String CRITICAL_ERROR = "A Critical Error has been Occurred.";
     public static final String ALREADY_EXISTS = " is Already Exists.";
 
     private ErrorMessages() {
