@@ -14,10 +14,9 @@ public interface CustomerRepository extends JpaRepository<Customer, Integer> {
     @Query(
             value = """
                     SELECT COUNT(*) > 0
-                    FROM customers c
-                    WHERE c.email = :email;
-                    """,
-            nativeQuery = true
+                    FROM Customer c
+                    WHERE c.email = :email
+                    """
     )
     boolean isCustomerExistsByEmail(
             @Param("email") String email

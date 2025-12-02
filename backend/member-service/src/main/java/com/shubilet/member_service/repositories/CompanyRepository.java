@@ -13,10 +13,9 @@ public interface CompanyRepository extends JpaRepository<Company, Integer> {
     @Query(
             value = """
                     SELECT COUNT(*) > 0
-                    FROM companies c
-                    WHERE c.email = :email;
-                    """,
-            nativeQuery = true
+                    FROM Company c
+                    WHERE c.email = :email
+                    """
     )
     boolean isCompanyExistsByEmail(
             @Param("email") String email
