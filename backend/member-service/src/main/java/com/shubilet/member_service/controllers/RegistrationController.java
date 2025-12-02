@@ -10,28 +10,70 @@ import org.springframework.web.bind.annotation.RequestBody;
 public interface RegistrationController {
 
     /**
-     * Creates a user on Customer Table with Given Information
+     * Operation: Register Customer
+     * <p>
+     * Declares the contract for registering a new customer by accepting a customer
+     * registration payload and returning a response indicating either successful creation
+     * or a corresponding validation or processing error. Implementations are expected
+     * to enforce field validation, uniqueness checks, and domain rules.
+     * </p>
+     * <p>
+     * Uses:
      *
-     * @param customerRegistrationDTO Holds the Necessary Information for New Customer Registration
-     * @return HTTP Response
+     * <ul>
+     * <li>CustomerRegistrationDTO as the input payload</li>
+     * <li>MessageDTO as the standardized response wrapper</li>
+     * </ul>
+     * </p>
      *
+     * @param customerRegistrationDTO the payload containing customer registration data
+     * @return a ResponseEntity containing a MessageDTO indicating the result of the registration process
      */
-    public ResponseEntity<MessageDTO> registerCustomer(@RequestBody CustomerRegistrationDTO customerRegistrationDTO);/**
+    public ResponseEntity<MessageDTO> registerCustomer(@RequestBody CustomerRegistrationDTO customerRegistrationDTO);
 
-     * Creates a user on Company Table with Given Information
+    /**
+     * Operation: Register Company
      *
-     * @param companyRegistrationDTO Holds the Necessary Information for New Customer Registration
-     * @return HTTP Response
+     * <p>
+     * Defines the contract for registering a new company account by accepting a company
+     * registration payload and returning a wrapped response indicating whether the creation
+     * succeeded or failed. Implementations are responsible for performing input validation,
+     * format checks, and enforcing business constraints such as uniqueness.
+     * </p>
+     * <p>
+     * Uses:
      *
+     * <ul>
+     * <li>CompanyRegistrationDTO as the input payload</li>
+     * <li>MessageDTO as the standardized response wrapper</li>
+     * </ul>
+     * </p>
+     *
+     * @param companyRegistrationDTO the payload containing company registration details
+     * @return a ResponseEntity containing a MessageDTO describing the outcome of the registration attempt
      */
     public ResponseEntity<MessageDTO> registerCompany(@RequestBody CompanyRegistrationDTO companyRegistrationDTO);
 
     /**
-     * Creates a user on Admin Table with Given Information
+     * Operation: Create
      *
-     * @param adminRegistrationDTO Holds the Necessary Information for New Customer Registration
-     * @return HTTP Response
+     * <p>
+     * Defines the contract for registering a new administrator account by accepting an
+     * administrator registration payload and returning a response that reflects the result
+     * of the creation process. Implementations should validate required fields, verify
+     * credential format, and enforce business rules such as email uniqueness.
+     * </p>
+     * <p>
+     * Uses:
      *
+     * <ul>
+     * <li>AdminRegistrationDTO as the input payload</li>
+     * <li>MessageDTO as the standardized response wrapper</li>
+     * </ul>
+     * </p>
+     *
+     * @param adminRegistrationDTO the payload containing administrator registration details
+     * @return a ResponseEntity containing a MessageDTO describing the outcome of the registration attempt
      */
     public ResponseEntity<MessageDTO> registerAdmin(@RequestBody AdminRegistrationDTO adminRegistrationDTO);
 }
