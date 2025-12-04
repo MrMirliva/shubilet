@@ -2,8 +2,6 @@ package com.shubilet.expedition_service.models;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
@@ -27,19 +25,22 @@ public class Ticket implements Serializable {
     // ------------------------
     @Id
     @NotBlank
-    @Column(nullable = false, unique = true, length = 12)
-    private String pnr;
+    @Column(nullable = false, updatable = false, unique = true)
+    private String PNR;
 
     @NotNull
-    @Column(name = "seat_id", nullable = false)
+    @Column(name = "seat_id", nullable = false, updatable = true)
     private Integer seatId;
 
     @NotNull
-    @Column(name = "payment_id", nullable = false)
+    @Column(name = "payment_id", nullable = false, updatable = false)
     private Integer paymentId;
 
     @Column(nullable = false, updatable = false)
     private Instant createdAt;
+
+    @Column(name = "customer_id", nullable = false, updatable = false)
+    private Integer customerId;
 
     // ------------------------
     // Constructors
@@ -47,10 +48,11 @@ public class Ticket implements Serializable {
     public Ticket() {
     }
 
-    public Ticket(String pnr, Integer seatId, Integer paymentId) {
-        this.pnr = pnr;
+    public Ticket(String PNR, Integer seatId, Integer paymentId, Integer customerId) {
+        this.PNR = PNR;
         this.seatId = seatId;
         this.paymentId = paymentId;
+        this.customerId = customerId;
     }
 
     // ------------------------
@@ -65,11 +67,11 @@ public class Ticket implements Serializable {
     // Getters and Setters
     // ------------------------
 
-    public String getPnr() {
-        return pnr;
+    public String getPNR() {
+        return PNR;
     }
-    public void setPnr(String pnr) {
-        this.pnr = pnr;
+    public void setPNR(String PNR) {
+        this.PNR = PNR;
     }
 
     public Integer getSeatId() {
@@ -98,12 +100,12 @@ public class Ticket implements Serializable {
         if (this == o) return true;
         if (!(o instanceof Ticket)) return false;
         Ticket ticket = (Ticket) o;
-        return pnr.equals(ticket.pnr);
+        return PNR.equals(ticket.PNR);
     }
 
     @Override
     public int hashCode() {
-        return java.util.Objects.hash(pnr);
+        return java.util.Objects.hash(PNR);
     }
 
     // ------------------------
@@ -112,7 +114,7 @@ public class Ticket implements Serializable {
     @Override
     public String toString() {
         return "Ticket{" +
-                ", pnr='" + pnr + '\'' +
+                ", PNR='" + PNR + '\'' +
                 ", seatId=" + seatId +
                 ", paymentId=" + paymentId +
                 ", createdAt=" + createdAt +

@@ -1,17 +1,19 @@
 package com.shubilet.expedition_service.models;
 
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.Table;
 import jakarta.persistence.Id;
+import jakarta.persistence.PrePersist;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Column;
-import jakarta.persistence.PrePersist;
-import jakarta.persistence.PreUpdate;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
+
 import java.io.Serializable;
-import java.time.Instant;
+import java.util.concurrent.TransferQueue;
 
 /**
  * Represents a seat in a specific expedition.
@@ -34,25 +36,21 @@ public class Seat implements Serializable {
     // Fields
     // ------------------------
     @NotNull
-    @Column(name = "exp_id", nullable = false)
-    private Integer expId;
+    @Column(name = "expedition_id", nullable = false, updatable = false)
+    private Integer expeditionId;
 
     @NotNull
     @Min(1)
-    @Column(name = "seat_no", nullable = false)
+    @Column(name = "seat_no", nullable = false, updatable = false)
     private Integer seatNo;
 
-    @Column(name = "user_id")
-    private Integer userId;
+    @Column(name = "customer_id", nullable = true, updatable = true)
+    private Integer customerId;
 
-    // ------------------------
-    // Audit Fields
-    // ------------------------
-    @Column(nullable = false, updatable = false)
-    private Instant createdAt;
-
-    @Column(nullable = false)
-    private Instant updatedAt;
+    @NotNull
+    @Enumerated(EnumType.STRING)
+    @Column(name = "status", nullable = false, updatable = true)
+    private Status status;
 
     // ------------------------
     // Constructors
@@ -60,29 +58,17 @@ public class Seat implements Serializable {
     public Seat() {
     }
 
-    public Seat(Integer expId, Integer seatNo) {
-        this.expId = expId;
+    public Seat(Integer expeditionId, Integer seatNo) {
+        this.expeditionId = expeditionId;
         this.seatNo = seatNo;
+        this.status = Status.AVAILABLE;
     }
 
-    public Seat(Integer expId, Integer seatNo, Integer userId) {
-        this.expId = expId;
+    public Seat(Integer expeditionId, Integer seatNo, Integer customerId, Status status) {
+        this.expeditionId = expeditionId;
         this.seatNo = seatNo;
-        this.userId = userId;
-    }
-
-    // ------------------------
-    // Lifecycle Callbacks
-    // ------------------------
-    @PrePersist
-    protected void onCreate() {
-        this.createdAt = Instant.now();
-        this.updatedAt = this.createdAt;
-    }
-
-    @PreUpdate
-    protected void onUpdate() {
-        this.updatedAt = Instant.now();
+        this.customerId = customerId;
+        this.status = status;
     }
 
     // ------------------------
@@ -95,11 +81,11 @@ public class Seat implements Serializable {
         this.id = id;
     }
 
-    public Integer getExpId() {
-        return expId;
+    public Integer getExpeditionId() {
+        return expeditionId;
     }
-    public void setExpId(Integer expId) {
-        this.expId = expId;
+    public void setExpeditionId(Integer expeditionId) {
+        this.expeditionId = expeditionId;
     }
 
     public Integer getSeatNo() {
@@ -109,25 +95,29 @@ public class Seat implements Serializable {
         this.seatNo = seatNo;
     }
 
-    public Integer getUserId() {
-        return userId;
+    public Integer getCustomerId() {
+        return customerId;
     }
-    public void setUserId(Integer userId) {
-        this.userId = userId;
-    }
-
-    public Instant getCreatedAt() {
-        return createdAt;
-    }
-    public Instant getUpdatedAt() {
-        return updatedAt;
+    public void setCustomerId(Integer customerId) {
+        this.customerId = customerId;
     }
 
+    public Status getStatus() {
+        return status;
+    }
+    public void setStatus(Status status) {
+        this.status = status;
+    }
+
+
     // ------------------------
-    // Utility Methods
+    // Lifecycle Callbacks
     // ------------------------
-    public boolean isAvailable() {
-        return this.userId == null;
+    @PrePersist
+    protected void onCreate() {
+        if (this.status == null) {
+            this.status = Status.AVAILABLE;
+        }
     }
 
     // ------------------------
@@ -153,11 +143,26 @@ public class Seat implements Serializable {
     public String toString() {
         return "Seat{" +
                 "id=" + id +
-                ", expId=" + expId +
+                ", expeditionId=" + expeditionId +
                 ", seatNo=" + seatNo +
-                ", userId=" + userId +
-                ", createdAt=" + createdAt +
-                ", updatedAt=" + updatedAt +
+                ", customerId=" + customerId +
+                ", status=" + status.getDisplayName() +
                 '}';
     }
+
+    public enum Status {
+        AVAILABLE("Available"),
+        RESERVED("Reserved");
+
+        private final String displayName;
+
+        Status(String displayName) {
+            this.displayName = displayName;
+        }
+
+        public String getDisplayName() {
+            return displayName;
+        }
+    }
 }
+

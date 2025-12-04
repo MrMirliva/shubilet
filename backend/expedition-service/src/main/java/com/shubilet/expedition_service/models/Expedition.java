@@ -6,15 +6,11 @@ import jakarta.persistence.Id;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Column;
-import jakarta.persistence.PrePersist;
-import jakarta.persistence.PreUpdate;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.time.Instant;
-import java.time.LocalDate;
-import java.time.LocalTime;
 
 /**
  * Represents a travel expedition (e.g., bus or train trip)
@@ -37,42 +33,29 @@ public class Expedition implements Serializable {
     // Fields
     // ------------------------
     @NotNull
-    @Column(name = "from_city_id", nullable = false)
-    private Integer fromCityId;
+    @Column(name = "departure_city_id", nullable = false, updatable = false)
+    private Integer departureCityId;
 
     @NotNull
-    @Column(name = "to_city_id", nullable = false)
-    private Integer toCityId;
+    @Column(name = "arrival_city_id", nullable = false, updatable = false)
+    private Integer arrivalCityId;
 
+    ///TODO: Tek bir değişkende toplamak mantıklı mı bilmiyorum.
     @NotNull
-    @Column(nullable = false)
-    private LocalDate date;
-
-    @NotNull
-    @Column(nullable = false)
-    private LocalTime time;
+    @Column(nullable = false, updatable = false)
+    private Instant dateAndTime;
 
     @NotNull
     @Min(0)
-    @Column(nullable = false, precision = 10, scale = 2)
+    @Column(nullable = false, updatable = true, precision = 10, scale = 2)
     private BigDecimal price;
 
-    @NotNull
-    @Column(nullable = false)
+    @Column(nullable = true, updatable = true)
     private int duration; // Duration in minutes
 
     @NotNull
-    @Column(name = "comp_id", nullable = false)
-    private Integer compId;
-
-    // ------------------------
-    // Audit Fields
-    // ------------------------
-    @Column(nullable = false, updatable = false)
-    private Instant createdAt;
-
-    @Column(nullable = false)
-    private Instant updatedAt;
+    @Column(name = "company_id", nullable = false, updatable = false)
+    private Integer companyId;
 
     // ------------------------
     // Constructors
@@ -80,28 +63,19 @@ public class Expedition implements Serializable {
     public Expedition() {
     }
 
-    public Expedition(Integer fromCityId, Integer toCityId, LocalDate date, LocalTime time, BigDecimal price, int duration, Integer compId) {
-        this.fromCityId = fromCityId;
-        this.toCityId = toCityId;
-        this.date = date;
-        this.time = time;
+    public Expedition(Integer departureCityId, 
+                    Integer arrivalCityId, 
+                    Instant dateAndTime,
+                    BigDecimal price,
+                    int duration,
+                    Integer companyId
+    ) {
+        this.departureCityId = departureCityId;
+        this.arrivalCityId = arrivalCityId;
+        this.dateAndTime = dateAndTime;
         this.price = price;
         this.duration = duration;
-        this.compId = compId;
-    }
-
-    // ------------------------
-    // Lifecycle Callbacks
-    // ------------------------
-    @PrePersist
-    protected void onCreate() {
-        this.createdAt = Instant.now();
-        this.updatedAt = this.createdAt;
-    }
-
-    @PreUpdate
-    protected void onUpdate() {
-        this.updatedAt = Instant.now();
+        this.companyId = companyId;
     }
 
     // ------------------------
@@ -114,32 +88,25 @@ public class Expedition implements Serializable {
         this.id = id;
     }
 
-    public Integer getFromCityId() {
-        return fromCityId;
+    public Integer getDepartureCityId() {
+        return departureCityId;
     }
-    public void setFromCityId(Integer fromCityId) {
-        this.fromCityId = fromCityId;
-    }
-
-    public Integer getToCityId() {
-        return toCityId;
-    }
-    public void setToCityId(Integer toCityId) {
-        this.toCityId = toCityId;
+    public void setDepartureCityId(Integer departureCityId) {
+        this.departureCityId = departureCityId;
     }
 
-    public LocalDate getDate() {
-        return date;
+    public Integer getArrivalCityId() {
+        return arrivalCityId;
     }
-    public void setDate(LocalDate date) {
-        this.date = date;
+    public void setArrivalCityId(Integer arrivalCityId) {
+        this.arrivalCityId = arrivalCityId;
     }
 
-    public LocalTime getTime() {
-        return time;
+    public Instant getDateAndTime() {
+        return dateAndTime;
     }
-    public void setTime(LocalTime time) {
-        this.time = time;
+    public void setDateAndTime(Instant dateAndTime) {
+        this.dateAndTime = dateAndTime;
     }
 
     public BigDecimal getPrice() {
@@ -156,25 +123,18 @@ public class Expedition implements Serializable {
         this.duration = duration;
     }
 
-    public Integer getCompId() {
-        return compId;
+    public Integer getCompanyId() {
+        return companyId;
     }
-    public void setCompId(Integer compId) {
-        this.compId = compId;
-    }
-
-    public Instant getCreatedAt() {
-        return createdAt;
-    }
-    public Instant getUpdatedAt() {
-        return updatedAt;
+    public void setCompanyId(Integer companyId) {
+        this.companyId = companyId;
     }
 
     // ------------------------
     // Utility Methods
     // ------------------------
     public boolean isSameRoute() {
-        return this.fromCityId.equals(this.toCityId);
+        return this.departureCityId.equals(this.arrivalCityId);
     }
 
     // ------------------------
@@ -200,15 +160,12 @@ public class Expedition implements Serializable {
     public String toString() {
         return "Expedition{" +
                 "id=" + id +
-                ", fromCityId=" + fromCityId +
-                ", toCityId=" + toCityId +
-                ", date=" + date +
-                ", time=" + time +
+                ", departureCityId=" + departureCityId +
+                ", arrivalCityId=" + arrivalCityId +
+                ", dateAndTime=" + dateAndTime +
                 ", price=" + price +
                 ", duration=" + duration +
-                ", compId=" + compId +
-                ", createdAt=" + createdAt +
-                ", updatedAt=" + updatedAt +
+                ", companyId=" + companyId +
                 '}';
     }
 }

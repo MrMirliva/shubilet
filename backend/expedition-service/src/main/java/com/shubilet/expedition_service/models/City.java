@@ -6,12 +6,9 @@ import jakarta.persistence.Id;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Column;
-import jakarta.persistence.PrePersist;
-import jakarta.persistence.PreUpdate;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Size;
+
 import java.io.Serializable;
-import java.time.Instant;
 
 /**
  * Represents a city entity that can be used in expedition routes.
@@ -34,18 +31,9 @@ public class City implements Serializable {
     // Fields
     // ------------------------
     @NotBlank
-    @Size(max = 100)
-    @Column(nullable = false, unique = true, length = 100)
+    @Column(nullable = false, updatable = false, unique = true)
     private String name;
 
-    // ------------------------
-    // Audit Fields
-    // ------------------------
-    @Column(nullable = false, updatable = false)
-    private Instant createdAt;
-
-    @Column(nullable = false)
-    private Instant updatedAt;
 
     // ------------------------
     // Constructors
@@ -55,20 +43,6 @@ public class City implements Serializable {
 
     public City(String name) {
         this.name = name;
-    }
-
-    // ------------------------
-    // Lifecycle Callbacks
-    // ------------------------
-    @PrePersist
-    protected void onCreate() {
-        this.createdAt = Instant.now();
-        this.updatedAt = this.createdAt;
-    }
-
-    @PreUpdate
-    protected void onUpdate() {
-        this.updatedAt = Instant.now();
     }
 
     // ------------------------
@@ -86,13 +60,6 @@ public class City implements Serializable {
     }
     public void setName(String name) {
         this.name = name;
-    }
-
-    public Instant getCreatedAt() {
-        return createdAt;
-    }
-    public Instant getUpdatedAt() {
-        return updatedAt;
     }
 
     // ------------------------
@@ -119,8 +86,6 @@ public class City implements Serializable {
         return "City{" +
                 "id=" + id +
                 ", name='" + name + '\'' +
-                ", createdAt=" + createdAt +
-                ", updatedAt=" + updatedAt +
                 '}';
     }
 }
