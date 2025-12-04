@@ -61,6 +61,11 @@ public class Card implements Serializable {
     @Column(name = "customer_id", nullable = false)
     private Integer customerId;
 
+        @NotNull
+    @Column(name = "is_active", nullable = false)
+    private Boolean isActive = true;
+
+
     // ------------------------
     // Constructors
     // ------------------------
@@ -126,6 +131,13 @@ public class Card implements Serializable {
     }
     public void setCustomerId(Integer customerId) {
         this.customerId = customerId;
+    }
+
+    public Boolean getIsActive() {
+        return isActive;
+    }
+    public void setIsActive(Boolean isActive) {
+        this.isActive = isActive;
     }
 
     // ------------------------
