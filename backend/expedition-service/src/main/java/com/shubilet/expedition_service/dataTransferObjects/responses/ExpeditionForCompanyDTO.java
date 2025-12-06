@@ -1,16 +1,16 @@
 package com.shubilet.expedition_service.dataTransferObjects.responses;
 
 public class ExpeditionForCompanyDTO {
-    private int id;
-    private String departureCity;
-    private String arrivalCity;
-    private String date;
-    private String time;
-    private double price;
-    private int duration;
-    private int capacity;
-    private int numberOfBookedSeats;
-    private double profit;
+    private int id; //Exp
+    private String departureCity; //City
+    private String arrivalCity; //City
+    private String date; //Exp
+    private String time; //Exp
+    private double price; //Exp
+    private int duration; //Exp
+    private int capacity; //Exp
+    private int numberOfBookedSeats; //calculated by booked tickets
+    private double profit; //numberOfBookedSeats * price
 
     public ExpeditionForCompanyDTO(
         int id,

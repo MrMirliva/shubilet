@@ -2,6 +2,9 @@ package com.shubilet.expedition_service.controllers.Impl;
 
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 
 import com.shubilet.expedition_service.common.util.ErrorUtils;
 import com.shubilet.expedition_service.common.util.StringUtils;
@@ -12,10 +15,6 @@ import com.shubilet.expedition_service.dataTransferObjects.responses.MessageDTO;
 import com.shubilet.expedition_service.services.CityService;
 import com.shubilet.expedition_service.services.ExpeditionService;
 import com.shubilet.expedition_service.services.SeatService;
-
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 
 
 @RestController
@@ -112,7 +111,16 @@ public class CreationControllerImpl implements CreationController {
 
         //STEP 3: Generation logic 
 
-        int expeditionId = expeditionService.createExpedition(departureCity, arrivalCity, date, time, capacity);
+        int expeditionId = expeditionService.createExpedition(
+            companyId,
+            departureCity,
+            arrivalCity,
+            date,
+            time,
+            capacity,
+            price,
+            duration
+        );
 
         seatService.generateSeats(expeditionId, capacity);
 

@@ -7,7 +7,7 @@ import com.shubilet.expedition_service.dataTransferObjects.responses.ExpeditionF
 
 public interface ExpeditionService {
     
-    public int createExpedition(String departureCity, String arrivalCity, String date, String time, int capacity);
+    public int createExpedition(int companyId, String departureCity, String arrivalCity, String date, String time, int capacity, double price, int duration);
 
     public List<ExpeditionForCustomerDTO> findExpeditionsByInstantAndRoute(String departureCity, String arrivalCity, String date);
 

@@ -7,7 +7,7 @@ import com.shubilet.expedition_service.dataTransferObjects.responses.SeatForCust
 
 public interface SeatService {
     
-    public void generateSeats(long expeditionId, int capacity);
+    public void generateSeats(int expeditionId, int capacity);
 
     public List<SeatForCustomerDTO> getAvailableSeats(int expeditionId);
 
