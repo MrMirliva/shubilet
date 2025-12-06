@@ -10,115 +10,8 @@ import com.shubilet.security_service.models.CompanySession;
 
 import jakarta.transaction.Transactional;
 
-/**
-
-    Domain: Persistence
-
-    Defines the persistence-layer contract for managing {@code CompanySession} entities,
-    combining generic CRUD support with specialized queries that facilitate company
-    authentication and session lifecycle operations. By leveraging Spring Data JPA,
-    this repository encapsulates both JPQL and native SQL-based lookups for credential
-    validation, email and verification checks, session existence and expiration
-    evaluation, as well as bulk cleanup of expired session records in the underlying
-    data store. It serves as the primary gateway for all session-related persistence
-    concerns for company users.
-
-    <p>
-
-        Technologies:
-
-        <ul>
-            <li>Spring Data JPA</li>
-            <li>Spring Repository</li>
-            <li>JPQL</li>
-            <li>Native SQL</li>
-            <li>Jakarta Transactions</li>
-        </ul>
-
-    </p>
-
-    @see com.shubilet.security_service.models.CompanySession
-
-    @see com.shubilet.security_service.services.CompanySessionService
-
-    @author Abdullah (Mirliva) GÜNDÜZ - https://github.com/MrMilriva
-
-    @version 1.0
-*/
 @Repository
 public interface CompanySessionRepository extends JpaRepository<CompanySession, Integer> {
-    
-    /**
-
-        Operation: Validate
-
-        Checks whether a company account exists that matches the provided email and password.
-        This database-level verification performs a direct lookup against the underlying
-        {@code companies} table to authenticate company users. The query returns a boolean
-        indicating whether such a matching record is present.
-
-        <p>
-
-            Uses:
-
-            <ul>
-                <li>Native SQL query for credential validation</li>
-            </ul>
-
-        </p>
-
-        @param email the company's email used for authentication
-
-        @param password the company's password used for authentication
-
-        @return {@code true} if a matching company record exists, otherwise {@code false}
-    */
-    @Query(
-        value = """
-                SELECT COUNT(*) > 0
-                FROM companies c
-                WHERE c.email = :email
-                    AND c.password = :password
-                """,
-        nativeQuery = true
-    )
-    boolean isEmailAndPasswordValid(
-            @Param("email") String email,
-            @Param("password") String password
-    );
-
-    /**
-
-        Operation: Lookup
-
-        Retrieves the unique identifier of a company associated with the specified email.
-        This operation performs a direct query against the underlying {@code companies}
-        table and returns the primary key of the matching company record. It is commonly
-        used during authentication and session initialization workflows.
-
-        <p>
-
-            Uses:
-
-            <ul>
-                <li>Native SQL query for company ID retrieval</li>
-            </ul>
-
-        </p>
-
-        @param email the email address whose corresponding company ID is requested
-
-        @return the unique identifier of the company associated with the given email
-    */
-    @Query(
-        value = """
-                SELECT c.id
-                FROM companies c
-                WHERE c.email = :email
-                """,
-        nativeQuery = true
-    )
-    int getCompanyIdByEmail(@Param("email") String email);
 
     /**
 
@@ -148,6 +41,13 @@ public interface CompanySessionRepository extends JpaRepository<CompanySession, 
         WHERE s.code = :code
     """)
     boolean hasCode(@Param("code") String code);
+
+    @Query("""
+        select count(a) > 0
+        from CompanySession a
+        where a.companyId = :companyId
+    """)
+    boolean existsByCompanyId(@Param("companyId") int companyId);
 
     /**
 
@@ -184,110 +84,6 @@ public interface CompanySessionRepository extends JpaRepository<CompanySession, 
             @Param("companyId") int companyId, 
             @Param("code") String code
     );
-
-    /**
-
-        Operation: Lookup
-
-        Determines whether a company account exists with the specified email address.
-        This lookup is typically used during authentication flows, registration checks,
-        and account recovery processes by querying the underlying {@code companies} table.
-
-        <p>
-
-            Uses:
-
-            <ul>
-                <li>Native SQL query for email existence checking</li>
-            </ul>
-
-        </p>
-
-        @param email the email address to verify
-
-        @return {@code true} if a company with the given email exists, otherwise {@code false}
-    */
-    @Query(
-        value = """
-                SELECT COUNT(*) > 0
-                FROM companies c
-                WHERE c.email = :email
-                """,
-        nativeQuery = true
-    )
-    boolean hasEmail(@Param("email") String email);
-
-/**
-
-        Operation: Validate
-
-        Determines whether the specified company email belongs to a verified company account.
-        Verification is confirmed by checking whether the {@code ref_admin_id} field in the
-        underlying {@code companies} table is not null and contains a positive value.
-        This operation supports workflows requiring confirmation of a company's verified
-        status before granting access or performing sensitive operations.
-
-        <p>
-
-            Uses:
-
-            <ul>
-                <li>Native SQL query for company verification checking</li>
-            </ul>
-
-        </p>
-
-        @param email the email address whose verification status is being evaluated
-
-        @return {@code true} if the company account is verified, otherwise {@code false}
-    */
-    @Query(
-        value = """
-                SELECT COUNT(*) > 0
-                FROM companies c
-                WHERE c.email = :email
-                    AND c.ref_admin_id IS NOT NULL
-                    AND c.ref_admin_id > 0
-                """,
-        nativeQuery = true
-    )
-    boolean isVerifiedEmail(@Param("email") String email);
-
-    /**
-
-        Operation: Validate
-
-        Checks whether the company associated with the specified identifier is verified.
-        Verification is determined by inspecting the {@code ref_admin_id} field in the
-        underlying {@code companies} table and ensuring that it contains a non-null,
-        positive reference. This operation is commonly used during authentication,
-        authorization, and session validation processes.
-
-        <p>
-
-            Uses:
-
-            <ul>
-                <li>Native SQL query for company verification checking</li>
-            </ul>
-
-        </p>
-
-        @param companyId the identifier of the company whose verification status is being evaluated
-
-        @return {@code true} if the company is verified, otherwise {@code false}
-    */
-    @Query(
-        value = """
-                SELECT COUNT(*) > 0
-                FROM companies c
-                WHERE c.id = :companyId
-                    AND c.ref_admin_id IS NOT NULL
-                    AND c.ref_admin_id > 0
-                """,
-        nativeQuery = true
-    )
-    boolean isVerifiedCompany(@Param("companyId") int companyId);
 
     /**
 

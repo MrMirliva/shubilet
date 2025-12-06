@@ -5,60 +5,10 @@ import org.springframework.http.ResponseEntity;
 import com.shubilet.security_service.dataTransferObjects.requests.CookieDTO;
 import com.shubilet.security_service.dataTransferObjects.requests.StatusDTO;
 
-/**
 
-    Domain: Session
-
-    Defines the service-level contract responsible for managing customer session
-    lifecycles within the application. This interface groups all core operations
-    related to authentication, session creation, validation, lookup, and maintenance.
-    Implementations are expected to enforce security rules such as credential
-    verification, token uniqueness, session expiration handling, and cleanup logic,
-    while delegating persistence operations to the underlying repository layer.
-
-    <p>
-
-        Technologies:
-
-        <ul>
-            <li>Spring Web</li>
-        </ul>
-    </p>
-
-    @see CustomerSessionRepository
-
-    @version 1.0
-*/
 public interface CustomerSessionService {
-    /**
-
-        Operation: Login
-
-        Authenticates a customer by validating the provided email and password against
-        stored credentials. Upon successful verification, this operation initiates the
-        session creation workflow, which typically includes generating a unique session
-        code and persisting related session data. The resulting session details are then
-        returned as a {@code CookieDTO}. If authentication fails, the implementation is
-        expected to return an appropriate unauthorized response.
-
-        <p>
-
-            Uses:
-
-            <ul>
-                <li>CustomerSessionRepository for credential validation and session persistence</li>
-                <li>SessionKeyGenerator for generating unique session codes</li>
-            </ul>
-
-        </p>
-
-        @param email the customer's login email
-
-        @param password the customer's login password
-
-        @return a response entity containing a {@code CookieDTO} representing the created session
-    */
-    public ResponseEntity<CookieDTO> login(String email, String password);
+    
+    public ResponseEntity<CookieDTO> createSession(int customerId);
 
     /**
 
@@ -111,29 +61,8 @@ public interface CustomerSessionService {
     */
     public ResponseEntity<StatusDTO> check(int id, String token);
 
-    /**
 
-        Operation: Lookup
-
-        Checks whether the specified email exists in the underlying customer data store.
-        This operation is typically used during validation processes such as registration
-        checks, login preparation, or account recovery flows.
-
-        <p>
-
-            Uses:
-
-            <ul>
-                <li>CustomerSessionRepository for email existence lookup</li>
-            </ul>
-
-        </p>
-
-        @param email the email address to be checked
-
-        @return {@code true} if the email exists, otherwise {@code false}
-    */
-    public boolean hasEmail(String email);
+    public boolean hasCustomerSession(int customerId);
     
     /**
 

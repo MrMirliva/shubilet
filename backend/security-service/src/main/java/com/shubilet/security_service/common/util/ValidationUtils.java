@@ -2,31 +2,7 @@ package com.shubilet.security_service.common.util;
 
 import com.shubilet.security_service.common.constants.ValidationPatterns;
 
-/**
 
-    Domain: Validation
-
-    Provides a collection of reusable utility methods for validating user input and structured
-    data across the application. This class centralizes common validation logic such as regex
-    matching, email and password format verification, and session key integrity checks. By
-    encapsulating these operations, it promotes consistency, reduces duplication, and supports
-    defensive programming practices throughout the authentication subsystem and related modules.
-
-    <p>
-
-        Technologies:
-
-        <ul>
-            <li>Core Java regular expression utilities</li>
-            <li>Static validation patterns defined in {@code ValidationPatterns}</li>
-        </ul>
-
-    </p>
-
-    @author Abdullah (Mirliva) GÜNDÜZ - https://github.com/MrMilriva
-
-    @version 1.0
-*/
 public final class ValidationUtils {
 
     private ValidationUtils() {
@@ -35,14 +11,6 @@ public final class ValidationUtils {
 
     public static boolean matches(String value, String regex) {
         return value != null && value.matches(regex);
-    }
-
-    public static boolean isValidEmail(String email) {
-        return matches(email, ValidationPatterns.EMAIL_REGEX);
-    }
-
-    public static boolean isValidPassword(String password) {
-        return matches(password, ValidationPatterns.PASSWORD_REGEX);
     }
 
     /**

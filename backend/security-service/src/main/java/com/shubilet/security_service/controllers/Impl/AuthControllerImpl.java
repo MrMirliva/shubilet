@@ -3,13 +3,13 @@ package com.shubilet.security_service.controllers.Impl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import jakarta.servlet.http.HttpSession;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-
-import jakarta.servlet.http.HttpSession;
 
 import com.shubilet.security_service.common.constants.SessionKeys;
 import com.shubilet.security_service.common.enums.SessionStatus;
@@ -21,48 +21,15 @@ import com.shubilet.security_service.controllers.AuthController;
 import com.shubilet.security_service.dataTransferObjects.requests.CookieDTO;
 import com.shubilet.security_service.dataTransferObjects.requests.LoginDTO;
 import com.shubilet.security_service.dataTransferObjects.requests.StatusDTO;
+import com.shubilet.security_service.dataTransferObjects.responses.CheckMessageDTO;
 import com.shubilet.security_service.dataTransferObjects.responses.MessageDTO;
+import com.shubilet.security_service.mapper.ResponseEntityMapper;
 import com.shubilet.security_service.services.AdminSessionService;
 import com.shubilet.security_service.services.CompanySessionService;
 import com.shubilet.security_service.services.CustomerSessionService;
 
-/**
-
-    Domain: Authentication
-
-    Implements the authentication and session management REST API for the security service.
-    This controller exposes endpoints for login, logout, and session validation for different
-    user roles (admin, company, and customer), coordinating between HTTP session state and
-    role-specific backend session services. It centralizes session consistency checks,
-    error mapping, and logging to provide a unified entry point for session-based security
-    operations in the application. As the concrete implementation of {@link AuthController},
-    it acts as the boundary between external HTTP requests and the internal authentication
-    and session lifecycle logic.
-
-    <p>
-
-        Technologies:
-
-        <ul>
-            <li>Spring Web (REST controller and request mapping)</li>
-            <li>Jakarta Servlet {@code HttpSession} for server-side session management</li>
-            <li>SLF4J for structured application logging</li>
-        </ul>
-
-    </p>
-
-    @author Abdullah (Mirliva) GÜNDÜZ - https://github.com/MrMirliva
-
-    @see com.shubilet.security_service.controllers.AuthController
-
-    @see com.shubilet.security_service.services.AdminSessionService
-
-    @see com.shubilet.security_service.services.CompanySessionService
-
-    @see com.shubilet.security_service.services.CustomerSessionService
-
-    @version 1.0
-*/
+/// TODO: Class yorum satırı eklenecek.
+/// TODO: Test edilecek.
 @RestController
 @RequestMapping("/api/auth")
 //@CrossOrigin(origins = "*", allowedHeaders = "*", methods = { RequestMethod.POST})
@@ -82,60 +49,13 @@ public class AuthControllerImpl implements AuthController {
         this.customerSessionService = customerSessionService;
     }
 
-
-    /**
-
-        Operation: Login
-
-        Handles the user login workflow by validating credentials, determining the user type
-        (admin, company, or customer), delegating authentication to the appropriate session
-        service, and updating the HTTP session with authenticated user context. Produces
-        detailed error responses for invalid input, unverified accounts, incorrect passwords,
-        already logged-in users, and missing or inconsistent session information.
-
-        <p>
-
-            Uses:
-
-            <ul>
-                <li>{@code HttpSession} for tracking authenticated user state</li>
-                <li>{@code adminSessionService}, {@code companySessionService}, and {@code customerSessionService} for role-specific authentication</li>
-                <li>{@code ValidationUtils} and {@code StringUtils} for input and format validation</li>
-                <li>{@code ErrorUtils} for building standardized error response payloads</li>
-                <li>{@code SessionKeys} to read and write user-related session attributes</li>
-                <li>{@code UserType} to describe the type of authenticated user</li>
-                <li>{@code logger} for audit and diagnostics of login attempts and outcomes</li>
-            </ul>
-        </p>
-
-        @param loginDTO the login payload containing email and password credentials
-
-        @param session the current HTTP session used to check and store authentication state
-
-        @return a response entity containing either a success message when login is successful 
-        or a descriptive error message when validation or authentication fails
-
-    */
-    @PostMapping("/login")
-    public ResponseEntity<MessageDTO> login( @RequestBody LoginDTO loginDTO, HttpSession session) {
-
-        String email = loginDTO.getEmail();
-        String password = loginDTO.getPassword();
-
-        logger.info("Login attempt for email {}", email);
+    /// TODO: method yorum satırı eklenecek.
+    @PostMapping("/createSession")
+    public ResponseEntity<MessageDTO> createSession( @RequestBody LoginDTO loginDTO, HttpSession session) {
 
         if(session == null) {
-            logger.warn("Login failed for email {} due to missing session", email);
+            logger.warn("Login failed due to missing session");
             return ResponseEntity.badRequest().body(ErrorUtils.invalidSession());
-        }
-
-        if(StringUtils.isNullOrBlank(email)) {
-            logger.warn("Login failed due to missing email");
-            return ResponseEntity.badRequest().body(ErrorUtils.isNull("Email"));
-        }
-
-        if(StringUtils.isNullOrBlank(password)) {
-            return ResponseEntity.badRequest().body(ErrorUtils.isNull("Password"));
         }
 
         String userId = (String) session.getAttribute(SessionKeys.USER_ID);
@@ -147,101 +67,54 @@ public class AuthControllerImpl implements AuthController {
             !StringUtils.isNullOrBlank(authCode)
         ) {
             clearSession(session);
-            logger.warn("Login blocked for email {} because a user is already logged in", email);
+            logger.warn("Login failed: user already logged in with userId {}", userId);
             return ResponseEntity.badRequest().body(ErrorUtils.userAlreadyLoggedIn());
         }
-
-        if( !ValidationUtils.isValidEmail(email) ) {
-            logger.warn("Login failed for email {} due to invalid email format", email);
-            return ResponseEntity.badRequest().body(ErrorUtils.isInvalidFormat("Email"));
+        
+        ResponseEntity<CookieDTO> response = null;
+        
+        if(adminSessionService.hasAdminSession(Integer.parseInt(userId))) {
+            response = adminSessionService.createSession(Integer.parseInt(userId));
         }
-
-        if( !ValidationUtils.isValidPassword(password) ) {
-            logger.warn("Login failed for email {} due to invalid password format", email);
-            return ResponseEntity.badRequest().body(ErrorUtils.isInvalidFormat("Password"));
+        else if(companySessionService.hasCompanySession(Integer.parseInt(userId))) {
+            response = companySessionService.createSession(Integer.parseInt(userId));
         }
-
-        if(adminSessionService.hasEmail(email)) {
-            if(adminSessionService.isVerifiedEmail(email)) {
-                ResponseEntity<CookieDTO> response = adminSessionService.login(email, password);
-
-                if(response.getStatusCode().is2xxSuccessful()) {
-                    CookieDTO sessionInfo = response.getBody();
-                    if(sessionInfo != null) {
-                        userId = String.valueOf(sessionInfo.getUserId());
-                        userType = sessionInfo.getUserType();
-                        authCode = sessionInfo.getAuthCode();
-                    }
-                    else {
-                        logger.warn("Login failed for email {}: missing session info in response", email);
-                        return ResponseEntity.status(response.getStatusCode()).body(ErrorUtils.criticalError());
-                    }
-                }
-                else {
-                    logger.warn("Login failed for email {}: incorrect admin password", email);
-                    return ResponseEntity.status(response.getStatusCode()).body(ErrorUtils.isIncorrect("Password"));
-                }
-            }
-            else {
-                logger.warn("Login failed for email {}: admin email not verified", email);
-                return ResponseEntity.badRequest().body(ErrorUtils.isNotVerified(UserType.ADMIN));
-            }
-        }
-        else if(companySessionService.hasEmail(email)) {
-            if(companySessionService.isVerifiedEmail(email)) {
-                ResponseEntity<CookieDTO> response = companySessionService.login(email, password);
-
-                if(response.getStatusCode().is2xxSuccessful()) {
-                    CookieDTO sessionInfo = response.getBody();
-                    if(sessionInfo != null) {
-                        userId = String.valueOf(sessionInfo.getUserId());
-                        userType = sessionInfo.getUserType();
-                        authCode = sessionInfo.getAuthCode();
-                    }
-                    else {
-                        logger.warn("Login failed for email {}: missing session info in response", email);
-                        return ResponseEntity.status(response.getStatusCode()).body(ErrorUtils.criticalError());
-                    }
-                }
-                else {
-                    logger.warn("Login failed for email {}: incorrect company password", email);
-                    return ResponseEntity.status(response.getStatusCode()).body(ErrorUtils.isIncorrect("Password"));
-                }
-            }
-            else {
-                logger.warn("Login failed for email {}: company email not verified", email);
-                return ResponseEntity.badRequest().body(ErrorUtils.isNotVerified(UserType.COMPANY));
-            }
-        }
-        else if(customerSessionService.hasEmail(email)) {
-            ResponseEntity<CookieDTO> response = customerSessionService.login(email, password);
-
-            if(response.getStatusCode().is2xxSuccessful()) {
-                CookieDTO sessionInfo = response.getBody();
-                if(sessionInfo != null) {
-                    userId = String.valueOf(sessionInfo.getUserId());
-                    userType = sessionInfo.getUserType();
-                    authCode = sessionInfo.getAuthCode();
-                }
-                else {
-                    logger.warn("Login failed for email {}: missing session info in response", email);
-                    return ResponseEntity.status(response.getStatusCode()).body(ErrorUtils.criticalError());
-                }
-            }
-            else {
-                logger.warn("Login failed for email {}: incorrect customer password", email);
-                return ResponseEntity.status(response.getStatusCode()).body(ErrorUtils.isIncorrect("Password"));
-            }
+        else if(customerSessionService.hasCustomerSession(Integer.parseInt(userId))) {
+            response = customerSessionService.createSession(Integer.parseInt(userId));
         }
         else {
-            logger.warn("Login failed for email {}: email not found", email);
-            return ResponseEntity.badRequest().body(ErrorUtils.notFound("Email"));
+            logger.warn("Login failed for userId {}: user not found", userId);
+            return ResponseEntity.badRequest().body(ErrorUtils.notFound("User"));
         }
 
+        if(response == null) {
+            logger.warn("Login failed for userId {}: missing response", userId);
+            return ResponseEntity.badRequest().body(ErrorUtils.criticalError());
+        }
+
+        if(response.getStatusCode() == null) {
+            logger.warn("Login failed for userId {}: missing response status code", userId);
+            return ResponseEntity.badRequest().body(ErrorUtils.criticalError());
+        }
+
+        if(response.getBody() == null) {
+            logger.warn("Login failed for userId {}: missing response body", userId);
+            return ResponseEntity.badRequest().body(ErrorUtils.criticalError());
+        }
+
+        if(!response.getStatusCode().is2xxSuccessful()) {
+            logger.warn("Login failed for userId {}: received non-successful status code {}", userId, response.getStatusCode());
+            return ResponseEntity.status(response.getStatusCode()).body(ErrorUtils.criticalError());
+        }
+
+        userId = String.valueOf(response.getBody().getUserId());
+        userType = response.getBody().getUserType();
+        authCode = response.getBody().getAuthCode();
 
         session.setAttribute(SessionKeys.USER_ID, userId);
         session.setAttribute(SessionKeys.USER_TYPE, userType);
         session.setAttribute(SessionKeys.AUTH_CODE, authCode);
+
         logger.info("Login successful for userId {} as {}", userId, userType);
         return ResponseEntity.ok().body(new MessageDTO("Login successful."));
     }
@@ -457,49 +330,12 @@ public class AuthControllerImpl implements AuthController {
         return ResponseEntity.ok().body(new MessageDTO("Session is valid."));
     }
 
-    /**
-
-        Operation: Validate
-
-        Performs a dedicated validation of the current admin user session by first ensuring that
-        a generic user session is structurally valid and then enforcing that the session belongs
-        to an administrator. Delegates the final status check to the admin session service using
-        the userId and authCode stored in the HTTP session, and returns an error when the user
-        type is not admin, the session is invalid, or the backend status check fails. Produces
-        a success response only when the session is confirmed to belong to a valid and active
-        admin user.
-
-        <p>
-
-            Uses:
-
-            <ul>
-                <li>{@code HttpSession} for accessing and validating admin-related session attributes</li>
-                <li>{@code handleValidUserSession} to perform generic user session validation</li>
-                <li>{@code adminSessionService} for admin-specific session status checks</li>
-                <li>{@code validateSessionStatus} to normalize and interpret session status responses</li>
-                <li>{@code SessionKeys} to read userId, userType, and authCode from the session</li>
-                <li>{@code UserType} to verify that the current user is an administrator</li>
-                <li>{@code ErrorUtils} for building standardized error responses</li>
-                <li>{@code logger} for auditing admin session validation attempts and outcomes</li>
-            </ul>
-
-        </p>
-
-        @param session the current HTTP session expected to contain an authenticated admin context
-
-        @return a response entity containing a success message when the admin session is valid,
-        or an error message when the session is missing, invalid, non-admin, or fails
-        backend validation
-
-
-    */
     @PostMapping("/checkAdmin")
-    public ResponseEntity<MessageDTO> checkAdminSession(HttpSession session) {
+    public ResponseEntity<CheckMessageDTO> checkAdminSession(HttpSession session) {
         ResponseEntity<MessageDTO> response = handleValidUserSession(session);
         if(!response.getStatusCode().is2xxSuccessful()) {
             logger.warn("Admin session check failed due to invalid user session");
-            return response;
+            return ResponseEntityMapper.toCheckMessageDTOResponseEntity(response);
         }
 
         String userId = (String) session.getAttribute(SessionKeys.USER_ID);
@@ -508,7 +344,7 @@ public class AuthControllerImpl implements AuthController {
         
         if(!userType.equals(UserType.ADMIN.getCode())) {
             logger.warn("Admin session check failed due to user type {}", userType);
-            return ResponseEntity.badRequest().body(ErrorUtils.invalidSession());
+            return ResponseEntity.badRequest().body(ErrorUtils.invalidSessionForCheckDTO());
         }
 
         ResponseEntity<StatusDTO> checkResponse = adminSessionService.check(Integer.parseInt(userId), authCode);
@@ -517,55 +353,19 @@ public class AuthControllerImpl implements AuthController {
 
         if(!validationResponse.getStatusCode().is2xxSuccessful()) {
             logger.warn("Admin session check failed for admin userId {}", userId);
-            return validationResponse;
+            return ResponseEntityMapper.toCheckMessageDTOResponseEntity(validationResponse);
         }
         
         logger.info("Admin session check successful for admin userId {}", userId);
-        return ResponseEntity.ok().body(new MessageDTO("Session is valid."));
+        return ResponseEntity.ok().body(new CheckMessageDTO("Session is valid.", Integer.parseInt(userId)));
     }
 
-    /**
-
-        Operation: Validate
-
-        Performs a dedicated validation of the current company user session by first invoking a
-        generic user session validation and then enforcing that the resolved user type is company.
-        Delegates the final status check to the company session service using the userId and
-        authCode stored in the HTTP session, and returns an error when the user type is not company,
-        the session is invalid, or the backend status check fails. Produces a success response only
-        when the session is confirmed to belong to a valid and active company user.
-
-        <p>
-
-        Uses:
-
-            <ul>
-                <li>{@code HttpSession} for accessing and validating company-related session attributes</li>
-                <li>{@code handleValidUserSession} to perform generic user session validation</li>
-                <li>{@code companySessionService} for company-specific session status checks</li>
-                <li>{@code validateSessionStatus} to normalize and interpret session status responses</li>
-                <li>{@code SessionKeys} to read userId, userType, and authCode from the session</li>
-                <li>{@code UserType} to verify that the current user is a company account</li>
-                <li>{@code ErrorUtils} for constructing standardized error responses</li>
-                <li>{@code logger} for auditing company session validation attempts and outcomes</li>
-            </ul>
-
-        </p>
-
-        @param session the current HTTP session expected to contain an authenticated company context
-
-        @return a response entity containing a success message when the company session is valid,
-        or an error message when the session is missing, invalid, non-company, or fails
-        backend validation
-
-
-    */
     @PostMapping("/checkCompany")
-    public ResponseEntity<MessageDTO> checkCompanySession(HttpSession session) {
+    public ResponseEntity<CheckMessageDTO> checkCompanySession(HttpSession session) {
         ResponseEntity<MessageDTO> response = handleValidUserSession(session);
         if(!response.getStatusCode().is2xxSuccessful()) {
             logger.warn("Company session check failed due to invalid user session");
-            return response;
+            return ResponseEntityMapper.toCheckMessageDTOResponseEntity(response);
         }
 
         String userId = (String) session.getAttribute(SessionKeys.USER_ID);
@@ -574,7 +374,7 @@ public class AuthControllerImpl implements AuthController {
         
         if(!userType.equals(UserType.COMPANY.getCode())) {
             logger.warn("Company session check failed due to user type {}", userType);
-            return ResponseEntity.badRequest().body(ErrorUtils.invalidSession());
+            return ResponseEntity.badRequest().body(ErrorUtils.invalidSessionForCheckDTO());
         }
 
         ResponseEntity<StatusDTO> checkResponse = companySessionService.check(Integer.parseInt(userId), authCode);
@@ -583,55 +383,19 @@ public class AuthControllerImpl implements AuthController {
 
         if(!validationResponse.getStatusCode().is2xxSuccessful()) {
             logger.warn("Company session check failed for company userId {}", userId);
-            return validationResponse;
+            return ResponseEntityMapper.toCheckMessageDTOResponseEntity(validationResponse);
         }
 
         logger.info("Company session check successful for company userId {}", userId);
-        return ResponseEntity.ok().body(new MessageDTO("Session is valid."));
+        return ResponseEntity.ok().body(new CheckMessageDTO("Session is valid.", Integer.parseInt(userId)));
     }
 
-    /**
-
-        Operation: Validate
-
-        Performs a dedicated validation of the current customer user session by first executing
-        a generic session validation routine and then ensuring that the resolved user type
-        corresponds to a customer account. Delegates the final status verification to the
-        customer session service using the userId and authCode stored in the HTTP session,
-        and returns an error when the user type is not customer, the session is invalid, or the
-        backend session-status check fails. Returns a success response only when the session is
-        confirmed to belong to a valid and active customer.
-
-        <p>
-
-            Uses:
-
-            <ul>
-                <li>{@code HttpSession} for retrieving and validating customer-related session attributes</li>
-                <li>{@code handleValidUserSession} for generic session validation across all user types</li>
-                <li>{@code customerSessionService} for customer-specific session status verification</li>
-                <li>{@code validateSessionStatus} to interpret and normalize the backend session-status response</li>
-                <li>{@code SessionKeys} for reading userId, userType, and authCode from the session</li>
-                <li>{@code UserType} for checking whether the current user is a customer</li>
-                <li>{@code ErrorUtils} for generating standardized error responses</li>
-                <li>{@code logger} for auditing customer session validation attempts and outcomes</li>
-            </ul>
-
-        </p>
-
-        @param session the current HTTP session expected to contain an authenticated customer context
-
-        @return a response entity containing a success message when the customer session is valid,
-        or an error message when the session is missing, invalid, non-customer, or fails
-        backend validation
-
-    */
     @PostMapping("/checkCustomer")
-    public ResponseEntity<MessageDTO> checkCustomerSession(HttpSession session) {
+    public ResponseEntity<CheckMessageDTO> checkCustomerSession(HttpSession session) {
         ResponseEntity<MessageDTO> response = handleValidUserSession(session);
         if(!response.getStatusCode().is2xxSuccessful()) {
             logger.warn("Customer session check failed due to invalid user session");
-            return response;
+            return ResponseEntityMapper.toCheckMessageDTOResponseEntity(response);
         }
 
         String userId = (String) session.getAttribute(SessionKeys.USER_ID);
@@ -640,7 +404,7 @@ public class AuthControllerImpl implements AuthController {
         
         if(!userType.equals(UserType.CUSTOMER.getCode())) {
             logger.warn("Customer session check failed due to user type {}", userType);
-            return ResponseEntity.badRequest().body(ErrorUtils.invalidSession());
+            return ResponseEntity.badRequest().body(ErrorUtils.invalidSessionForCheckDTO());
         }
 
         ResponseEntity<StatusDTO> checkResponse = customerSessionService.check(Integer.parseInt(userId), authCode);
@@ -649,11 +413,11 @@ public class AuthControllerImpl implements AuthController {
 
         if(!validationResponse.getStatusCode().is2xxSuccessful()) {
             logger.warn("Customer session check failed for customer userId {}", userId);
-            return validationResponse;
+            return ResponseEntityMapper.toCheckMessageDTOResponseEntity(validationResponse);
         }
 
         logger.info("Customer session check successful for customer userId {}", userId);
-        return ResponseEntity.ok().body(new MessageDTO("Session is valid."));
+        return ResponseEntity.ok().body(new CheckMessageDTO("Session is valid.", Integer.parseInt(userId)));
     }
 
 
@@ -749,45 +513,6 @@ public class AuthControllerImpl implements AuthController {
         return ResponseEntity.ok().body(new MessageDTO("Session is valid."));
     }
 
-
-    /**
-
-        Operation: Normalize
-
-        Interprets and normalizes the result of a backend session status check by evaluating the
-        HTTP status, validating the presence of the response body, and mapping specific
-        {@link SessionStatus} values to standardized error responses. Clears the HTTP session
-        whenever an invalid, expired, not found, or otherwise inconsistent session state is
-        detected, and applies special rules for unverified sessions depending on the provided
-        {@link UserType}. Returns a success response only when the backend response is successful
-        and the session status is considered valid.
-
-        <p>
-
-            Uses:
-
-            <ul>
-                <li>{@code ResponseEntity<StatusDTO>} to obtain the backend session status and HTTP code</li>
-                <li>{@code HttpSession} for clearing invalid or inconsistent session state</li>
-                <li>{@code SessionStatus} to interpret session validity, expiration, and verification state</li>
-                <li>{@code UserType} to apply user-type-specific rules for unverified sessions</li>
-                <li>{@code ErrorUtils} for constructing standardized error responses for each failure case</li>
-                <li>{@code clearSession} to reset session data on error conditions</li>
-                <li>{@code logger} for auditing session validation outcomes and anomalies</li>
-            </ul>
-
-        </p>
-
-        @param response the backend response containing session status and HTTP status code
-
-        @param session the HTTP session to be cleared when the session is invalid or inconsistent
-
-        @param userType the type of user whose session status is being validated
-
-        @return a response entity containing a success message when the session is valid, or an
-        error payload reflecting not found, expired, unverified, or otherwise invalid session states
-
-    */
     private ResponseEntity<MessageDTO> validateSessionStatus(ResponseEntity<StatusDTO> response, HttpSession session, UserType userType) {
     
         // Validate response body
@@ -812,15 +537,6 @@ public class AuthControllerImpl implements AuthController {
             if(status == SessionStatus.EXPIRED) {
                 logger.warn("Session validation failed: session expired");
                 return ResponseEntity.status(response.getStatusCode()).body(ErrorUtils.sessionExpired());
-            }
-
-            if(status == SessionStatus.NOT_VERIFIED) {
-                if(userType == UserType.CUSTOMER) {
-                    logger.warn("Session validation failed: customer sessions cannot be unverified");
-                    return ResponseEntity.status(response.getStatusCode()).body(ErrorUtils.criticalError());
-                }
-                logger.warn("Session validation failed: {} not verified", userType.getCode());
-                return ResponseEntity.status(response.getStatusCode()).body(ErrorUtils.sessionNotVerified(userType));
             }
 
             if(status != SessionStatus.VALID) {

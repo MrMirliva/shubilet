@@ -13,36 +13,6 @@ import com.shubilet.security_service.common.enums.SessionStatus;
 import com.shubilet.security_service.common.enums.UserType;
 import com.shubilet.security_service.common.util.SessionKeyGenerator;
 
-/**
-
-    Domain: Session
-
-    Provides the concrete service-layer implementation for managing administrator session
-    operations within the authentication subsystem. This class coordinates credential
-    validation, session creation, session termination, and session-status verification by
-    delegating persistence and lookup responsibilities to the underlying repository. It also
-    offers helper utilities for checking email existence, email verification status, and
-    performing session cleanup tasks. The service centralizes all admin-session lifecycle
-    operations, ensuring consistency and encapsulation of session-related business logic.
-
-    <p>
-
-        Technologies:
-
-        <ul>
-            <li>Spring Service Layer</li>
-            <li>Spring Web {@code ResponseEntity} for API-friendly responses</li>
-            <li>JPA Repository abstraction for persistence operations</li>
-            <li>{@code SessionKeyGenerator} for secure session-code generation</li>
-            <li>{@code AppConstants} for session expiration configuration</li>
-        </ul>
-
-    </p>
-
-    @author Abdullah (Mirliva) GÜNDÜZ - https://github.com/MrMirliva
-
-    @version 1.0
-*/
 @Service
 public class AdminSessionServiceImpl implements AdminSessionService {
     private final AdminSessionRepository adminSessionRepository;
@@ -51,44 +21,7 @@ public class AdminSessionServiceImpl implements AdminSessionService {
         this.adminSessionRepository = adminSessionRepository;
     }
     
-    /**
-
-        Operation: Login
-
-        Authenticates an administrator by validating the provided email and password against
-        stored credentials. When authentication succeeds, a unique session key is generated,
-        verified for uniqueness, and persisted as a new admin session with an assigned
-        expiration timestamp. Returns a {@code CookieDTO} containing the admin’s identifier,
-        user type, and generated session code. If credentials are invalid, the method responds
-        with an HTTP 401 status without a body.
-
-        <p>
-
-            Uses:
-
-            <ul>
-                <li>{@code adminSessionRepository} for credential validation, ID lookup, code uniqueness checks, and session persistence</li>
-                <li>{@code SessionKeyGenerator} for generating unique authenticated session codes</li>
-                <li>{@code AppConstants.DEFAULT_SESSION_EXPIRATION_DURATION} for assigning expiration timestamps</li>
-                <li>{@code CookieDTO} and {@code UserType.ADMIN} for structured session output</li>
-            </ul>
-
-        </p>
-
-        @param email the administrator’s email used for authentication
-
-        @param password the administrator’s password used for credential verification
-
-        @return a response entity containing a populated {@code CookieDTO} on successful login,
-        or a 401 Unauthorized response when credentials do not match a valid administrator
-    */
-    public ResponseEntity<CookieDTO> login(String email, String password) {
-
-        if(!adminSessionRepository.isEmailAndPasswordValid(email, password)) {
-            return ResponseEntity.status(401).build();
-        }
-
-        int adminId = adminSessionRepository.getAdminIdByEmail(email);
+    public ResponseEntity<CookieDTO> createSession(int adminId) {
         String code = "";
 
         while (true) {
@@ -178,19 +111,11 @@ public class AdminSessionServiceImpl implements AdminSessionService {
             return ResponseEntity.badRequest().body(new StatusDTO(SessionStatus.EXPIRED));
         }
 
-        if(!adminSessionRepository.isVerifiedAdmin(adminId)) {
-            return ResponseEntity.badRequest().body(new StatusDTO(SessionStatus.NOT_VERIFIED));
-        }
-
         return ResponseEntity.ok(new StatusDTO(SessionStatus.VALID));
     }
 
-    public boolean hasEmail(String email) {
-        return adminSessionRepository.hasEmail(email);
-    }
-
-    public boolean isVerifiedEmail(String email) {
-        return adminSessionRepository.isVerifiedEmail(email);
+    public boolean hasAdminSession(int adminId) {
+        return adminSessionRepository.existsByAdminId(adminId);
     }
 
     public void cleanAllSessions() {

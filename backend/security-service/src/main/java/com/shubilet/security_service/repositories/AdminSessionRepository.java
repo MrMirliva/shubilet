@@ -10,117 +10,9 @@ import com.shubilet.security_service.models.AdminSession;
 
 import jakarta.transaction.Transactional;
 
-/**
-
-    Domain: Persistence
-
-    Defines the persistence-layer contract for managing {@code AdminSession} entities,
-    providing both generic CRUD capabilities and specialized queries to support
-    administrator authentication and session lifecycle management. By extending
-    Spring Data JPA, this repository encapsulates JPQL and native SQL operations
-    for credential checks, email and verification lookups, session existence and
-    expiration validation, as well as bulk cleanup of expired session records in
-    the underlying data store.
-
-    <p>
-
-        Technologies:
-
-        <ul>
-            <li>Spring Data JPA</li>
-            <li>Spring Repository</li>
-            <li>JPQL</li>
-            <li>Native SQL</li>
-            <li>Jakarta Transactions</li>
-        </ul>
-
-    </p>
-
-    @see com.shubilet.security_service.models.AdminSession
-
-    @see com.shubilet.security_service.services.AdminSessionService
-
-    @author Abdullah (Mirliva) GÜNDÜZ - https://github.com/MrMilriva
-
-    @version 1.0
-*/
 @Repository
 public interface AdminSessionRepository extends JpaRepository<AdminSession, Integer> {
-    
 
-    /**
-
-        Operation: Validate
-
-        Checks whether an admin account exists that matches the provided email and password.
-        This database-level validation is used to authenticate administrators by performing
-        a direct lookup against the underlying admins table. The query returns a boolean
-        indicating whether such a matching record is present.
-
-        <p>
-
-            Uses:
-
-            <ul>
-                <li>Native SQL query for credential verification</li>
-            </ul>
-
-        </p>
-
-        @param email the admin's email used for authentication
-
-        @param password the admin's password used for authentication
-
-        @return {@code true} if a matching admin record exists, otherwise {@code false}
-    */
-    @Query(
-        value = """
-                SELECT COUNT(*) > 0
-                FROM admins a
-                WHERE a.email = :email
-                    AND a.password = :password
-                """,
-        nativeQuery = true
-    )
-    boolean isEmailAndPasswordValid(
-            @Param("email") String email,
-            @Param("password") String password
-    );
-
-
-    /**
-
-        Operation: Lookup
-
-        Retrieves the unique identifier of an admin associated with the specified email.
-        This query performs a direct lookup on the underlying admins table and returns
-        the admin's primary key. It is typically used during authentication workflows and
-        session creation processes following credential validation.
-
-        <p>
-
-            Uses:
-
-            <ul>
-                <li>Native SQL query for admin ID retrieval</li>
-            </ul>
-
-        </p>
-
-        @param email the email address whose corresponding admin ID is being requested
-
-        @return the unique identifier of the admin associated with the given email
-    */
-    @Query(
-        value = """
-                SELECT a.id
-                FROM admins a
-                WHERE a.email = :email
-                """,
-        nativeQuery = true
-    )
-    int getAdminIdByEmail(@Param("email") String email);
-    
     /**
 
         Operation: Lookup
@@ -150,6 +42,14 @@ public interface AdminSessionRepository extends JpaRepository<AdminSession, Inte
         WHERE s.code = :code
     """)
     boolean hasCode(@Param("code") String code);
+
+    @Query("""
+        select count(a) > 0
+        from AdminSession a
+        where a.adminId = :adminId
+    """)
+    boolean existsByAdminId(@Param("adminId") int adminId);
+
 
     /**
 
@@ -186,111 +86,6 @@ public interface AdminSessionRepository extends JpaRepository<AdminSession, Inte
             @Param("adminId") int adminId, 
             @Param("code") String code
     );
-
-    /**
-
-        Operation: Lookup
-
-        Determines whether an admin account exists with the specified email address.
-        This operation performs a direct lookup on the underlying {@code admins} table
-        to support validation workflows such as login, registration checks, and account
-        recovery processes.
-
-        <p>
-
-            Uses:
-
-            <ul>
-                <li>Native SQL query for email existence checking</li>
-            </ul>
-
-        </p>
-
-        @param email the email address being checked for existence
-
-        @return {@code true} if an admin with the given email exists, otherwise {@code false}
-    */
-    @Query(
-        value = """
-                SELECT COUNT(*) > 0
-                FROM admins a
-                WHERE a.email = :email
-                """,
-        nativeQuery = true
-    )
-    boolean hasEmail(@Param("email") String email);
-
-    /**
-
-        Operation: Validate
-
-        Determines whether the specified admin email belongs to a verified administrator.
-        Verification is confirmed by checking the presence and validity of the
-        {@code ref_admin_id} field in the underlying {@code admins} table. This operation
-        supports authentication and authorization workflows that require verified admin
-        identities.
-
-        <p>
-
-            Uses:
-
-            <ul>
-                <li>Native SQL query for checking admin verification status</li>
-            </ul>
-
-        </p>
-
-        @param email the email address whose verification status is being evaluated
-
-        @return {@code true} if the admin account is verified, otherwise {@code false}
-    */
-    @Query(
-        value = """
-                SELECT COUNT(*) > 0
-                FROM admins a
-                WHERE a.email = :email
-                    AND a.ref_admin_id IS NOT NULL
-                    AND a.ref_admin_id > 0
-                """,
-        nativeQuery = true
-    )
-    boolean isVerifiedEmail(@Param("email") String email);
-
-    /**
-
-        Operation: Validate
-
-        Checks whether the administrator associated with the specified identifier is
-        verified. Verification is determined by inspecting the {@code ref_admin_id}
-        field in the underlying {@code admins} table and ensuring that it contains a
-        valid non-null, positive reference. This operation is typically used during
-        authentication, authorization, and session validation workflows.
-
-        <p>
-
-            Uses:
-
-            <ul>
-                <li>Native SQL query for admin verification checking</li>
-            </ul>
-
-        </p>
-
-        @param adminId the identifier of the admin whose verification status is being evaluated
-
-        @return {@code true} if the admin is verified, otherwise {@code false}
-    */
-    @Query(
-        value = """
-                SELECT COUNT(*) > 0
-                FROM admins a
-                WHERE a.id = :adminId
-                    AND a.ref_admin_id IS NOT NULL
-                    AND a.ref_admin_id > 0
-                """,
-        nativeQuery = true
-    )
-    boolean isVerifiedAdmin(@Param("adminId") int adminId);
 
     /**
 

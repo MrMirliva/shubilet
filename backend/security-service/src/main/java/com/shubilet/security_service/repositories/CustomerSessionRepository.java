@@ -10,115 +10,8 @@ import com.shubilet.security_service.models.CustomerSession;
 
 import jakarta.transaction.Transactional;
 
-/**
-
-    Domain: Persistence
-
-    Declares the persistence-layer contract for managing {@code CustomerSession}
-    entities, combining standard CRUD functionality with specialized queries that
-    support customer authentication and session lifecycle management. Through
-    a mix of native SQL and JPQL-based operations, this repository enables
-    credential checks, customer identifier lookups, session code uniqueness
-    verification, existence and expiration validation, and bulk cleanup of
-    expired session records. It serves as the primary integration point between
-    the application’s customer session logic and the underlying database.
-
-    <p>
-
-        Technologies:
-
-        <ul>
-            <li>Spring Data JPA</li>
-            <li>Spring Repository</li>
-            <li>JPQL</li>
-            <li>Native SQL</li>
-            <li>Jakarta Transactions</li>
-        </ul>
-
-    </p>
-
-    @see com.shubilet.security_service.models.CustomerSession
-
-    @see com.shubilet.security_service.services.CustomerSessionService
-
-    @author Abdullah (Mirliva) GÜNDÜZ - https://github.com/MrMilriva
-
-    @version 1.0
-*/
 @Repository
 public interface CustomerSessionRepository extends JpaRepository<CustomerSession, Integer> {
-
-    /**
-
-        Operation: Validate
-
-        Checks whether a customer account exists that matches the provided email and password.
-        This validation is performed via a direct lookup against the underlying
-        {@code customers} table to authenticate customer users. The query returns a boolean
-        value indicating whether such a matching record exists.
-
-        <p>
-
-            Uses:
-
-            <ul>
-                <li>Native SQL query for credential verification</li>
-            </ul>
-
-        </p>
-
-        @param email the customer's email used for authentication
-
-        @param password the customer's password used for authentication
-
-        @return {@code true} if a matching customer record exists, otherwise {@code false}
-    */
-    @Query(
-        value = """
-                SELECT COUNT(*) > 0
-                FROM customers c
-                WHERE c.email = :email
-                    AND c.password = :password
-                """,
-        nativeQuery = true
-    )
-    boolean isEmailAndPasswordValid(
-            @Param("email") String email,
-            @Param("password") String password
-    );
-
-    /**
-
-        Operation: Lookup
-
-        Retrieves the unique identifier of a customer associated with the specified email.
-        This operation queries the underlying {@code customers} table directly and returns
-        the primary key of the matching customer record. It is commonly used during
-        authentication and session initialization workflows following credential validation.
-
-        <p>
-
-            Uses:
-
-            <ul>
-                <li>Native SQL query for customer ID retrieval</li>
-            </ul>
-
-        </p>
-
-        @param email the email address whose corresponding customer ID is requested
-
-        @return the unique identifier of the customer associated with the given email
-    */
-    @Query(
-        value = """
-                SELECT c.id
-                FROM customers c
-                WHERE c.email = :email
-                """,
-        nativeQuery = true
-    )
-    int getCustomerIdByEmail(@Param("email") String email);
 
     /**
 
@@ -149,6 +42,14 @@ public interface CustomerSessionRepository extends JpaRepository<CustomerSession
         WHERE s.code = :code
     """)
     boolean hasCode(@Param("code") String code);
+
+
+    @Query("""
+        select count(a) > 0
+        from CustomerSession a
+        where a.customerId = :customerId
+    """)
+    boolean existsByCustomerId(@Param("customerId") int customerId);
 
     /**
 
@@ -185,39 +86,6 @@ public interface CustomerSessionRepository extends JpaRepository<CustomerSession
             @Param("customerId") int customerId, 
             @Param("code") String code
     );
-
-    /**
-
-        Operation: Lookup
-
-        Checks whether a customer account exists with the specified email address. This
-        operation performs a direct lookup on the underlying {@code customers} table and
-        is typically used during authentication flows, registration checks, and account
-        recovery processes.
-
-        <p>
-
-            Uses:
-
-            <ul>
-                <li>Native SQL query for email existence lookup</li>
-            </ul>
-
-        </p>
-
-        @param email the email address to check
-
-        @return {@code true} if a customer with the given email exists, otherwise {@code false}
-    */
-    @Query(
-        value = """
-                SELECT COUNT(*) > 0
-                FROM customers c
-                WHERE c.email = :email
-                """,
-        nativeQuery = true
-    )
-    boolean hasEmail(@Param("email") String email);
 
     /**
 
