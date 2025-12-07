@@ -26,7 +26,7 @@ public class ResponseEntityMapper {
     private static ResponseEntity<CheckMessageDTO> messageDTOResponseEntitytoCheckMessageDTOResponseEntity(ResponseEntity<MessageDTO> responseEntity) {
         MessageDTO body = responseEntity.getBody();
         if (body != null) {
-            CheckMessageDTO dto = new CheckMessageDTO(body.getMessage(), -1);
+            CheckMessageDTO dto = new CheckMessageDTO(body.getCookie(), body.getMessage(), -1);
             return new ResponseEntity<>(dto, responseEntity.getStatusCode());
         }
         return new ResponseEntity<>(null, responseEntity.getStatusCode());

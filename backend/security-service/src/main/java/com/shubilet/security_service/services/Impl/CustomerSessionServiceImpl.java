@@ -7,7 +7,7 @@ import com.shubilet.security_service.common.constants.AppConstants;
 import com.shubilet.security_service.common.enums.SessionStatus;
 import com.shubilet.security_service.common.enums.UserType;
 import com.shubilet.security_service.common.util.SessionKeyGenerator;
-import com.shubilet.security_service.dataTransferObjects.requests.CookieDTO;
+import com.shubilet.security_service.dataTransferObjects.CookieDTO;
 import com.shubilet.security_service.dataTransferObjects.requests.StatusDTO;
 import com.shubilet.security_service.models.CustomerSession;
 import com.shubilet.security_service.repositories.CustomerSessionRepository;
@@ -36,7 +36,7 @@ public class CustomerSessionServiceImpl implements CustomerSessionService {
 
         customerSessionRepository.save(customerSession);
 
-        return ResponseEntity.ok(new CookieDTO(customerId, UserType.CUSTOMER, code));
+        return ResponseEntity.ok(new CookieDTO(String.valueOf(customerId), UserType.CUSTOMER.getCode(), code));
     }
 
     /**

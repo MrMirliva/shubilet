@@ -1,6 +1,9 @@
 package com.shubilet.security_service.common.util;
 
+
+
 import com.shubilet.security_service.common.constants.ValidationPatterns;
+import com.shubilet.security_service.common.enums.UserType;
 
 
 public final class ValidationUtils {
@@ -50,5 +53,10 @@ public final class ValidationUtils {
         int d17 = sessionKey.charAt(20) - '0';
 
         return d1 + d5 + d17 == 15;
+    }
+
+    public static boolean isValidUserType(String userType) {
+        UserType type = UserType.fromCode(userType);
+        return type != null;
     }
 }

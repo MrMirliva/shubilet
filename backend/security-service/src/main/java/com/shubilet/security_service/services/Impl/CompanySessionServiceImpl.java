@@ -7,7 +7,7 @@ import com.shubilet.security_service.common.constants.AppConstants;
 import com.shubilet.security_service.common.enums.SessionStatus;
 import com.shubilet.security_service.common.enums.UserType;
 import com.shubilet.security_service.common.util.SessionKeyGenerator;
-import com.shubilet.security_service.dataTransferObjects.requests.CookieDTO;
+import com.shubilet.security_service.dataTransferObjects.CookieDTO;
 import com.shubilet.security_service.dataTransferObjects.requests.StatusDTO;
 import com.shubilet.security_service.models.CompanySession;
 import com.shubilet.security_service.repositories.CompanySessionRepository;
@@ -37,7 +37,7 @@ public class CompanySessionServiceImpl implements CompanySessionService {
 
         companySessionRepository.save(companySession);
 
-        return ResponseEntity.ok(new CookieDTO(companyId, UserType.COMPANY, code));
+        return ResponseEntity.ok(new CookieDTO(String.valueOf(companyId), UserType.COMPANY.getCode(), code));
     }
 
     /**

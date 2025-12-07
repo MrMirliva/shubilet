@@ -1,5 +1,7 @@
 package com.shubilet.security_service.dataTransferObjects.responses;
 
+import com.shubilet.security_service.dataTransferObjects.CookieDTO;
+
 /**
 
     Domain: Messaging
@@ -24,16 +26,24 @@ package com.shubilet.security_service.dataTransferObjects.responses;
     @version 1.0
 */
 public class MessageDTO {
+    CookieDTO cookie;
     private String message;
+
+    public MessageDTO(CookieDTO cookie, String message) {
+        this.cookie = cookie;
+        this.message = message;
+    }
 
     public MessageDTO(String message) {
         this.message = message;
+    }
+    public CookieDTO getCookie() {
+        return cookie;
     }
 
     public String getMessage() {
         return message;
     }
-
     public void setMessage(String message) {
         this.message = message;
     }

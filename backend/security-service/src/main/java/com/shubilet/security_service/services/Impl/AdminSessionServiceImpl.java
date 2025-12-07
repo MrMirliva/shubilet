@@ -3,7 +3,7 @@ package com.shubilet.security_service.services.Impl;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
-import com.shubilet.security_service.dataTransferObjects.requests.CookieDTO;
+import com.shubilet.security_service.dataTransferObjects.CookieDTO;
 import com.shubilet.security_service.dataTransferObjects.requests.StatusDTO;
 import com.shubilet.security_service.models.AdminSession;
 import com.shubilet.security_service.repositories.AdminSessionRepository;
@@ -35,7 +35,7 @@ public class AdminSessionServiceImpl implements AdminSessionService {
 
         adminSessionRepository.save(adminSession);
 
-        return ResponseEntity.ok(new CookieDTO(adminId, UserType.ADMIN, code));
+        return ResponseEntity.ok(new CookieDTO(String.valueOf(adminId), UserType.ADMIN.getCode(), code));
     }
 
     /**
