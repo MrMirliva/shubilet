@@ -1,20 +1,30 @@
 package com.shubilet.payment_service.controllers;
 
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RestController;
-
+import com.shubilet.payment_service.dataTransferObjects.requests.TicketPaymentRequestDTO;
+import com.shubilet.payment_service.dataTransferObjects.responses.TicketPaymentResponseDTO;
 import com.shubilet.payment_service.services.PaymentService;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 
-///TODO: PAYMENT CONTROLLER IMPLEMENTATION
 @RestController
-@RequestMapping("/api/payments")
-@CrossOrigin(origins = "*", allowedHeaders = "*", methods = {RequestMethod.GET, RequestMethod.POST})
+@RequestMapping("/payment")
 public class PaymentController {
+
     private final PaymentService paymentService;
 
     public PaymentController(PaymentService paymentService) {
         this.paymentService = paymentService;
+    }
+
+    // -----------------------------
+    // MAKE PAYMENT
+    // POST /payment
+    // -----------------------------
+    @PostMapping
+    public ResponseEntity<TicketPaymentResponseDTO> makePayment(
+            @RequestBody TicketPaymentRequestDTO dto) {
+
+        TicketPaymentResponseDTO response = paymentService.processTicketPayment(dto);
+        return ResponseEntity.ok(response);
     }
 }

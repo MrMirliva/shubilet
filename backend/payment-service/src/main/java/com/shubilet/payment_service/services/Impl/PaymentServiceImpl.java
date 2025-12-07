@@ -1,48 +1,42 @@
 package com.shubilet.payment_service.services.Impl;
 
-import com.shubilet.payment_service.models.Card;
+import com.shubilet.payment_service.dataTransferObjects.requests.TicketPaymentRequestDTO;
+import com.shubilet.payment_service.dataTransferObjects.responses.TicketPaymentResponseDTO;
 import com.shubilet.payment_service.models.Payment;
-import com.shubilet.payment_service.repositories.CardRepository;
 import com.shubilet.payment_service.repositories.PaymentRepository;
 import com.shubilet.payment_service.services.PaymentService;
+import com.shubilet.payment_service.common.enums.PaymentStatus;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
 
 @Service
 public class PaymentServiceImpl implements PaymentService {
 
     private final PaymentRepository paymentRepository;
-    private final CardRepository cardRepository;
 
-    public PaymentServiceImpl(PaymentRepository paymentRepository, CardRepository cardRepository) {
+    public PaymentServiceImpl(PaymentRepository paymentRepository) {
         this.paymentRepository = paymentRepository;
-        this.cardRepository = cardRepository;
     }
 
     @Override
-    public Payment makePayment(int cardId, BigDecimal amount) {
-        Card card = cardRepository.findById(cardId)
-                .orElseThrow(() -> new IllegalArgumentException("Card not found: " + cardId));
+    public TicketPaymentResponseDTO processTicketPayment(TicketPaymentRequestDTO requestDTO) {
 
-        if (!card.getIsActive()) {
-            throw new IllegalStateException("Card is not active");
-        }
-
+        // Ödeme kaydı oluştur
         Payment payment = new Payment();
-        payment.setCardId(cardId);
-        payment.setAmount(amount);
-     //   payment.setDate(LocalDateTime.now());
+        payment.setCardId(Integer.valueOf(requestDTO.getCardId()));
+        payment.setAmount(new BigDecimal(requestDTO.getAmount()));
 
-        return paymentRepository.save(payment);
-        
-    }
+        Payment saved = paymentRepository.save(payment);
 
-    @Override
-    public Payment getPayment(int paymentId) {
-        return paymentRepository.findById(paymentId)
-                .orElseThrow(() -> new IllegalArgumentException("Payment not found"));
+        // Response DTO oluştur
+        TicketPaymentResponseDTO dto = new TicketPaymentResponseDTO();
+        dto.setStatus(PaymentStatus.SUCCESS.name());
+        dto.setMessage("Payment completed successfully.");
+        dto.setPaymentId(String.valueOf(saved.getId()));
+        dto.setTicketId("TICKET_PENDING"); 
+        // ticket servisi entegre edilince gerçek değeri gelecek
+
+        return dto;
     }
 }
-

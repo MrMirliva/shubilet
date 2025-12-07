@@ -1,15 +1,15 @@
 package com.shubilet.payment_service.services;
 
-import com.shubilet.payment_service.models.Card;
+import com.shubilet.payment_service.dataTransferObjects.requests.CardDTO;
+import com.shubilet.payment_service.dataTransferObjects.responses.CardSummaryDTO;
+
 import java.util.List;
 
 public interface CardService {
 
-    Card saveCard(Card card);
+    List<CardSummaryDTO> getSavedCardsByCustomerId(Integer customerId);
 
-    void deleteCard(int cardId);
+    CardSummaryDTO saveNewCard(CardDTO cardDTO);
 
-    Card getCard(int cardId);
-
-   // Card getCardByCardNo(String cardNo);
+    void deactivateCard(Integer cardId, Integer customerId);
 }
