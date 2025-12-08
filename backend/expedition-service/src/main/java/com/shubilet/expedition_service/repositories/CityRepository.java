@@ -11,24 +11,22 @@ import com.shubilet.expedition_service.models.City;
 @Repository
 public interface CityRepository extends JpaRepository<City, Integer> {
 
-    @Query(
-        value = 
-            """
-                SELECT COUNT(*) > 0
-                FROM cities
-                WHERE name = :name
-            """,
-        nativeQuery = true
-    )
+    @Query("""
+        SELECT CASE WHEN COUNT(c) > 0 THEN TRUE ELSE FALSE END
+        FROM City c
+        WHERE c.name = :name
+    """)
     boolean existsByName(@Param("name") String name);
 
-    @Query(
-        value = 
-            """
-                SELECT id
-                FROM cities
-                WHERE name = :name
-            """,
-        nativeQuery = true
-    )
-    int findIdByName(@Param("name") String name);}
+    @Query("""
+        SELECT COALESCE(
+                (
+                    SELECT c.id 
+                    FROM City c 
+                    WHERE c.name = :name
+                ),
+                -1
+            )
+    """)
+    int findIdByName(@Param("name") String name);
+}

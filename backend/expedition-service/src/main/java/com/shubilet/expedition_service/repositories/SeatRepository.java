@@ -7,8 +7,8 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
-import com.shubilet.expedition_service.dataTransferObjects.responses.SeatForCompanyDTO;
-import com.shubilet.expedition_service.dataTransferObjects.responses.SeatForCustomerDTO;
+import com.shubilet.expedition_service.dataTransferObjects.responses.base.SeatForCompanyDTO;
+import com.shubilet.expedition_service.dataTransferObjects.responses.base.SeatForCustomerDTO;
 import com.shubilet.expedition_service.models.Seat;
 
 
@@ -16,29 +16,59 @@ import com.shubilet.expedition_service.models.Seat;
 public interface SeatRepository extends JpaRepository<Seat, Integer> {
     
     @Query("""
-        select new com.shubilet.expedition_service.dataTransferObjects.responses.SeatForCustomerDTO(
+        SELECT new com.shubilet.expedition_service.dataTransferObjects.responses.base.SeatForCompanyDTO(
             s.id,
+            s.expeditionId,
+            s.seatNo,
+            s.customerId,
+            s.status
+        )
+        FROM Seat s
+        WHERE s.expeditionId = :expeditionId
+        ORDER BY s.seatNo ASC
+    """)
+    List<SeatForCompanyDTO> findSeatsByExpeditionIdForCompany(@Param("expeditionId") int expeditionId);
+
+    @Query("""
+        SELECT CASE WHEN COUNT(s) > 0 THEN TRUE ELSE FALSE END
+        FROM Seat s
+        WHERE s.expeditionId = :expeditionId
+            AND s.seatNo = :seatNo
+    """)
+    boolean existsByExpeditionIdAndSeatNo(
+            @Param("expeditionId") int expeditionId,
+            @Param("seatNo") int seatNo
+    );
+
+    @Query("""
+        SELECT s
+        FROM Seat s
+        WHERE s.expeditionId = :expeditionId
+            AND s.seatNo = :seatNo
+        """)
+    Seat findByExpeditionIdAndSeatNo(
+            @Param("expeditionId") int expeditionId,
+            @Param("seatNo") int seatNo
+    );
+
+    /*@Query("""
+        SELECT new com.shubilet.expedition_service.dataTransferObjects.responses.base.SeatForCustomerDTO(
+            s.customerId,
             s.expeditionId,
             s.seatNo,
             s.status
         )
-        from Seat s
-        where s.expeditionId = :expeditionId
-        order by s.seatNo asc
+        FROM Seat s
+            WHERE s.expeditionId = :expeditionId
+                AND s.status = 'AVAILABLE'
     """)
-    List<SeatForCustomerDTO> findSeatsByExpeditionIdForCustomer(@Param("expeditionId") int expeditionId);
+    List<SeatForCustomerDTO> findAvailableSeatsByExpeditionId(@Param("expeditionId") int expeditionId);*/
 
     @Query("""
-        select new ccom.shubilet.expedition_service.dataTransferObjects.responses.SeatForCompanyDTO(
-            s.id,
-            s.expeditionId,
-            s.seatNo,
-            s.status,
-            s.customerId
-        )
-        from Seat s
-        where s.expeditionId = :expeditionId
-        order by s.seatNo asc
+        SELECT s
+        FROM Seat s
+        WHERE s.expeditionId = :expeditionId
+            AND s.status = com.shubilet.expedition_service.enums.Status.AVAILABLE
     """)
-    List<SeatForCompanyDTO> findSeatsByExpeditionIdForCompany(@Param("expeditionId") int expeditionId);
+    List<Seat> findAvailableSeatsByExpeditionId(@Param("expeditionId") int expeditionId);
 }

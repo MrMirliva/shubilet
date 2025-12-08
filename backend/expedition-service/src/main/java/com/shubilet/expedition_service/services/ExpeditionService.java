@@ -2,8 +2,8 @@ package com.shubilet.expedition_service.services;
 
 import java.util.List;
 
-import com.shubilet.expedition_service.dataTransferObjects.responses.ExpeditionForCompanyDTO;
-import com.shubilet.expedition_service.dataTransferObjects.responses.ExpeditionForCustomerDTO;
+import com.shubilet.expedition_service.dataTransferObjects.responses.base.ExpeditionForCompanyDTO;
+import com.shubilet.expedition_service.dataTransferObjects.responses.base.ExpeditionForCustomerDTO;
 
 public interface ExpeditionService {
     
@@ -17,5 +17,5 @@ public interface ExpeditionService {
 
     public List<ExpeditionForCompanyDTO> findAllExpeditions(int companyId);
 
-    public boolean doesExpeditionExist(int expeditionId);
+    public boolean expeditionExists(int expeditionId);
 }

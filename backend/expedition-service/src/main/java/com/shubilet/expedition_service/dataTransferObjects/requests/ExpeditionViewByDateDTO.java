@@ -4,6 +4,10 @@ public class ExpeditionViewByDateDTO {
     private int companyId;
     private String date;
 
+    public ExpeditionViewByDateDTO() {
+
+    }
+
     public ExpeditionViewByDateDTO(int companyId, String date) {
         this.companyId = companyId;
         this.date = date;

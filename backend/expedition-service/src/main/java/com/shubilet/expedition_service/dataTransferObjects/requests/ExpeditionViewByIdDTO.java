@@ -4,7 +4,9 @@ public class ExpeditionViewByIdDTO {
     private int companyId;
     private int expeditionId;
 
-    public ExpeditionViewByIdDTO() {}
+    public ExpeditionViewByIdDTO() {
+        
+    }
     
     public ExpeditionViewByIdDTO(int companyId, int expeditionId) {
         this.companyId = companyId;

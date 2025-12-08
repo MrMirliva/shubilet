@@ -6,8 +6,8 @@ import java.math.BigDecimal;
 
 import org.springframework.stereotype.Service;
 
-import com.shubilet.expedition_service.dataTransferObjects.responses.ExpeditionForCompanyDTO;
-import com.shubilet.expedition_service.dataTransferObjects.responses.ExpeditionForCustomerDTO;
+import com.shubilet.expedition_service.dataTransferObjects.responses.base.ExpeditionForCompanyDTO;
+import com.shubilet.expedition_service.dataTransferObjects.responses.base.ExpeditionForCustomerDTO;
 import com.shubilet.expedition_service.models.Expedition;
 import com.shubilet.expedition_service.repositories.CityRepository;
 import com.shubilet.expedition_service.repositories.ExpeditionRepository;
@@ -30,6 +30,11 @@ public class ExpeditionServiceImpl implements ExpeditionService {
     public int createExpedition(int companyId, String departureCity, String arrivalCity, String date, String time, int capacity, double price, int duration) {
         int departureCityId = cityRepository.findIdByName(departureCity);
         int arrivalCityId = cityRepository.findIdByName(arrivalCity);
+
+        if(departureCityId == -1 || arrivalCityId == -1) {
+            return -1;
+        }
+
         Instant instantDate = Instant.parse(date + "T" + time + "Z");
 
         Expedition expedition = new Expedition(
@@ -38,6 +43,7 @@ public class ExpeditionServiceImpl implements ExpeditionService {
             instantDate,
             BigDecimal.valueOf(price),
             duration,
+            capacity,
             companyId
         );
 
@@ -49,13 +55,20 @@ public class ExpeditionServiceImpl implements ExpeditionService {
     public List<ExpeditionForCustomerDTO> findExpeditionsByInstantAndRoute(String departureCity, String arrivalCity, String date) {
         int departureCityId = cityRepository.findIdByName(departureCity);
         int arrivalCityId = cityRepository.findIdByName(arrivalCity);
+
+        if(departureCityId == -1 || arrivalCityId == -1) {
+            return List.of();
+        }
+
         Instant instantDate = Instant.parse(date);
-        return expeditionRepository.findByInstantAndRoute(departureCityId, arrivalCityId, instantDate);
+        Instant endOfDay = instantDate.plusSeconds(86399); // Add 23 hours, 59 minutes, and 59 seconds to get the end of the day
+        return expeditionRepository.findByInstantAndRoute(departureCityId, arrivalCityId, instantDate, endOfDay);
     }
 
     public List<ExpeditionForCompanyDTO> findExpeditionsByInstant(String date) {
         Instant instantDate = Instant.parse(date);
-        return expeditionRepository.findAllByInstant(instantDate);
+        Instant endOfDay = instantDate.plusSeconds(86399); // Add 23 hours, 59 minutes, and 59 seconds to get the end of the day
+        return expeditionRepository.findAllByInstant(instantDate, endOfDay);
     }
 
     public List<ExpeditionForCompanyDTO> findUpcomingExpeditions(int companyId) {
@@ -67,7 +80,8 @@ public class ExpeditionServiceImpl implements ExpeditionService {
         return expeditionRepository.findAllByCompanyId(companyId);
     }
 
-    public boolean doesExpeditionExist(int expeditionId) {
+    public boolean expeditionExists(int expeditionId) {
         return expeditionRepository.existsById(expeditionId);
     }
+    
 }

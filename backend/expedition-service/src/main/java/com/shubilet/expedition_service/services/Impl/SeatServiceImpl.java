@@ -1,22 +1,30 @@
 package com.shubilet.expedition_service.services.Impl;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.stereotype.Service;
 
-import com.shubilet.expedition_service.dataTransferObjects.responses.SeatForCompanyDTO;
-import com.shubilet.expedition_service.dataTransferObjects.responses.SeatForCustomerDTO;
+import com.shubilet.expedition_service.common.enums.BookStatus;
+import com.shubilet.expedition_service.dataTransferObjects.responses.base.SeatForCompanyDTO;
+import com.shubilet.expedition_service.dataTransferObjects.responses.base.SeatForCustomerDTO;
 import com.shubilet.expedition_service.models.Seat;
 import com.shubilet.expedition_service.services.SeatService;
+import com.shubilet.expedition_service.repositories.ExpeditionRepository;
 import com.shubilet.expedition_service.repositories.SeatRepository;
 
 @Service
 public class SeatServiceImpl implements SeatService {
 
     private final SeatRepository seatRepository;
+    private final ExpeditionRepository expeditionRepository;
 
-    public SeatServiceImpl(SeatRepository seatRepository) {
+    public SeatServiceImpl(
+        SeatRepository seatRepository,
+        ExpeditionRepository expeditionRepository
+    ) {
         this.seatRepository = seatRepository;
+        this.expeditionRepository = expeditionRepository;
     }
     
     public void generateSeats(int expeditionId, int capacity) {
@@ -27,10 +35,46 @@ public class SeatServiceImpl implements SeatService {
     }
 
     public List<SeatForCustomerDTO> getAvailableSeats(int expeditionId) {
-        return  seatRepository.findSeatsByExpeditionIdForCustomer(expeditionId);
+        List<Seat> seats = seatRepository.findAvailableSeatsByExpeditionId(expeditionId);
+        List<SeatForCustomerDTO> seatDTOs = new ArrayList<>();
+
+        for(Seat seat : seats) {
+            SeatForCustomerDTO dto = new SeatForCustomerDTO(
+                seat.getCustomerId(),
+                seat.getExpeditionId(),
+                seat.getSeatNo(),
+                seat.getStatus().getDisplayName()
+            );
+            seatDTOs.add(dto);
+        }
+
+        return seatDTOs;
+        
     }
 
     public List<SeatForCompanyDTO> getSeatsByExpeditionId(int expeditionId) {
         return seatRepository.findSeatsByExpeditionIdForCompany(expeditionId);
+    }
+
+    public boolean seatExist(int expeditionId, int seatNo) {
+        return seatRepository.existsByExpeditionIdAndSeatNo(expeditionId, seatNo);
+    }
+
+    public BookStatus bookSeat(int expeditionId, int seatNo) {
+
+        Seat seat = seatRepository.findByExpeditionIdAndSeatNo(expeditionId, seatNo);
+
+        if(seat == null) {
+            return BookStatus.SEAT_NOT_EXISTS;
+        }
+
+        if(seat.isBooked()) {
+            return BookStatus.ALREADY_BOOKED;
+        }
+
+        seat.setBooked(true);
+        seatRepository.save(seat);
+        
+        return BookStatus.SUCCESS;
     }
 }

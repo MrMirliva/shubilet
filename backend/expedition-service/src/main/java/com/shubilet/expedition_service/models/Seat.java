@@ -13,7 +13,6 @@ import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 
 import java.io.Serializable;
-import java.util.concurrent.TransferQueue;
 
 /**
  * Represents a seat in a specific expedition.
@@ -30,7 +29,7 @@ public class Seat implements Serializable {
     // ------------------------
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int id;
+    private Integer id;
 
     // ------------------------
     // Fields
@@ -74,10 +73,10 @@ public class Seat implements Serializable {
     // ------------------------
     // Getters and Setters
     // ------------------------
-    public int getId() {
+    public Integer getId() {
         return id;
     }
-    public void setId(int id) {
+    public void setId(Integer id) {
         this.id = id;
     }
 
@@ -105,8 +104,18 @@ public class Seat implements Serializable {
     public Status getStatus() {
         return status;
     }
+    public boolean isBooked() {
+        return this.status == Status.RESERVED;
+    }
     public void setStatus(Status status) {
         this.status = status;
+    }
+    public void setBooked(boolean booked) {
+        if (booked) {
+            this.status = Status.RESERVED;
+        } else {
+            this.status = Status.AVAILABLE;
+        }
     }
 
 

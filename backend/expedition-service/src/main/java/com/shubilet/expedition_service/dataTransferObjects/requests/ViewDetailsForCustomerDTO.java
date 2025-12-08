@@ -5,6 +5,16 @@ public class ViewDetailsForCustomerDTO {
     private String arrivalCity;
     private String date;
 
+    public ViewDetailsForCustomerDTO() {
+
+    }
+
+    public ViewDetailsForCustomerDTO(String departureCity, String arrivalCity, String date) {
+        this.departureCity = departureCity;
+        this.arrivalCity = arrivalCity;
+        this.date = date;
+    }
+
     public String getDepartureCity() {
         return departureCity;
     }

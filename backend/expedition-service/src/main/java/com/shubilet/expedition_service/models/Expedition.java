@@ -27,7 +27,7 @@ public class Expedition implements Serializable {
     // ------------------------
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int id;
+    private Integer id;
 
     // ------------------------
     // Fields
@@ -40,7 +40,6 @@ public class Expedition implements Serializable {
     @Column(name = "arrival_city_id", nullable = false, updatable = false)
     private Integer arrivalCityId;
 
-    ///TODO: Tek bir değişkende toplamak mantıklı mı bilmiyorum.
     @NotNull
     @Column(nullable = false, updatable = false)
     private Instant dateAndTime;
@@ -51,7 +50,19 @@ public class Expedition implements Serializable {
     private BigDecimal price;
 
     @Column(nullable = true, updatable = true)
-    private int duration; // Duration in minutes
+    private Integer duration;
+
+    @NotNull
+    @Column(nullable = false, updatable = false)
+    private Integer capacity;
+
+    @NotNull
+    @Column(name = "number_of_booked_seats", nullable = false, updatable = false)
+    private Integer numberOfBookedSeats;
+
+    @NotNull
+    @Column(nullable = false, updatable = false, precision = 10, scale = 2)
+    private BigDecimal profit;
 
     @NotNull
     @Column(name = "company_id", nullable = false, updatable = false)
@@ -63,18 +74,45 @@ public class Expedition implements Serializable {
     public Expedition() {
     }
 
-    public Expedition(Integer departureCityId, 
-                    Integer arrivalCityId, 
-                    Instant dateAndTime,
-                    BigDecimal price,
-                    int duration,
-                    Integer companyId
+    public Expedition(
+        Integer departureCityId,
+        Integer arrivalCityId,
+        Instant dateAndTime,
+        BigDecimal price,
+        Integer duration,
+        Integer capacity,
+        Integer companyId
     ) {
         this.departureCityId = departureCityId;
         this.arrivalCityId = arrivalCityId;
         this.dateAndTime = dateAndTime;
         this.price = price;
         this.duration = duration;
+        this.capacity = capacity;
+        this.numberOfBookedSeats = 0;
+        this.profit = BigDecimal.ZERO;
+        this.companyId = companyId;
+    }
+
+    public Expedition(
+        Integer departureCityId,
+        Integer arrivalCityId,
+        Instant dateAndTime,
+        BigDecimal price,
+        Integer duration,
+        Integer capacity,
+        Integer numberOfBookedSeats,
+        BigDecimal profit,
+        Integer companyId
+    ) {
+        this.departureCityId = departureCityId;
+        this.arrivalCityId = arrivalCityId;
+        this.dateAndTime = dateAndTime;
+        this.price = price;
+        this.duration = duration;
+        this.capacity = capacity;
+        this.numberOfBookedSeats = numberOfBookedSeats;
+        this.profit = profit;
         this.companyId = companyId;
     }
 
@@ -123,6 +161,27 @@ public class Expedition implements Serializable {
         this.duration = duration;
     }
 
+    public int getCapacity() {
+        return capacity;
+    }
+    public void setCapacity(int capacity) {
+        this.capacity = capacity;
+    }
+
+    public int getNumberOfBookedSeats() {
+        return numberOfBookedSeats;
+    }
+    public void setNumberOfBookedSeats(int numberOfBookedSeats) {
+        this.numberOfBookedSeats = numberOfBookedSeats;
+    }
+
+    public BigDecimal getProfit() {
+        return profit;
+    }
+    public void setProfit(BigDecimal profit) {
+        this.profit = profit;
+    }
+
     public Integer getCompanyId() {
         return companyId;
     }
@@ -159,13 +218,16 @@ public class Expedition implements Serializable {
     @Override
     public String toString() {
         return "Expedition{" +
-                "id=" + id +
-                ", departureCityId=" + departureCityId +
-                ", arrivalCityId=" + arrivalCityId +
-                ", dateAndTime=" + dateAndTime +
-                ", price=" + price +
-                ", duration=" + duration +
-                ", companyId=" + companyId +
-                '}';
+            "id=" + id +
+            ", departureCityId=" + departureCityId +
+            ", arrivalCityId=" + arrivalCityId +
+            ", dateAndTime=" + dateAndTime +
+            ", price=" + price +
+            ", duration=" + duration +
+            ", capacity=" + capacity +
+            ", numberOfBookedSeats=" + numberOfBookedSeats +
+            ", profit=" + profit +
+            ", companyId=" + companyId +
+            '}';
     }
 }

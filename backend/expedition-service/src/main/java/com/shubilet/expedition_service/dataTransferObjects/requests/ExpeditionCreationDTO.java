@@ -10,6 +10,30 @@ public class ExpeditionCreationDTO {
     private int companyId;
     private int capacity;
 
+    public ExpeditionCreationDTO() {
+
+    }
+
+    public ExpeditionCreationDTO(
+        String departureCity,
+        String arrivalCity,
+        String date,
+        String time,
+        double price,
+        int duration,
+        int companyId,
+        int capacity
+    ) {
+        this.departureCity = departureCity;
+        this.arrivalCity = arrivalCity;
+        this.date = date;
+        this.time = time;
+        this.price = price;
+        this.duration = duration;
+        this.companyId = companyId;
+        this.capacity = capacity;
+    }
+
     public String getDepartureCity() {
         return departureCity;
     }

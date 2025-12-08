@@ -68,8 +68,8 @@ public class RequestTimingAspect {
         @throws Throwable if the intercepted method throws any exception during execution
     */
     @Around("""
-            execution(* com.shubilet.security_service.controllers..*(..)) ||
-            execution(* com.shubilet.security_service.sweeper..*(..))
+            execution(* com.shubilet.expedition_service.controllers..*(..)) ||
+            execution(* com.shubilet.expedition_service.sweeper..*(..))
             """)
     public Object measureExecutionTime(ProceedingJoinPoint joinPoint) throws Throwable {
 

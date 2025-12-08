@@ -5,7 +5,7 @@ import org.springframework.http.ResponseEntity;
 import com.shubilet.security_service.dataTransferObjects.CookieDTO;
 import com.shubilet.security_service.dataTransferObjects.requests.StatusDTO;
 
-/// TODO: Çınkarılacak methodlar var. Öldür onu :D
+
 public interface CustomerSessionService {
     
     public ResponseEntity<CookieDTO> createSession(int customerId);

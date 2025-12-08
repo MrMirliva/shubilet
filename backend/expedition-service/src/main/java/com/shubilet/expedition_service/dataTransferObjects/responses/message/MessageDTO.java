@@ -1,4 +1,4 @@
-package com.shubilet.expedition_service.dataTransferObjects.responses;
+package com.shubilet.expedition_service.dataTransferObjects.responses.message;
 
 /**
 

@@ -1,41 +1,68 @@
-package com.shubilet.expedition_service.dataTransferObjects.responses;
+package com.shubilet.expedition_service.dataTransferObjects.responses.base;
+
+import java.math.BigDecimal;
 
 public class ExpeditionForCustomerDTO {
-    private int id;
+    private int expeditionId;
     private String departureCity;
     private String arrivalCity;
     private String date;
     private String time;
     private double price;
     private int duration;
-    private String companyName;
+    private int companyId;
+
+    public ExpeditionForCustomerDTO() {
+
+    }
 
     public ExpeditionForCustomerDTO(
-        int id,
+        Integer expeditionId,
         String departureCity,
         String arrivalCity,
         String date,
         String time,
-        double price,
-        int duration,
-        String companyName
+        Double price,
+        Integer duration,
+        Integer companyId
     ) {
-        this.id = id;
+        this.expeditionId = expeditionId;
         this.departureCity = departureCity;
         this.arrivalCity = arrivalCity;
         this.date = date;
         this.time = time;
         this.price = price;
         this.duration = duration;
-        this.companyName = companyName;
+        this.companyId = companyId;
+    }
+
+    public ExpeditionForCustomerDTO(
+        Integer expeditionId,
+        String departureCity,
+        String arrivalCity,
+        String date,
+        String time,
+        BigDecimal price,
+        Integer duration,
+        Integer companyId
+    ) {
+        this.expeditionId = (expeditionId != null) ? expeditionId : 0;
+        this.departureCity = departureCity;
+        this.arrivalCity = arrivalCity;
+        this.date = date;
+        this.time = time;
+        this.price = (price != null) ? price.doubleValue() : 0.0;
+        this.duration = (duration != null) ? duration : 0;
+        this.companyId = (companyId != null) ? companyId : 0;
     }
 
 
-    public int getId() {
-        return id;
+
+    public int getExpeditionId() {
+        return expeditionId;
     }
-    public void setId(int id) {
-        this.id = id;
+    public void setExpeditionId(int expeditionId) {
+        this.expeditionId = expeditionId;
     }
 
     public String getDepartureCity() {
@@ -80,10 +107,10 @@ public class ExpeditionForCustomerDTO {
         this.duration = duration;
     }
 
-    public String getCompanyName() {
-        return companyName;
+    public int getCompanyId() {
+        return companyId;
     }
-    public void setCompanyName(String companyName) {
-        this.companyName = companyName;
+    public void setCompanyId(int companyId) {
+        this.companyId = companyId;
     }
 }
