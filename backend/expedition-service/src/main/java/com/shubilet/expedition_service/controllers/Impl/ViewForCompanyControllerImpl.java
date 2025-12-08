@@ -81,7 +81,7 @@ public class ViewForCompanyControllerImpl implements ViewForCompanyController {
         logger.info("Expeditions found for date: {}", date);
         return ResponseEntity.ok().body(new ExpeditionsForCompanyDTO("Expeditions found", expeditions));
     }
-
+ 
     @PostMapping("/activeExpeditions")
     public ResponseEntity<ExpeditionsForCompanyDTO> viewActiveExpeditions(@RequestBody CompanyIdDTO companyIdDTO) {
         ErrorUtils errorUtils = new ErrorUtils(ErrorUtils.ConversionType.EXPEDITIONS_FOR_COMPANY_DTO);

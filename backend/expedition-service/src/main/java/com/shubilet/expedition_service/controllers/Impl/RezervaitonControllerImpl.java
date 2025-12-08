@@ -2,6 +2,7 @@ package com.shubilet.expedition_service.controllers.Impl;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -81,14 +82,13 @@ public class RezervaitonControllerImpl implements RezervationController {
             return ResponseEntity.badRequest().body(errorUtils.notFound("Expedition ID: " + expeditionId));
         }
 
-        if(seatService.seatExist(expeditionId, seatNo)) {
-            logger.error("Seat already booked. Expedition ID: {}, Seat No: {}", expeditionId, seatNo);
-            return ResponseEntity.badRequest().body(errorUtils.alreadyExists("Seat No: " + seatNo + " for Expedition ID: " + expeditionId));
+        if(!seatService.seatExist(expeditionId, seatNo)) {
+            logger.error("Seat not found. Expedition ID: {}, Seat No: {}", expeditionId, seatNo);
+            return ResponseEntity.badRequest().body(errorUtils.notFound("Seat No: " + seatNo + " for Expedition ID: " + expeditionId));
         }
 
         ///TODO: CardId kontrolü yapılacak, Eureka servis ile Payment-Service'e istek atılacak
 
-        
         //STEP 3: Logical processing
 
         ///TODO: Bilet oluşturma işlemi yapılacak, Eureka servis ile Payment-Service'e istek atılacak
@@ -104,7 +104,7 @@ public class RezervaitonControllerImpl implements RezervationController {
 
             if(bookStatus == BookStatus.ALREADY_BOOKED) {
                 logger.error("Seat already booked. Expedition ID: {}, Seat No: {}", expeditionId, seatNo);
-                return ResponseEntity.status(bookStatus.getHttpStatus()).body(errorUtils.alreadyExists("Seat No: " + seatNo + " for Expedition ID: " + expeditionId));
+                return ResponseEntity.status(bookStatus.getHttpStatus()).body(errorUtils.alreadyBooked("Seat No: " + seatNo + " for Expedition ID: " + expeditionId));
             }
 
             logger.error("Failed to book seat. Expedition ID: {}, Seat No: {}, Status: {}", expeditionId, seatNo, bookStatus);
@@ -116,8 +116,10 @@ public class RezervaitonControllerImpl implements RezervationController {
         return ResponseEntity.ok(new TicketInfoDTO(ticketDTO, "Ticket booked successfully."));
     }
 
-    public ResponseEntity<CardsDTO> viewCards(CustomerIdDTO customerIdDTO) {
+    @PostMapping("/view_cards")
+    public ResponseEntity<CardsDTO> viewCards(@RequestBody CustomerIdDTO customerIdDTO) {
         ErrorUtils errorUtils = new ErrorUtils(ErrorUtils.ConversionType.CARDS_DTO);
+
         //STEP 1: Classic validation
         if(customerIdDTO == null) {
             logger.error("CustomerIdDTO is null");

@@ -52,6 +52,11 @@ public class ErrorUtils {
         return caster(message);
     }
 
+    public <T> T alreadyBooked(String entityName) {
+        String message = entityName + ErrorMessages.ALREADY_BOOKED;
+        return caster(message);
+    }
+
 
 
     private <T> T caster(String errorMessage) {

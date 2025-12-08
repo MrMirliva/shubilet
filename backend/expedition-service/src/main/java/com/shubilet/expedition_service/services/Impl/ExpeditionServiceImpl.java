@@ -36,7 +36,7 @@ public class ExpeditionServiceImpl implements ExpeditionService {
             return -1;
         }
 
-        Instant instantDate = Instant.parse(date + "T" + time + "Z");
+        Instant instantDate = Instant.parse(date + "T" + time + ":00Z");
 
         Expedition expedition = new Expedition(
             departureCityId,
@@ -61,7 +61,7 @@ public class ExpeditionServiceImpl implements ExpeditionService {
             return List.of();
         }
 
-        Instant instantDate = Instant.parse(date);
+        Instant instantDate = Instant.parse(date + "T00:00:00Z");
         Instant endOfDay = instantDate.plusSeconds(86399); // Add 23 hours, 59 minutes, and 59 seconds to get the end of the day
         
         return DTOMapperUtils.toExpeditionForCustomerDTO(
@@ -75,7 +75,7 @@ public class ExpeditionServiceImpl implements ExpeditionService {
     }
 
     public List<ExpeditionForCompanyDTO> findExpeditionsByInstant(String date) {
-        Instant instantDate = Instant.parse(date);
+        Instant instantDate = Instant.parse(date + "T00:00:00Z");
         Instant endOfDay = instantDate.plusSeconds(86399); // Add 23 hours, 59 minutes, and 59 seconds to get the end of the day
         
         return DTOMapperUtils.toExpeditionForCompanyDTO(

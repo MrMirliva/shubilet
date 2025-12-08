@@ -5,6 +5,7 @@ import java.util.List;
 import com.shubilet.expedition_service.dataTransferObjects.responses.base.ExpeditionForCompanyDTO;
 import com.shubilet.expedition_service.dataTransferObjects.responses.base.ExpeditionForCustomerDTO;
 import com.shubilet.expedition_service.dataTransferObjects.responses.base.SeatForCompanyDTO;
+import com.shubilet.expedition_service.dataTransferObjects.responses.base.SeatForCustomerDTO;
 import com.shubilet.expedition_service.dataTransferObjects.responses.base.TicketDTO;
 
 import com.shubilet.expedition_service.dataTransferObjects.responses.forRepositories.*;
@@ -185,4 +186,32 @@ public class DTOMapperUtils {
                 .map(DTOMapperUtils::toTicketDTO)
                 .toList();
     }
+
+    public static SeatForCustomerDTO toSeatForCustomerDTO(SeatForCustomerRepoDTO repoDTO) {
+        int customerId = 0;
+        int expeditionId = 0;
+        int seatNo = 0;
+        String status = "";
+
+        if (repoDTO != null) {
+            customerId = (repoDTO.getCustomerId() != null) ? repoDTO.getCustomerId() : 0;
+            expeditionId = (repoDTO.getExpeditionId() != null) ? repoDTO.getExpeditionId() : 0;
+            seatNo = (repoDTO.getSeatNo() != null) ? repoDTO.getSeatNo() : 0;
+            status = (repoDTO.getStatus() != null) ? repoDTO.getStatus().toString() : "";
+        }
+
+        return new SeatForCustomerDTO(
+            customerId,
+            expeditionId,
+            seatNo,
+            status
+        );
+    }
+
+    public static List<SeatForCustomerDTO> toSeatForCustomerDTO(List<SeatForCustomerRepoDTO> repoDTOs) {
+        return repoDTOs.stream()
+                .map(DTOMapperUtils::toSeatForCustomerDTO)
+                .toList();
+    }
+    
 }

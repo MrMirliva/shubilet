@@ -33,20 +33,7 @@ public class SeatServiceImpl implements SeatService {
     }
 
     public List<SeatForCustomerDTO> getAvailableSeats(int expeditionId) {
-        List<Seat> seats = seatRepository.findSeatsByExpeditionIdAndStatus(expeditionId, SeatStatus.AVAILABLE);
-        List<SeatForCustomerDTO> seatDTOs = new ArrayList<>();
-
-        for(Seat seat : seats) {
-            SeatForCustomerDTO dto = new SeatForCustomerDTO(
-                seat.getCustomerId(),
-                seat.getExpeditionId(),
-                seat.getSeatNo(),
-                seat.getStatus().getDisplayName()
-            );
-            seatDTOs.add(dto);
-        }
-
-        return seatDTOs;
+        return DTOMapperUtils.toSeatForCustomerDTO(seatRepository.findSeatsByExpeditionIdAndStatus(expeditionId, SeatStatus.AVAILABLE));
         
     }
 

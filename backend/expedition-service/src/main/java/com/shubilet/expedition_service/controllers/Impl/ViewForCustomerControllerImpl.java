@@ -4,8 +4,10 @@ import java.util.List;
 
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -40,7 +42,7 @@ public class ViewForCustomerControllerImpl implements ViewForCustomerController 
         this.expeditionService = expeditionService;
         this.seatService = seatService;
     }
-    
+
     @PostMapping("/availableExpeditions")
     public ResponseEntity<ExpeditionsForCustomerDTO> viewAvailableExpeditions(@RequestBody ViewDetailsForCustomerDTO viewDetailsForCustomerDTO) {
         ErrorUtils errorUtils = new ErrorUtils(ErrorUtils.ConversionType.EXPEDITIONS_FOR_CUSTOMER_DTO);

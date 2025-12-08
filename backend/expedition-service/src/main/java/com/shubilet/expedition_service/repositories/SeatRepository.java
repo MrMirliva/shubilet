@@ -9,6 +9,7 @@ import org.springframework.stereotype.Repository;
 
 import com.shubilet.expedition_service.common.enums.SeatStatus;
 import com.shubilet.expedition_service.dataTransferObjects.responses.forRepositories.SeatForCompanyRepoDTO;
+import com.shubilet.expedition_service.dataTransferObjects.responses.forRepositories.SeatForCustomerRepoDTO;
 import com.shubilet.expedition_service.models.Seat;
 
 
@@ -65,12 +66,17 @@ public interface SeatRepository extends JpaRepository<Seat, Integer> {
     List<SeatForCustomerDTO> findAvailableSeatsByExpeditionId(@Param("expeditionId") int expeditionId);*/
 
     @Query("""
-        SELECT s
+        SELECT new com.shubilet.expedition_service.dataTransferObjects.responses.forRepositories.SeatForCustomerRepoDTO(
+            s.customerId,
+            s.expeditionId,
+            s.seatNo,
+            s.status
+        )
         FROM Seat s
         WHERE s.expeditionId = :expeditionId
             AND s.status = :status
     """)
-    List<Seat> findSeatsByExpeditionIdAndStatus(
+    List<SeatForCustomerRepoDTO> findSeatsByExpeditionIdAndStatus(
             @Param("expeditionId") int expeditionId,
             @Param("status") SeatStatus status
     );
