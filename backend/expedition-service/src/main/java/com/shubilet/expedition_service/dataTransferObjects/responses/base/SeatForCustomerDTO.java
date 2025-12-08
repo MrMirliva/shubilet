@@ -22,18 +22,6 @@ public class SeatForCustomerDTO {
         this.status = status;
     }
 
-    public SeatForCustomerDTO(
-        Integer customerId, 
-        Integer expeditionId, 
-        Integer seatNo, 
-        String status
-    ) {
-        this.customerId = customerId;
-        this.expeditionId = (expeditionId != null) ? expeditionId : 0;
-        this.seatNo = (seatNo != null) ? seatNo : 0;
-        this.status = status;
-    }
-
     public int getCustomerId() {
         return customerId;
     }

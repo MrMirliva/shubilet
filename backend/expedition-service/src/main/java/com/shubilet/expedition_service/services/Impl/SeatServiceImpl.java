@@ -6,25 +6,23 @@ import java.util.List;
 import org.springframework.stereotype.Service;
 
 import com.shubilet.expedition_service.common.enums.BookStatus;
+import com.shubilet.expedition_service.common.enums.SeatStatus;
+import com.shubilet.expedition_service.common.util.DTOMapperUtils;
 import com.shubilet.expedition_service.dataTransferObjects.responses.base.SeatForCompanyDTO;
 import com.shubilet.expedition_service.dataTransferObjects.responses.base.SeatForCustomerDTO;
 import com.shubilet.expedition_service.models.Seat;
 import com.shubilet.expedition_service.services.SeatService;
-import com.shubilet.expedition_service.repositories.ExpeditionRepository;
 import com.shubilet.expedition_service.repositories.SeatRepository;
 
 @Service
 public class SeatServiceImpl implements SeatService {
 
     private final SeatRepository seatRepository;
-    private final ExpeditionRepository expeditionRepository;
 
     public SeatServiceImpl(
-        SeatRepository seatRepository,
-        ExpeditionRepository expeditionRepository
+        SeatRepository seatRepository
     ) {
         this.seatRepository = seatRepository;
-        this.expeditionRepository = expeditionRepository;
     }
     
     public void generateSeats(int expeditionId, int capacity) {
@@ -35,7 +33,7 @@ public class SeatServiceImpl implements SeatService {
     }
 
     public List<SeatForCustomerDTO> getAvailableSeats(int expeditionId) {
-        List<Seat> seats = seatRepository.findAvailableSeatsByExpeditionId(expeditionId);
+        List<Seat> seats = seatRepository.findSeatsByExpeditionIdAndStatus(expeditionId, SeatStatus.AVAILABLE);
         List<SeatForCustomerDTO> seatDTOs = new ArrayList<>();
 
         for(Seat seat : seats) {
@@ -53,7 +51,11 @@ public class SeatServiceImpl implements SeatService {
     }
 
     public List<SeatForCompanyDTO> getSeatsByExpeditionId(int expeditionId) {
-        return seatRepository.findSeatsByExpeditionIdForCompany(expeditionId);
+        return DTOMapperUtils.toSeatForCompanyDTO(
+            seatRepository.findSeatsByExpeditionIdForCompany(
+                expeditionId
+            )
+        );
     }
 
     public boolean seatExist(int expeditionId, int seatNo) {

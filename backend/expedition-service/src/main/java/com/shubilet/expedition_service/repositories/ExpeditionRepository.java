@@ -8,8 +8,8 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
-import com.shubilet.expedition_service.dataTransferObjects.responses.base.ExpeditionForCompanyDTO;
-import com.shubilet.expedition_service.dataTransferObjects.responses.base.ExpeditionForCustomerDTO;
+import com.shubilet.expedition_service.dataTransferObjects.responses.forRepositories.ExpeditionForCompanyRepoDTO;
+import com.shubilet.expedition_service.dataTransferObjects.responses.forRepositories.ExpeditionForCustomerRepoDTO;
 import com.shubilet.expedition_service.models.Expedition;
 
 
@@ -17,12 +17,11 @@ import com.shubilet.expedition_service.models.Expedition;
 public interface ExpeditionRepository extends JpaRepository<Expedition, Integer> {
 
     @Query("""
-    SELECT new com.shubilet.expedition_service.dataTransferObjects.responses.base.ExpeditionForCompanyDTO(
+    SELECT new com.shubilet.expedition_service.dataTransferObjects.responses.forRepositories.ExpeditionForCompanyRepoDTO(
             e.id,
             dc.name,
             ac.name,
-            FUNCTION('to_char', e.dateAndTime, 'YYYY-MM-DD'),
-            FUNCTION('to_char', e.dateAndTime, 'HH24:MI'),
+            e.dateAndTime,
             e.price,
             e.duration,
             e.capacity,
@@ -37,15 +36,14 @@ public interface ExpeditionRepository extends JpaRepository<Expedition, Integer>
         WHERE e.companyId = :companyId
         ORDER BY e.dateAndTime ASC
     """)
-    List<ExpeditionForCompanyDTO> findAllByCompanyId(@Param("companyId") int companyId);
+    List<ExpeditionForCompanyRepoDTO> findAllByCompanyId(@Param("companyId") int companyId);
 
     @Query("""
-        SELECT new com.shubilet.expedition_service.dataTransferObjects.responses.base.ExpeditionForCompanyDTO(
+        SELECT new com.shubilet.expedition_service.dataTransferObjects.responses.forRepositories.ExpeditionForCompanyRepoDTO(
             e.id,
             dc.name,
             ac.name,
-            FUNCTION('to_char', e.dateAndTime, 'YYYY-MM-DD'),
-            FUNCTION('to_char', e.dateAndTime, 'HH24:MI'),
+            e.dateAndTime,
             e.price,
             e.duration,
             e.capacity,
@@ -61,19 +59,18 @@ public interface ExpeditionRepository extends JpaRepository<Expedition, Integer>
                                 AND e.dateAndTime >= :now
         ORDER BY e.dateAndTime ASC
     """)
-    List<ExpeditionForCompanyDTO> findUpcomingExpeditions(
+    List<ExpeditionForCompanyRepoDTO> findUpcomingExpeditions(
             @Param("companyId") int companyId,
             @Param("now") Instant now
     );
 
 
     @Query("""
-    SELECT new com.shubilet.expedition_service.dataTransferObjects.responses.base.ExpeditionForCustomerDTO(
+    SELECT new com.shubilet.expedition_service.dataTransferObjects.responses.forRepositories.ExpeditionForCustomerRepoDTO(
             e.id,
             dc.name,
             ac.name,
-            FUNCTION('to_char', e.dateAndTime, 'YYYY-MM-DD'),
-            FUNCTION('to_char', e.dateAndTime, 'HH24:MI'),
+            e.dateAndTime,
             e.price,
             e.duration,
             e.companyId
@@ -87,7 +84,7 @@ public interface ExpeditionRepository extends JpaRepository<Expedition, Integer>
             AND e.dateAndTime < :endOfDay
         ORDER BY e.dateAndTime ASC
     """)
-    List<ExpeditionForCustomerDTO> findByInstantAndRoute(
+    List<ExpeditionForCustomerRepoDTO> findByInstantAndRoute(
             @Param("departureCityId") int departureCityId,
             @Param("arrivalCityId") int arrivalCityId,
             @Param("startOfDay") Instant startOfDay,
@@ -95,12 +92,11 @@ public interface ExpeditionRepository extends JpaRepository<Expedition, Integer>
     );
 
     @Query("""
-        SELECT new com.shubilet.expedition_service.dataTransferObjects.responses.base.ExpeditionForCompanyDTO(
+        SELECT new com.shubilet.expedition_service.dataTransferObjects.responses.forRepositories.ExpeditionForCompanyRepoDTO(
             e.id,
             dc.name,
             ac.name,
-            FUNCTION('to_char', e.dateAndTime, 'YYYY-MM-DD'),
-            FUNCTION('to_char', e.dateAndTime, 'HH24:MI'),
+            e.dateAndTime,
             e.price,
             e.duration,
             e.capacity,
@@ -116,7 +112,7 @@ public interface ExpeditionRepository extends JpaRepository<Expedition, Integer>
                                 AND e.dateAndTime < :endOfDay
         ORDER BY e.dateAndTime ASC
     """)
-    List<ExpeditionForCompanyDTO> findAllByInstant(
+    List<ExpeditionForCompanyRepoDTO> findAllByInstant(
         @Param("startOfDay") Instant startOfDay, 
         @Param("endOfDay") Instant endOfDay
     );

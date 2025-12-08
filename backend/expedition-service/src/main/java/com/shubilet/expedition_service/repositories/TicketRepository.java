@@ -5,7 +5,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
-import com.shubilet.expedition_service.dataTransferObjects.responses.base.TicketDTO;
+import com.shubilet.expedition_service.dataTransferObjects.responses.forRepositories.TicketRepoDTO;
 import com.shubilet.expedition_service.models.Ticket;
 
 
@@ -14,16 +14,15 @@ public interface TicketRepository extends JpaRepository<Ticket, String> {
     
 
     @Query("""
-        SELECT new com.shubilet.expedition_service.dataTransferObjects.responses.base.TicketDTO(
+        SELECT new com.shubilet.expedition_service.dataTransferObjects.responses.forRepositories.TicketRepoDTO(
             t.PNR,
             s.seatNo,
             e.id,
             e.companyId,
             dc.name,
             ac.name,
-            FUNCTION('to_char', e.dateAndTime, 'YYYY-MM-DD'),
-            FUNCTION('to_char', e.dateAndTime, 'HH24:MI'),
-            FUNCTION('to_char', e.duration, 'FM999999')
+            e.dateAndTime,
+            e.duration
             )
         FROM Ticket t
             JOIN Seat s 
@@ -32,12 +31,12 @@ public interface TicketRepository extends JpaRepository<Ticket, String> {
                         ON s.expeditionId = e.id
                             JOIN City dc 
                                 ON e.departureCityId = dc.id
-                                    JOIN City ac 
-                                        ON e.arrivalCityId = ac.id
-                                            WHERE e.id = :expeditionId
-                                                AND s.seatNo = :seatNo
+                        JOIN City ac 
+                            ON e.arrivalCityId = ac.id
+                        WHERE e.id = :expeditionId
+                            AND s.seatNo = :seatNo
         """)
-    TicketDTO findTicketDetailsByExpeditionIdAndSeatNo(
+    TicketRepoDTO findTicketDetailsByExpeditionIdAndSeatNo(
         @Param("expeditionId") int expeditionId,
         @Param("seatNo") int seatNo
     );

@@ -12,30 +12,16 @@ public class SeatForCompanyDTO {
     }
 
     public SeatForCompanyDTO(
-        int seatId, 
-        int expeditionId, 
-        int seatNo, 
-        int customerId, 
+        int seatId,
+        int expeditionId,
+        int seatNo,
+        int customerId,
         String status
     ) {
         this.seatId = seatId;
         this.expeditionId = expeditionId;
         this.seatNo = seatNo;
         this.customerId = customerId;
-        this.status = status;
-    }
-
-    public SeatForCompanyDTO(
-        Integer seatId, 
-        Integer expeditionId, 
-        Integer seatNo, 
-        Integer customerId, 
-        String status
-    ) {
-        this.seatId = (seatId != null) ? seatId : 0;
-        this.expeditionId = (expeditionId != null) ? expeditionId : 0;
-        this.seatNo = (seatNo != null) ? seatNo : 0;
-        this.customerId = (customerId != null) ? customerId : 0;
         this.status = status;
     }
 

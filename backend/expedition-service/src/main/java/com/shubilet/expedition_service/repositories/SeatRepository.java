@@ -7,8 +7,8 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
-import com.shubilet.expedition_service.dataTransferObjects.responses.base.SeatForCompanyDTO;
-import com.shubilet.expedition_service.dataTransferObjects.responses.base.SeatForCustomerDTO;
+import com.shubilet.expedition_service.common.enums.SeatStatus;
+import com.shubilet.expedition_service.dataTransferObjects.responses.forRepositories.SeatForCompanyRepoDTO;
 import com.shubilet.expedition_service.models.Seat;
 
 
@@ -16,7 +16,7 @@ import com.shubilet.expedition_service.models.Seat;
 public interface SeatRepository extends JpaRepository<Seat, Integer> {
     
     @Query("""
-        SELECT new com.shubilet.expedition_service.dataTransferObjects.responses.base.SeatForCompanyDTO(
+        SELECT new com.shubilet.expedition_service.dataTransferObjects.responses.forRepositories.SeatForCompanyRepoDTO(
             s.id,
             s.expeditionId,
             s.seatNo,
@@ -27,7 +27,7 @@ public interface SeatRepository extends JpaRepository<Seat, Integer> {
         WHERE s.expeditionId = :expeditionId
         ORDER BY s.seatNo ASC
     """)
-    List<SeatForCompanyDTO> findSeatsByExpeditionIdForCompany(@Param("expeditionId") int expeditionId);
+    List<SeatForCompanyRepoDTO> findSeatsByExpeditionIdForCompany(@Param("expeditionId") int expeditionId);
 
     @Query("""
         SELECT CASE WHEN COUNT(s) > 0 THEN TRUE ELSE FALSE END
@@ -52,7 +52,7 @@ public interface SeatRepository extends JpaRepository<Seat, Integer> {
     );
 
     /*@Query("""
-        SELECT new com.shubilet.expedition_service.dataTransferObjects.responses.base.SeatForCustomerDTO(
+        SELECT new com.shubilet.expedition_service.dataTransferObjects.responses.forRepositories.SeatForCustomerRepoDTO(
             s.customerId,
             s.expeditionId,
             s.seatNo,
@@ -68,7 +68,11 @@ public interface SeatRepository extends JpaRepository<Seat, Integer> {
         SELECT s
         FROM Seat s
         WHERE s.expeditionId = :expeditionId
-            AND s.status = com.shubilet.expedition_service.enums.Status.AVAILABLE
+            AND s.status = :status
     """)
-    List<Seat> findAvailableSeatsByExpeditionId(@Param("expeditionId") int expeditionId);
+    List<Seat> findSeatsByExpeditionIdAndStatus(
+            @Param("expeditionId") int expeditionId,
+            @Param("status") SeatStatus status
+    );
+
 }

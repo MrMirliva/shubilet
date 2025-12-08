@@ -17,14 +17,14 @@ public class ExpeditionForCustomerDTO {
     }
 
     public ExpeditionForCustomerDTO(
-        Integer expeditionId,
+        int expeditionId,
         String departureCity,
         String arrivalCity,
         String date,
         String time,
-        Double price,
-        Integer duration,
-        Integer companyId
+        double price,
+        int duration,
+        int companyId
     ) {
         this.expeditionId = expeditionId;
         this.departureCity = departureCity;
@@ -35,27 +35,6 @@ public class ExpeditionForCustomerDTO {
         this.duration = duration;
         this.companyId = companyId;
     }
-
-    public ExpeditionForCustomerDTO(
-        Integer expeditionId,
-        String departureCity,
-        String arrivalCity,
-        String date,
-        String time,
-        BigDecimal price,
-        Integer duration,
-        Integer companyId
-    ) {
-        this.expeditionId = (expeditionId != null) ? expeditionId : 0;
-        this.departureCity = departureCity;
-        this.arrivalCity = arrivalCity;
-        this.date = date;
-        this.time = time;
-        this.price = (price != null) ? price.doubleValue() : 0.0;
-        this.duration = (duration != null) ? duration : 0;
-        this.companyId = (companyId != null) ? companyId : 0;
-    }
-
 
 
     public int getExpeditionId() {

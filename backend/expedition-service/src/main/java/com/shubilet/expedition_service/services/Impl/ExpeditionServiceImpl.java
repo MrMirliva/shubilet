@@ -6,6 +6,7 @@ import java.math.BigDecimal;
 
 import org.springframework.stereotype.Service;
 
+import com.shubilet.expedition_service.common.util.DTOMapperUtils;
 import com.shubilet.expedition_service.dataTransferObjects.responses.base.ExpeditionForCompanyDTO;
 import com.shubilet.expedition_service.dataTransferObjects.responses.base.ExpeditionForCustomerDTO;
 import com.shubilet.expedition_service.models.Expedition;
@@ -62,22 +63,45 @@ public class ExpeditionServiceImpl implements ExpeditionService {
 
         Instant instantDate = Instant.parse(date);
         Instant endOfDay = instantDate.plusSeconds(86399); // Add 23 hours, 59 minutes, and 59 seconds to get the end of the day
-        return expeditionRepository.findByInstantAndRoute(departureCityId, arrivalCityId, instantDate, endOfDay);
+        
+        return DTOMapperUtils.toExpeditionForCustomerDTO(
+            expeditionRepository.findByInstantAndRoute(
+                departureCityId, 
+                arrivalCityId, 
+                instantDate, 
+                endOfDay
+            )
+        );
     }
 
     public List<ExpeditionForCompanyDTO> findExpeditionsByInstant(String date) {
         Instant instantDate = Instant.parse(date);
         Instant endOfDay = instantDate.plusSeconds(86399); // Add 23 hours, 59 minutes, and 59 seconds to get the end of the day
-        return expeditionRepository.findAllByInstant(instantDate, endOfDay);
+        
+        return DTOMapperUtils.toExpeditionForCompanyDTO(
+            expeditionRepository.findAllByInstant(
+                instantDate, 
+                endOfDay
+            )
+        );
     }
 
     public List<ExpeditionForCompanyDTO> findUpcomingExpeditions(int companyId) {
         Instant now = Instant.now();
-        return expeditionRepository.findUpcomingExpeditions(companyId, now);
+        return DTOMapperUtils.toExpeditionForCompanyDTO(
+            expeditionRepository.findUpcomingExpeditions(
+                companyId, 
+                now
+            )
+        );
     }
 
     public List<ExpeditionForCompanyDTO> findAllExpeditions(int companyId) {
-        return expeditionRepository.findAllByCompanyId(companyId);
+        return DTOMapperUtils.toExpeditionForCompanyDTO(
+            expeditionRepository.findAllByCompanyId(
+                companyId
+            )
+        );
     }
 
     public boolean expeditionExists(int expeditionId) {

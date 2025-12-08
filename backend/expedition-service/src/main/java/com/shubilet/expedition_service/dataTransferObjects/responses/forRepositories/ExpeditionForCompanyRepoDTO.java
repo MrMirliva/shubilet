@@ -1,40 +1,35 @@
-package com.shubilet.expedition_service.dataTransferObjects.responses.base;
+package com.shubilet.expedition_service.dataTransferObjects.responses.forRepositories;
 
 import java.math.BigDecimal;
+import java.time.Instant;
 
-public class ExpeditionForCompanyDTO {
-    private int expeditionId;
+public class ExpeditionForCompanyRepoDTO {
+    private Integer expeditionId;
     private String departureCity;
     private String arrivalCity;
-    private String date;
-    private String time;
-    private double price;
-    private int duration;
-    private int capacity;
-    private int numberOfBookedSeats;
-    private double profit;
+    private Instant dateAndTime;
+    private BigDecimal price;
+    private Integer duration;
+    private Integer capacity;
+    private Integer numberOfBookedSeats;
+    private BigDecimal profit;
 
-    public ExpeditionForCompanyDTO() {
 
-    }
-
-    public ExpeditionForCompanyDTO(
-        int expeditionId,
+    public ExpeditionForCompanyRepoDTO(
+        Integer expeditionId,
         String departureCity,
         String arrivalCity,
-        String date,
-        String time,
-        double price,
-        int duration,
-        int capacity,
-        int numberOfBookedSeats,
-        double profit
+        Instant dateAndTime,
+        BigDecimal price,
+        Integer duration,
+        Integer capacity,
+        Integer numberOfBookedSeats,
+        BigDecimal profit
     ) {
         this.expeditionId = expeditionId;
         this.departureCity = departureCity;
         this.arrivalCity = arrivalCity;
-        this.date = date;
-        this.time = time;
+        this.dateAndTime = dateAndTime;
         this.price = price;
         this.duration = duration;
         this.capacity = capacity;
@@ -63,24 +58,17 @@ public class ExpeditionForCompanyDTO {
         this.arrivalCity = arrivalCity;
     }
 
-    public String getDate() {
-        return date;
+    public Instant getDateAndTime() {
+        return dateAndTime;
     }
-    public void setDate(String date) {
-        this.date = date;
-    }
-
-    public String getTime() {
-        return time;
-    }
-    public void setTime(String time) {
-        this.time = time;
+    public void setDateAndTime(Instant dateAndTime) {
+        this.dateAndTime = dateAndTime;
     }
 
-    public double getPrice() {
+    public BigDecimal getPrice() {
         return price;
     }
-    public void setPrice(double price) {
+    public void setPrice(BigDecimal price) {
         this.price = price;
     }
 
@@ -105,10 +93,10 @@ public class ExpeditionForCompanyDTO {
         this.numberOfBookedSeats = numberOfBookedSeats;
     }
 
-    public double getProfit() {
+    public BigDecimal getProfit() {
         return profit;
     }
-    public void setProfit(double profit) {
+    public void setProfit(BigDecimal profit) {
         this.profit = profit;
     }
 }

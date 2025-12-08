@@ -5,11 +5,11 @@ public class TicketDTO {
     private int seatNo;
     private int expeditionId;
     private int companyId;
-    private String depertureCity;
+    private String departureCity;
     private String arrivalCity;
     private String date;
     private String time;
-    private String duration;
+    private int duration;
 
     public TicketDTO() {
     
@@ -20,17 +20,17 @@ public class TicketDTO {
         int seatNo, 
         int expeditionId, 
         int companyId, 
-        String depertureCity, 
+        String departureCity, 
         String arrivalCity, 
         String date, 
         String time, 
-        String duration
+        int duration
     ) {
         this.PNR = PNR;
         this.seatNo = seatNo;
         this.expeditionId = expeditionId;
         this.companyId = companyId;
-        this.depertureCity = depertureCity;
+        this.departureCity = departureCity;
         this.arrivalCity = arrivalCity;
         this.date = date;
         this.time = time;
@@ -66,10 +66,10 @@ public class TicketDTO {
     }
 
     public String getDepertureCity() {
-        return depertureCity;
+        return departureCity;
     }
-    public void setDepertureCity(String depertureCity) {
-        this.depertureCity = depertureCity;
+    public void setDepertureCity(String departureCity) {
+        this.departureCity = departureCity;
     }
 
     public String getArrivalCity() {
@@ -93,10 +93,10 @@ public class TicketDTO {
         this.time = time;
     }
 
-    public String getDuration() {
+    public int getDuration() {
         return duration;
     }
-    public void setDuration(String duration) {
+    public void setDuration(int duration) {
         this.duration = duration;
     }
     

@@ -14,6 +14,8 @@ import jakarta.validation.constraints.NotNull;
 
 import java.io.Serializable;
 
+import com.shubilet.expedition_service.common.enums.SeatStatus;
+
 /**
  * Represents a seat in a specific expedition.
  * Each seat belongs to one expedition and can be optionally assigned to a user.
@@ -49,7 +51,7 @@ public class Seat implements Serializable {
     @NotNull
     @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false, updatable = true)
-    private Status status;
+    private SeatStatus status;
 
     // ------------------------
     // Constructors
@@ -60,10 +62,10 @@ public class Seat implements Serializable {
     public Seat(Integer expeditionId, Integer seatNo) {
         this.expeditionId = expeditionId;
         this.seatNo = seatNo;
-        this.status = Status.AVAILABLE;
+        this.status = SeatStatus.AVAILABLE;
     }
 
-    public Seat(Integer expeditionId, Integer seatNo, Integer customerId, Status status) {
+    public Seat(Integer expeditionId, Integer seatNo, Integer customerId, SeatStatus status) {
         this.expeditionId = expeditionId;
         this.seatNo = seatNo;
         this.customerId = customerId;
@@ -101,20 +103,20 @@ public class Seat implements Serializable {
         this.customerId = customerId;
     }
 
-    public Status getStatus() {
+    public SeatStatus getStatus() {
         return status;
     }
     public boolean isBooked() {
-        return this.status == Status.RESERVED;
+        return this.status == SeatStatus.RESERVED;
     }
-    public void setStatus(Status status) {
+    public void setStatus(SeatStatus status) {
         this.status = status;
     }
     public void setBooked(boolean booked) {
         if (booked) {
-            this.status = Status.RESERVED;
+            this.status = SeatStatus.RESERVED;
         } else {
-            this.status = Status.AVAILABLE;
+            this.status = SeatStatus.AVAILABLE;
         }
     }
 
@@ -125,7 +127,7 @@ public class Seat implements Serializable {
     @PrePersist
     protected void onCreate() {
         if (this.status == null) {
-            this.status = Status.AVAILABLE;
+            this.status = SeatStatus.AVAILABLE;
         }
     }
 
@@ -157,21 +159,6 @@ public class Seat implements Serializable {
                 ", customerId=" + customerId +
                 ", status=" + status.getDisplayName() +
                 '}';
-    }
-
-    public enum Status {
-        AVAILABLE("Available"),
-        RESERVED("Reserved");
-
-        private final String displayName;
-
-        Status(String displayName) {
-            this.displayName = displayName;
-        }
-
-        public String getDisplayName() {
-            return displayName;
-        }
     }
 }
 

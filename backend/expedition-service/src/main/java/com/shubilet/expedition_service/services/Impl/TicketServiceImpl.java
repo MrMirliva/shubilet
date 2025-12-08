@@ -2,6 +2,7 @@ package com.shubilet.expedition_service.services.Impl;
 
 import org.springframework.stereotype.Service;
 
+import com.shubilet.expedition_service.common.util.DTOMapperUtils;
 import com.shubilet.expedition_service.dataTransferObjects.responses.base.TicketDTO;
 import com.shubilet.expedition_service.repositories.TicketRepository;
 import com.shubilet.expedition_service.services.TicketService;
@@ -18,6 +19,11 @@ public class TicketServiceImpl implements TicketService {
     }
 
     public TicketDTO getTicketDetails(int expeditionId, int seatNo) {
-        return ticketRepository.findTicketDetailsByExpeditionIdAndSeatNo(expeditionId, seatNo);
+        return DTOMapperUtils.toTicketDTO(
+            ticketRepository.findTicketDetailsByExpeditionIdAndSeatNo(
+                expeditionId, 
+                seatNo
+            )
+        );
     }
 }
