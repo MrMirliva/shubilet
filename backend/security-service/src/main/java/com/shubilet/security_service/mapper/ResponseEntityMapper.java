@@ -10,13 +10,9 @@ public class ResponseEntityMapper {
         throw new IllegalStateException("Utility class" );
     }
 
-    public static ResponseEntity<CheckMessageDTO> toCheckMessageDTOResponseEntity(ResponseEntity<?> responseEntity) {
-        if (responseEntity.getBody() instanceof MessageDTO) {
-            @SuppressWarnings("unchecked")
-            ResponseEntity<MessageDTO> messageDTOResponse = (ResponseEntity<MessageDTO>) responseEntity;
-            return messageDTOResponseEntitytoCheckMessageDTOResponseEntity(messageDTOResponse);
-        }
-        throw new IllegalArgumentException("Response body is not of type MessageDTO");
+    public static ResponseEntity<CheckMessageDTO> toCheckMessageDTOResponseEntity(ResponseEntity<MessageDTO> responseEntity) {
+        ResponseEntity<MessageDTO> messageDTOResponse = (ResponseEntity<MessageDTO>) responseEntity;
+        return messageDTOResponseEntitytoCheckMessageDTOResponseEntity(messageDTOResponse);
     }
 
 

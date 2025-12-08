@@ -39,49 +39,48 @@ public class CookieDTO {
     }
 
     public String getAttribute(String key) {
-        switch (key) {
-            case SessionKeys.USER_ID:
-                return getUserId();
-            case SessionKeys.USER_TYPE:
-                return getUserType();
-            case SessionKeys.AUTH_CODE:
-                return getAuthCode();
-            default:
-                return null;
+        if(key.equals(SessionKeys.USER_ID)) {
+            return getUserId();
+        } else if(key.equals(SessionKeys.USER_TYPE)) {
+            return getUserType();
+        } else if(key.equals(SessionKeys.AUTH_CODE)) {
+            return getAuthCode();
+        } else {
+            throw new IllegalArgumentException("Invalid session key: " + key);
         }
     }
 
     public void setAttribute(String key, String value) {
-        switch (key) {
-            case SessionKeys.USER_ID:
-                setUserId(value);
-                break;
-            case SessionKeys.USER_TYPE:
-                setUserType(value);
-                break;
-            case SessionKeys.AUTH_CODE:
-                setAuthCode(value);
-                break;
-            default:
-                // Do nothing for unknown keys
-                break;
+        if(value == null) {
+            throw new IllegalArgumentException("Value cannot be null");
         }
+
+        if(key.equals(SessionKeys.USER_ID)) {
+            setUserId(value);
+            return;
+        } else if(key.equals(SessionKeys.USER_TYPE)) {
+            setUserType(value);
+            return;
+        } else if(key.equals(SessionKeys.AUTH_CODE)) {
+            setAuthCode(value);
+            return;
+        }
+
+        throw new IllegalArgumentException("Invalid session key: " + key);
     }
 
     public void removeAttribute(String key) {
-        switch (key) {
-            case SessionKeys.USER_ID:
-                setUserId(null);
-                break;
-            case SessionKeys.USER_TYPE:
-                setUserType(null);
-                break;
-            case SessionKeys.AUTH_CODE:
-                setAuthCode(null);
-                break;
-            default:
-                // Do nothing for unknown keys
-                break;
+        if(key.equals(SessionKeys.USER_ID)) {
+            setUserId(null);
+            return;
+        } else if(key.equals(SessionKeys.USER_TYPE)) {
+            setUserType(null);
+            return;
+        } else if(key.equals(SessionKeys.AUTH_CODE)) {
+            setAuthCode(null);
+            return;
         }
+
+        throw new IllegalArgumentException("Invalid session key: " + key);
     }
 }

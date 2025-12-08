@@ -1,5 +1,7 @@
 package com.shubilet.security_service.repositories;
 
+import java.util.Optional;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -151,4 +153,7 @@ public interface CompanySessionRepository extends JpaRepository<CompanySession, 
         nativeQuery = true
     )
     void deleteExpiredSessions();
+
+    ///TODO: Add Query method to find CompanySession by companyId
+    Optional<CompanySession> findByCompanyId(int companyId);
 }

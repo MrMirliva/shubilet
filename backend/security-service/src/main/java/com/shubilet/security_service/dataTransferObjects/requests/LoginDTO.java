@@ -5,7 +5,6 @@ import com.shubilet.security_service.dataTransferObjects.CookieDTO;
 public class LoginDTO {
     
     private CookieDTO cookie;
-
     private int userId;
     private String userType;
 

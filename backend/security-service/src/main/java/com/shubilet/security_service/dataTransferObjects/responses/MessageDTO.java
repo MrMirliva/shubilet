@@ -26,7 +26,7 @@ import com.shubilet.security_service.dataTransferObjects.CookieDTO;
     @version 1.0
 */
 public class MessageDTO {
-    CookieDTO cookie;
+    private CookieDTO cookie;
     private String message;
 
     public MessageDTO(CookieDTO cookie, String message) {
@@ -34,9 +34,6 @@ public class MessageDTO {
         this.message = message;
     }
 
-    public MessageDTO(String message) {
-        this.message = message;
-    }
     public CookieDTO getCookie() {
         return cookie;
     }
