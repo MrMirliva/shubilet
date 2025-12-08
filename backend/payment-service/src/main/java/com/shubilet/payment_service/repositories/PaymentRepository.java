@@ -13,7 +13,7 @@ import java.util.List;
 
  */
 @Repository
-public interface PaymentRepository extends JpaRepository<Payment, Long> {
+public interface PaymentRepository extends JpaRepository<Payment, Integer> {
 
     /**
      * Returns all payments that belong to the given customer.

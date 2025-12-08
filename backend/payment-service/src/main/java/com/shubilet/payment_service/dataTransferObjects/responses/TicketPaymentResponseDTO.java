@@ -29,14 +29,14 @@ public class TicketPaymentResponseDTO {
     private String status;
 
     private String message;
-    private String paymentId; // if payment is successful
+    private int paymentId; // if payment is successful
     private String ticketId;  // if ticket is created successfully
 
     public TicketPaymentResponseDTO() {}
 
     public TicketPaymentResponseDTO(String status,
                                     String message,
-                                    String paymentId,
+                                    int paymentId,
                                     String ticketId) {
         this.status = status;
         this.message = message;
@@ -58,10 +58,10 @@ public class TicketPaymentResponseDTO {
         this.message = message;
     }
 
-    public String getPaymentId() {
+    public int getPaymentId() {
         return paymentId;
     }
-    public void setPaymentId(String paymentId) {
+    public void setPaymentId(int paymentId) {
         this.paymentId = paymentId;
     }
 

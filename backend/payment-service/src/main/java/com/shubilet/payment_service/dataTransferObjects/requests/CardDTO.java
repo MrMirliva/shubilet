@@ -1,96 +1,53 @@
 package com.shubilet.payment_service.dataTransferObjects.requests;
 
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.Size;
+import java.io.Serializable;
 
-/**
+public class CardDTO implements Serializable {
 
-    Domain: Card Management
-
-    Represents the data transfer object used to carry credit or debit card
-    information between the client application and the payment service.
-    This DTO is used when a customer provides a new card during the payment
-    process. Sensitive information contained in this DTO must not be stored
-    in the system unless explicitly required and permitted.
-
-    <p>
-
-    Technologies:
-    <ul>
-        <li>Spring Boot – for REST controller integration</li>
-        <li>Jackson – for JSON data binding</li>
-        <li>Validation frameworks – to enforce constraints on incoming fields</li>
-    </ul>
-
-    Usage:
-    <ul>
-        <li>Submitted from the client when entering a new card for payment.</li>
-        <li>Consumed by the payment controller and service for processing.</li>
-    </ul>
-
- */
-public class CardDTO {
-
-    private String customerId;
+    @NotBlank(message = "Card holder name cannot be empty")
+    @Size(min = 2, max = 50, message = "Card holder name must be between 2 and 50 characters")
     private String cardHolderName;
+
+    @NotBlank(message = "Card number cannot be empty")
+    @Pattern(regexp = "\\d{16}", message = "Card number must be exactly 16 digits")
     private String cardNumber;
+
+    @NotBlank(message = "Expiration month cannot be empty")
+    @Pattern(regexp = "(0[1-9]|1[0-2])", message = "Month must be between 01 and 12")
     private String expirationMonth;
+
+    @NotBlank(message = "Expiration year cannot be empty")
+    @Pattern(regexp = "\\d{2}", message = "Year must be 2 digits (e.g. 25)")
     private String expirationYear;
+
+    @NotBlank(message = "CVC cannot be empty")
+    @Pattern(regexp = "\\d{3}", message = "CVC must be exactly 3 digits")
     private String cvc;
+
+    // CustomerID null olamaz
+    private Integer customerId; 
 
     public CardDTO() {}
 
-    public CardDTO(String customerId,
-                   String cardHolderName,
-                   String cardNumber,
-                   String expirationMonth,
-                   String expirationYear,
-                   String cvc) {
-        this.customerId = customerId;
-        this.cardHolderName = cardHolderName;
-        this.cardNumber = cardNumber;
-        this.expirationMonth = expirationMonth;
-        this.expirationYear = expirationYear;
-        this.cvc = cvc;
-    }
+    // Getter ve Setterlar
+    public String getCardHolderName() { return cardHolderName; }
+    public void setCardHolderName(String cardHolderName) { this.cardHolderName = cardHolderName; }
 
-    public String getCustomerId() {
-        return customerId;
-    }
-    public void setCustomerId(String customerId) {
-        this.customerId = customerId;
-    }
+    public String getCardNumber() { return cardNumber; }
+    public void setCardNumber(String cardNumber) { this.cardNumber = cardNumber; }
 
-    public String getCardHolderName() {
-        return cardHolderName;
-    }
-    public void setCardHolderName(String cardHolderName) {
-        this.cardHolderName = cardHolderName;
-    }
+    public String getExpirationMonth() { return expirationMonth; }
+    public void setExpirationMonth(String expirationMonth) { this.expirationMonth = expirationMonth; }
 
-    public String getCardNumber() {
-        return cardNumber;
-    }
-    public void setCardNumber(String cardNumber) {
-        this.cardNumber = cardNumber;
-    }
+    public String getExpirationYear() { return expirationYear; }
+    public void setExpirationYear(String expirationYear) { this.expirationYear = expirationYear; }
 
-    public String getExpirationMonth() {
-        return expirationMonth;
-    }
-    public void setExpirationMonth(String expirationMonth) {
-        this.expirationMonth = expirationMonth;
-    }
+    public String getCvc() { return cvc; }
+    public void setCvc(String cvc) { this.cvc = cvc; }
 
-    public String getExpirationYear() {
-        return expirationYear;
-    }
-    public void setExpirationYear(String expirationYear) {
-        this.expirationYear = expirationYear;
-    }
-
-    public String getCvc() {
-        return cvc;
-    }
-    public void setCvc(String cvc) {
-        this.cvc = cvc;
-    }
+    public Integer getCustomerId() { return customerId; }
+    public void setCustomerId(Integer customerId) { this.customerId = customerId; }
 }

@@ -7,4 +7,3 @@ public interface PaymentService {
 
     TicketPaymentResponseDTO processTicketPayment(TicketPaymentRequestDTO requestDTO);
 }
-

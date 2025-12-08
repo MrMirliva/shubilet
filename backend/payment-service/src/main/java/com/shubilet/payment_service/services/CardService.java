@@ -7,9 +7,13 @@ import java.util.List;
 
 public interface CardService {
 
-    List<CardSummaryDTO> getSavedCardsByCustomerId(Integer customerId);
+    List<CardSummaryDTO> getCardsByCustomer(int customerId);
 
     CardSummaryDTO saveNewCard(CardDTO cardDTO);
 
-    void deactivateCard(Integer cardId, Integer customerId);
+    boolean deactivateCard(int cardId, int customerId);
+
+    CardSummaryDTO getCardById(int cardId);
+
+    boolean isCardActive(int cardId);
 }
