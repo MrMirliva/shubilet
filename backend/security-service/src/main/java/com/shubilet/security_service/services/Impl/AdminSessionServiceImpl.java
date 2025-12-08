@@ -62,15 +62,14 @@ public class AdminSessionServiceImpl implements AdminSessionService {
 
         with {@code false} when the session does not exist
     */
-    public ResponseEntity<Boolean> logout(int id) {
-
-        AdminSession adminSession = adminSessionRepository.findByAdminId(id).orElse(null);
+    public ResponseEntity<Boolean> logout(int id, String code) {
+        AdminSession adminSession = adminSessionRepository.findByAdminIdAndCode(id, code).orElse(null);
 
         if (adminSession == null) {
             return ResponseEntity.status(404).body(false);
         }
 
-        adminSessionRepository.deleteById(adminSession.getId());
+        adminSessionRepository.deleteByAdminIdAndCode(id, adminSession.getCode());
         return ResponseEntity.ok(true);
     }
 

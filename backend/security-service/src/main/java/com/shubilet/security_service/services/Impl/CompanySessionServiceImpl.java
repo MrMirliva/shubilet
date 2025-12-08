@@ -63,14 +63,14 @@ public class CompanySessionServiceImpl implements CompanySessionService {
 
         @return a response entity containing a boolean indicating logout success
     */
-    public ResponseEntity<Boolean> logout(int id) {
-        CompanySession companySession = companySessionRepository.findById(id).orElse(null);
+    public ResponseEntity<Boolean> logout(int id, String code) {
+        CompanySession companySession = companySessionRepository.findByCompanyIdAndCode(id, code).orElse(null);
 
         if (companySession == null) {
             return ResponseEntity.status(404).body(false);
         }
         
-        companySessionRepository.deleteById(companySession.getId());
+        companySessionRepository.deleteByCompanyIdAndCode(id, companySession.getCode());
         return ResponseEntity.ok(true);
     }
 

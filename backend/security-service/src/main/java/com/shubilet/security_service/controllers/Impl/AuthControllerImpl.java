@@ -27,7 +27,6 @@ import com.shubilet.security_service.services.CompanySessionService;
 import com.shubilet.security_service.services.CustomerSessionService;
 
 /// TODO: Class yorum satırı eklenecek.
-/// TODO: Test edilecek.
 @RestController
 @RequestMapping("/api/auth")
 //@CrossOrigin(origins = "*", allowedHeaders = "*", methods = { RequestMethod.POST})
@@ -182,7 +181,7 @@ public class AuthControllerImpl implements AuthController {
 
         //STEP 3: Logical Processing
         if(userType.equals(UserType.ADMIN.getCode())) {
-            ResponseEntity<Boolean> response = adminSessionService.logout(Integer.parseInt(userId));
+            ResponseEntity<Boolean> response = adminSessionService.logout(Integer.parseInt(userId), authCode);
 
             if(!response.getStatusCode().is2xxSuccessful() || response.getBody() == null || !response.getBody()) {
                 clearSession(session);
@@ -191,7 +190,7 @@ public class AuthControllerImpl implements AuthController {
             }
         }
         else if(userType.equals(UserType.COMPANY.getCode())) {
-            ResponseEntity<Boolean> response = companySessionService.logout(Integer.parseInt(userId));
+            ResponseEntity<Boolean> response = companySessionService.logout(Integer.parseInt(userId), authCode);
 
             if(!response.getStatusCode().is2xxSuccessful() || response.getBody() == null || !response.getBody()) {
                 clearSession(session);
@@ -200,7 +199,7 @@ public class AuthControllerImpl implements AuthController {
             }
         }
         else if(userType.equals(UserType.CUSTOMER.getCode())) {
-            ResponseEntity<Boolean> response = customerSessionService.logout(Integer.parseInt(userId));
+            ResponseEntity<Boolean> response = customerSessionService.logout(Integer.parseInt(userId), authCode);
 
             if(!response.getStatusCode().is2xxSuccessful() || response.getBody() == null || !response.getBody()) {
                 clearSession(session);

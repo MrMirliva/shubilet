@@ -9,30 +9,7 @@ public interface AdminSessionService {
     
     public ResponseEntity<CookieDTO> createSession(int adminId);
 
-    /**
-
-        Operation: Logout
-
-        Terminates an active admin session by validating the existence of the session
-        associated with the given identifier and removing it from the underlying storage.
-        The returned boolean value indicates whether the logout process was completed
-        successfully.
-
-        <p>
-
-            Uses:
-
-            <ul>
-                <li>AdminSessionRepository for session existence verification and deletion</li>
-            </ul>
-
-        </p>
-
-        @param id the identifier of the session to be terminated
-
-        @return a response entity containing a boolean representing logout success
-    */
-    public ResponseEntity<Boolean> logout(int id);
+    public ResponseEntity<Boolean> logout(int id, String code);
 
     /**
 

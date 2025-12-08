@@ -155,5 +155,8 @@ public interface CompanySessionRepository extends JpaRepository<CompanySession, 
     void deleteExpiredSessions();
 
     ///TODO: Add Query method to find CompanySession by companyId
-    Optional<CompanySession> findByCompanyId(int companyId);
+    @Transactional
+    int deleteByCompanyIdAndCode(int companyId, String code);
+
+    Optional<CompanySession> findByCompanyIdAndCode(int companyId, String code);
 }

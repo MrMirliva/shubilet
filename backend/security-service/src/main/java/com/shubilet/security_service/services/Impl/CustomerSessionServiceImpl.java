@@ -62,14 +62,14 @@ public class CustomerSessionServiceImpl implements CustomerSessionService {
 
         @return a response entity containing a boolean result indicating logout success
     */
-    public ResponseEntity<Boolean> logout(int id) {
-        CustomerSession customerSession = customerSessionRepository.findById(id).orElse(null);
+    public ResponseEntity<Boolean> logout(int id, String code) {
+        CustomerSession customerSession = customerSessionRepository.findByCustomerIdAndCode(id, code).orElse(null);
 
         if (customerSession == null) {
             return ResponseEntity.status(404).body(false);
         }
         
-        customerSessionRepository.deleteById(customerSession.getId());
+        customerSessionRepository.deleteByCustomerIdAndCode(id, customerSession.getCode());
         return ResponseEntity.ok(true);
     }
 

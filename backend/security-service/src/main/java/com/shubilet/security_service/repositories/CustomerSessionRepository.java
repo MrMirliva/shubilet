@@ -157,5 +157,8 @@ public interface CustomerSessionRepository extends JpaRepository<CustomerSession
     void deleteExpiredSessions();
 
     ///TODO: Add Query method to find CustomerSession by customerId
-    Optional<CustomerSession> findByCustomerId(int customerId);
+    @Transactional
+    int deleteByCustomerIdAndCode(int customerId, String code);
+
+    Optional<CustomerSession> findByCustomerIdAndCode(int customerId, String code);
 }

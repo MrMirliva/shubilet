@@ -157,5 +157,8 @@ public interface AdminSessionRepository extends JpaRepository<AdminSession, Inte
     void deleteExpiredSessions();
 
     ///TODO: Add Query method to find AdminSession by adminId
-    Optional<AdminSession> findByAdminId(int adminId);
+    @Transactional
+    int deleteByAdminIdAndCode(int adminId, String code);
+
+    Optional<AdminSession> findByAdminIdAndCode(int adminId, String code);
 }
