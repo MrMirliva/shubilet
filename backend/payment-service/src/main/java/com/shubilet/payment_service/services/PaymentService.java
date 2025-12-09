@@ -5,5 +5,10 @@ import com.shubilet.payment_service.dataTransferObjects.responses.TicketPaymentR
 
 public interface PaymentService {
 
+    /**
+     * Bilet ödeme işlemini gerçekleştirir.
+     * @param requestDTO Ödeme detayları (cardId, amount, customerId)
+     * @return İşlem sonucu ve bilet durumu
+     */
     TicketPaymentResponseDTO processTicketPayment(TicketPaymentRequestDTO requestDTO);
 }

@@ -5,8 +5,8 @@ import java.io.Serializable;
 public class TicketPaymentRequestDTO implements Serializable {
     
     private Integer cardId;
-    private String amount; // BigDecimal dönüşümü serviste yapılacak
-    private Integer customerId; // EKLENDİ: Güvenlik kontrolü için şart
+    private String amount; // String alıp serviste temizliyoruz (100 TL -> 100.00)
+    private Integer customerId; // Güvenlik kontrolü için şart
 
     public TicketPaymentRequestDTO() {}
 

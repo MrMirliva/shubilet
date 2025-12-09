@@ -9,5 +9,10 @@ import java.util.List;
 @Repository
 public interface CardRepository extends JpaRepository<Card, Integer> {
 
+    // Müşterinin aktif kartlarını getirir
     List<Card> findByCustomerIdAndIsActiveTrue(Integer customerId);
+
+    // GÜNCELLENEN KISIM:
+    // "Bu müşteride", "Bu numaraya sahip", "Aktif" bir kart var mı?
+    boolean existsByCardNoAndCustomerIdAndIsActiveTrue(String cardNo, Integer customerId);
 }
