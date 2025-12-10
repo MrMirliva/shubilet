@@ -65,10 +65,10 @@ public class TicketDTO {
         this.companyId = companyId;
     }
 
-    public String getDepertureCity() {
+    public String getDepartureCity() {
         return departureCity;
     }
-    public void setDepertureCity(String departureCity) {
+    public void setDepartureCity(String departureCity) {
         this.departureCity = departureCity;
     }
 

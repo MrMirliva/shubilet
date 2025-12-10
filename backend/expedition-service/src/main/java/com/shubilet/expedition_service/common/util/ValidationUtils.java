@@ -1,5 +1,10 @@
 package com.shubilet.expedition_service.common.util;
 
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.time.format.DateTimeParseException;
+
 import com.shubilet.expedition_service.common.constants.ValidationPatterns;
 
 public final class ValidationUtils {
@@ -39,5 +44,15 @@ public final class ValidationUtils {
     
     public static boolean isValidTime(String time) {
         return time != null && time.matches(ValidationPatterns.TIME_PATTERN);
+    }
+
+    public static boolean isDateNotInPast(String date, Instant referenceInstant) {
+        try {
+            LocalDate inputDate = LocalDate.parse(date);
+            LocalDate referenceDate = referenceInstant.atZone(ZoneId.systemDefault()).toLocalDate();
+            return !inputDate.isBefore(referenceDate);
+        } catch (DateTimeParseException e) {
+            return false;
+        }
     }
 }

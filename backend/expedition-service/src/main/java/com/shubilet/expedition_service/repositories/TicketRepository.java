@@ -23,22 +23,27 @@ public interface TicketRepository extends JpaRepository<Ticket, String> {
             ac.name,
             e.dateAndTime,
             e.duration
-            )
+        )
         FROM Ticket t
-            JOIN Seat s 
-                ON t.seatId = s.id
-                    JOIN Expedition e 
-                        ON s.expeditionId = e.id
-                            JOIN City dc 
-                                ON e.departureCityId = dc.id
-                        JOIN City ac 
-                            ON e.arrivalCityId = ac.id
-                        WHERE e.id = :expeditionId
-                            AND s.seatNo = :seatNo
-        """)
-    TicketRepoDTO findTicketDetailsByExpeditionIdAndSeatNo(
-        @Param("expeditionId") int expeditionId,
-        @Param("seatNo") int seatNo
+            JOIN Seat s ON t.seatId = s.id
+            JOIN Expedition e ON s.expeditionId = e.id
+            JOIN City dc ON e.departureCityId = dc.id
+            JOIN City ac ON e.arrivalCityId = ac.id
+        WHERE t.PNR = :PNR
+        """
+    )
+    TicketRepoDTO findTicketDetailsByPNR(
+        @Param("PNR") String PNR
     );
+
+    @Query("""
+        SELECT CASE 
+            WHEN COUNT(t) > 0 THEN true
+            ELSE false
+        END
+        FROM Ticket t
+        WHERE t.PNR = :PNR
+        """)
+    boolean existsByPNR(String PNR);
 
 }

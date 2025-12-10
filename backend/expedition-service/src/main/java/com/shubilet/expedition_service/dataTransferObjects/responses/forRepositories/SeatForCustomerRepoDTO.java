@@ -1,30 +1,20 @@
 package com.shubilet.expedition_service.dataTransferObjects.responses.forRepositories;
 
-import com.shubilet.expedition_service.common.enums.SeatStatus;
+import com.shubilet.expedition_service.common.enums.SeatStatusForModel;
 
 public class SeatForCustomerRepoDTO {
-    private Integer customerId;
     private Integer expeditionId;
     private Integer seatNo;
-    private SeatStatus status;
+    private SeatStatusForModel status;
 
     public SeatForCustomerRepoDTO(
-        Integer customerId,
         Integer expeditionId,
         Integer seatNo,
-        SeatStatus status
+        SeatStatusForModel status
     ) {
-        this.customerId = customerId;
         this.expeditionId = expeditionId;
         this.seatNo = seatNo;
         this.status = status;
-    }
-
-    public Integer getCustomerId() {
-        return customerId;
-    }
-    public void setCustomerId(Integer customerId) {
-        this.customerId = customerId;
     }
 
     public Integer getExpeditionId() {
@@ -41,10 +31,10 @@ public class SeatForCustomerRepoDTO {
         this.seatNo = seatNo;
     }
 
-    public SeatStatus getStatus() {
+    public SeatStatusForModel getStatus() {
         return status;
     }
-    public void setStatus(SeatStatus status) {
+    public void setStatus(SeatStatusForModel status) {
         this.status = status;
     }
 }

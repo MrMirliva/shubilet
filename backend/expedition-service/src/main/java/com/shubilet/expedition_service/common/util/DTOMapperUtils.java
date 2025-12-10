@@ -36,7 +36,7 @@ public class DTOMapperUtils {
             if (repoDTO.getDateAndTime() != null) {
                 String[] dateTimeParts = repoDTO.getDateAndTime().toString().split("T");
                 date = dateTimeParts[0];
-                time = dateTimeParts[1];
+                time = dateTimeParts[1].replaceAll(":00Z$", "");
             }
 
             price = (repoDTO.getPrice() != null) ? repoDTO.getPrice().doubleValue() : 0.0;
@@ -84,7 +84,7 @@ public class DTOMapperUtils {
             if (repoDTO.getDateAndTime() != null) {
                 String[] dateTimeParts = repoDTO.getDateAndTime().toString().split("T");
                 date = dateTimeParts[0];
-                time = dateTimeParts[1];
+                time = dateTimeParts[1].replaceAll(":00Z$", "");
             }
 
             price = (repoDTO.getPrice() != null) ? repoDTO.getPrice().doubleValue() : 0.0;
@@ -162,7 +162,7 @@ public class DTOMapperUtils {
             if (repoDTO.getDateAndTime() != null) {
                 String[] dateTimeParts = repoDTO.getDateAndTime().toString().split("T");
                 date = dateTimeParts[0];
-                time = dateTimeParts[1];
+                time = dateTimeParts[1].replaceAll(":00Z$", "");
             }
 
             duration = (repoDTO.getDuration() != null) ? repoDTO.getDuration() : 0;
@@ -188,20 +188,17 @@ public class DTOMapperUtils {
     }
 
     public static SeatForCustomerDTO toSeatForCustomerDTO(SeatForCustomerRepoDTO repoDTO) {
-        int customerId = 0;
         int expeditionId = 0;
         int seatNo = 0;
         String status = "";
 
         if (repoDTO != null) {
-            customerId = (repoDTO.getCustomerId() != null) ? repoDTO.getCustomerId() : 0;
             expeditionId = (repoDTO.getExpeditionId() != null) ? repoDTO.getExpeditionId() : 0;
             seatNo = (repoDTO.getSeatNo() != null) ? repoDTO.getSeatNo() : 0;
             status = (repoDTO.getStatus() != null) ? repoDTO.getStatus().toString() : "";
         }
 
         return new SeatForCustomerDTO(
-            customerId,
             expeditionId,
             seatNo,
             status

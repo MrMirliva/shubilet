@@ -57,11 +57,11 @@ public class Expedition implements Serializable {
     private Integer capacity;
 
     @NotNull
-    @Column(name = "number_of_booked_seats", nullable = false, updatable = false)
+    @Column(name = "number_of_booked_seats", nullable = false, updatable = true)
     private Integer numberOfBookedSeats;
 
     @NotNull
-    @Column(nullable = false, updatable = false, precision = 10, scale = 2)
+    @Column(nullable = false, updatable = true, precision = 10, scale = 2)
     private BigDecimal profit;
 
     @NotNull
@@ -119,10 +119,10 @@ public class Expedition implements Serializable {
     // ------------------------
     // Getters and Setters
     // ------------------------
-    public int getId() {
+    public Integer getId() {
         return id;
     }
-    public void setId(int id) {
+    public void setId(Integer id) {
         this.id = id;
     }
 
@@ -154,24 +154,24 @@ public class Expedition implements Serializable {
         this.price = price;
     }
 
-    public int getDuration() {
+    public Integer getDuration() {
         return duration;
     }
-    public void setDuration(int duration) {
+    public void setDuration(Integer duration) {
         this.duration = duration;
     }
 
-    public int getCapacity() {
+    public Integer getCapacity() {
         return capacity;
     }
-    public void setCapacity(int capacity) {
+    public void setCapacity(Integer capacity) {
         this.capacity = capacity;
     }
 
-    public int getNumberOfBookedSeats() {
+    public Integer getNumberOfBookedSeats() {
         return numberOfBookedSeats;
     }
-    public void setNumberOfBookedSeats(int numberOfBookedSeats) {
+    public void setNumberOfBookedSeats(Integer numberOfBookedSeats) {
         this.numberOfBookedSeats = numberOfBookedSeats;
     }
 
@@ -187,13 +187,6 @@ public class Expedition implements Serializable {
     }
     public void setCompanyId(Integer companyId) {
         this.companyId = companyId;
-    }
-
-    // ------------------------
-    // Utility Methods
-    // ------------------------
-    public boolean isSameRoute() {
-        return this.departureCityId.equals(this.arrivalCityId);
     }
 
     // ------------------------

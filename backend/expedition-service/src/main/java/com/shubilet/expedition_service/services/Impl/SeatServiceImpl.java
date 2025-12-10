@@ -1,28 +1,31 @@
 package com.shubilet.expedition_service.services.Impl;
 
-import java.util.ArrayList;
+import java.time.Instant;
 import java.util.List;
 
 import org.springframework.stereotype.Service;
 
-import com.shubilet.expedition_service.common.enums.BookStatus;
-import com.shubilet.expedition_service.common.enums.SeatStatus;
+import com.shubilet.expedition_service.common.enums.forReservation.SeatStatus;
 import com.shubilet.expedition_service.common.util.DTOMapperUtils;
 import com.shubilet.expedition_service.dataTransferObjects.responses.base.SeatForCompanyDTO;
 import com.shubilet.expedition_service.dataTransferObjects.responses.base.SeatForCustomerDTO;
 import com.shubilet.expedition_service.models.Seat;
 import com.shubilet.expedition_service.services.SeatService;
+import com.shubilet.expedition_service.repositories.ExpeditionRepository;
 import com.shubilet.expedition_service.repositories.SeatRepository;
 
 @Service
 public class SeatServiceImpl implements SeatService {
 
     private final SeatRepository seatRepository;
+    private final ExpeditionRepository expeditionRepository;
 
     public SeatServiceImpl(
-        SeatRepository seatRepository
+        SeatRepository seatRepository,
+        ExpeditionRepository expeditionRepository
     ) {
         this.seatRepository = seatRepository;
+        this.expeditionRepository = expeditionRepository;
     }
     
     public void generateSeats(int expeditionId, int capacity) {
@@ -32,15 +35,16 @@ public class SeatServiceImpl implements SeatService {
         }
     }
 
-    public List<SeatForCustomerDTO> getAvailableSeats(int expeditionId) {
-        return DTOMapperUtils.toSeatForCustomerDTO(seatRepository.findSeatsByExpeditionIdAndStatus(expeditionId, SeatStatus.AVAILABLE));
-        
+    public List<SeatForCustomerDTO> getByAvailableSeats(int expeditionId) {
+        Instant now = Instant.now();
+        return DTOMapperUtils.toSeatForCustomerDTO(seatRepository.findSeatsByExpeditionIdAndStatus(expeditionId, now));
     }
 
-    public List<SeatForCompanyDTO> getSeatsByExpeditionId(int expeditionId) {
+    public List<SeatForCompanyDTO> getSeatsByExpeditionIdAndCompanyId(int expeditionId, int companyId) {
         return DTOMapperUtils.toSeatForCompanyDTO(
-            seatRepository.findSeatsByExpeditionIdForCompany(
-                expeditionId
+            seatRepository.findSeatsByExpeditionIdAndCompanyId(
+                expeditionId,
+                companyId
             )
         );
     }
@@ -49,21 +53,41 @@ public class SeatServiceImpl implements SeatService {
         return seatRepository.existsByExpeditionIdAndSeatNo(expeditionId, seatNo);
     }
 
-    public BookStatus bookSeat(int expeditionId, int seatNo) {
+    public int bookSeat(int expeditionId, int customerId, int seatNo) {
+        Instant now = Instant.now();
 
         Seat seat = seatRepository.findByExpeditionIdAndSeatNo(expeditionId, seatNo);
 
         if(seat == null) {
-            return BookStatus.SEAT_NOT_EXISTS;
+            return -1;
+        }
+
+        if(expeditionRepository.isExpeditionTimePassed(expeditionId, now)) {
+            return -1;
         }
 
         if(seat.isBooked()) {
-            return BookStatus.ALREADY_BOOKED;
+            return -1;
         }
 
         seat.setBooked(true);
+        seat.setCustomerId(customerId);
         seatRepository.save(seat);
         
-        return BookStatus.SUCCESS;
+        return seat.getId();
+    }
+
+    public SeatStatus canBeReserved(int expeditionId, int seatNo) {
+        Seat seat = seatRepository.findByExpeditionIdAndSeatNo(expeditionId, seatNo);
+
+        if(seat == null) {
+            return SeatStatus.NOT_FOUND;
+        }
+
+        if(seat.isBooked()) {
+            return SeatStatus.ALREADY_BOOKED;
+        }
+
+        return SeatStatus.SUCCESS;
     }
 }

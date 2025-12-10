@@ -45,7 +45,7 @@ public class CreationControllerImpl implements CreationController {
         ///STEP 1: Classic validations
         if(request == null) {
             logger.error("Expedition creation request is null");
-            return ResponseEntity.badRequest().body(errorUtils.criticalError());
+            return errorUtils.criticalError();
         }
 
         String departureCity = request.getDepartureCity();
@@ -59,73 +59,73 @@ public class CreationControllerImpl implements CreationController {
         
         if(StringUtils.isNullOrBlank(arrivalCity)) {
             logger.error("Arrival city is null or blank");
-            return ResponseEntity.badRequest().body(errorUtils.isNull("Arrival city"));
+            return errorUtils.isNull("Arrival city");
         }
 
         if(StringUtils.isNullOrBlank(departureCity)) {
             logger.error("Departure city is null or blank");
-            return ResponseEntity.badRequest().body(errorUtils.isNull("Departure city"));
+            return errorUtils.isNull("Departure city");
         }
 
         if(StringUtils.isNullOrBlank(date)) {
             logger.error("Date is null or blank");
-            return ResponseEntity.badRequest().body(errorUtils.isNull("Date"));
+            return errorUtils.isNull("Date");
         }
         
         if(StringUtils.isNullOrBlank(time)) {
             logger.error("Time is null or blank");
-            return ResponseEntity.badRequest().body(errorUtils.isNull("Time"));
+            return errorUtils.isNull("Time");
         }
 
         if(!ValidationUtils.isValidBigDouble(price)) {
             logger.error("Price is invalid: {}", price);
-            return ResponseEntity.badRequest().body(errorUtils.isInvalidFormat("Price"));
+            return errorUtils.isInvalidFormat("Price");
         }
 
         if(duration < 0) {
             logger.error("Duration is invalid: {}", duration);
-            return ResponseEntity.badRequest().body(errorUtils.isInvalidFormat("Duration"));
+            return errorUtils.isInvalidFormat("Duration");
         }
 
         if(companyId <= 0) {
             logger.error("Company Id is invalid: {}", companyId);
-            return ResponseEntity.badRequest().body(errorUtils.unauthorized());
+            return errorUtils.unauthorized();
         }
 
         if(capacity <= 0) {
             logger.error("Capacity is invalid: {}", capacity);
-            return ResponseEntity.badRequest().body(errorUtils.isInvalidFormat("Capacity"));
+            return errorUtils.isInvalidFormat("Capacity");
         }
 
         //STEP 2: Spesific validations
         if(StringUtils.nullSafeEquals(arrivalCity, departureCity)) {
             logger.error("Arrival city and Departure city are the same: {}", arrivalCity);
-            return ResponseEntity.badRequest().body(errorUtils.sameCityError());
+            return errorUtils.sameCityError();
         }
 
         if(!cityService.cityExists(arrivalCity)) {
             logger.error("Arrival city not found: {}", arrivalCity);
-            return ResponseEntity.badRequest().body(errorUtils.notFound("Arrival city"));
+            return errorUtils.notFound("Arrival city");
         }
 
         if(!cityService.cityExists(departureCity)) {
             logger.error("Departure city not found: {}", departureCity);
-            return ResponseEntity.badRequest().body(errorUtils.notFound("Departure city"));
+            return errorUtils.notFound("Departure city");
         }
 
         if(!ValidationUtils.isValidDate(date)) {
             logger.error("Date format is invalid: {}", date);
-            return ResponseEntity.badRequest().body(errorUtils.isInvalidFormat("Date"));
+            return errorUtils.isInvalidFormat("Date");
         }
 
         if(!ValidationUtils.isValidTime(time)) {
             logger.error("Time format is invalid: {}", time);
-            return ResponseEntity.badRequest().body(errorUtils.isInvalidFormat("Time"));
+            return errorUtils.isInvalidFormat("Time");
         }
 
         if(capacity > 1000) {
             logger.error("Capacity exceeds maximum limit: {}", capacity);
-            return ResponseEntity.badRequest().body(errorUtils.isInvalidFormat("Capacity"));
+            return errorUtils.isInvalidFormat("Capacity");
         }
 
         //STEP 3: Generation logic 
@@ -142,7 +142,7 @@ public class CreationControllerImpl implements CreationController {
 
         if(expeditionId == -1) {
             logger.error("Failed to create expedition due to invalid city IDs.");
-            return ResponseEntity.badRequest().body(errorUtils.criticalError());
+            return errorUtils.criticalError();
         }
 
         seatService.generateSeats(expeditionId, capacity);

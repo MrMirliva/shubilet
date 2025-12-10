@@ -3,7 +3,9 @@ package com.shubilet.expedition_service.services.Impl;
 import org.springframework.stereotype.Service;
 
 import com.shubilet.expedition_service.common.util.DTOMapperUtils;
+import com.shubilet.expedition_service.common.util.PNRGenerator;
 import com.shubilet.expedition_service.dataTransferObjects.responses.base.TicketDTO;
+import com.shubilet.expedition_service.models.Ticket;
 import com.shubilet.expedition_service.repositories.TicketRepository;
 import com.shubilet.expedition_service.services.TicketService;
 
@@ -18,12 +20,29 @@ public class TicketServiceImpl implements TicketService {
         this.ticketRepository = ticketRepository;
     }
 
-    public TicketDTO getTicketDetails(int expeditionId, int seatNo) {
+    public TicketDTO getTicketDetails(String ticketPNR) {
         return DTOMapperUtils.toTicketDTO(
-            ticketRepository.findTicketDetailsByExpeditionIdAndSeatNo(
-                expeditionId, 
-                seatNo
+            ticketRepository.findTicketDetailsByPNR(
+                ticketPNR
             )
         );
+    }
+
+    public String generateTicket(int paymentId, int seatId, int customerId) {
+        String PNR = "";
+        
+        do {
+            PNR = PNRGenerator.generatePNR();
+        } while(ticketRepository.existsByPNR(PNR));
+        
+        Ticket ticket = new Ticket(
+            PNR,
+            seatId,
+            paymentId,
+            customerId
+        );
+        
+        ticketRepository.save(ticket);
+        return PNR;
     }
 }

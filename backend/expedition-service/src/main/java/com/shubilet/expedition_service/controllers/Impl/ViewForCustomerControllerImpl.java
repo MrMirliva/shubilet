@@ -1,5 +1,6 @@
 package com.shubilet.expedition_service.controllers.Impl;
 
+import java.time.Instant;
 import java.util.List;
 
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -50,7 +51,7 @@ public class ViewForCustomerControllerImpl implements ViewForCustomerController 
         //STEP 1 : Classic validation
         if(viewDetailsForCustomerDTO == null) {
             logger.error("ViewDetailsForCustomerDTO is null");
-            return ResponseEntity.badRequest().body(errorUtils.criticalError());
+            return errorUtils.criticalError();
         }
 
         String departureCity = viewDetailsForCustomerDTO.getDepartureCity();
@@ -59,28 +60,34 @@ public class ViewForCustomerControllerImpl implements ViewForCustomerController 
 
         if(StringUtils.isNullOrBlank(departureCity)) {
             logger.error("Departure City is null or blank");
-            return ResponseEntity.badRequest().body(errorUtils.isNull("Departure City"));
+            return errorUtils.isNull("Departure City");
         }
 
         if(StringUtils.isNullOrBlank(arrivalCity)) {
             logger.error("Arrival City is null or blank");
-            return ResponseEntity.badRequest().body(errorUtils.isNull("Arrival City"));
+            return errorUtils.isNull("Arrival City");
         }
 
         if(StringUtils.isNullOrBlank(date)) {
             logger.error("Date is null or blank");
-            return ResponseEntity.badRequest().body(errorUtils.isNull("Date"));
+            return errorUtils.isNull("Date");
         }
 
         if(!ValidationUtils.isValidDate(date)) {
             logger.error("Date format is invalid: {}", date);
-            return ResponseEntity.badRequest().body(errorUtils.isInvalidFormat("Date"));
+            return errorUtils.isInvalidFormat("Date");
         }
 
         //STEP 2 : Spesific validation
         if(StringUtils.nullSafeEquals(arrivalCity, departureCity)) {
             logger.error("Arrival City and Departure City are the same: {}", arrivalCity);
-            return ResponseEntity.badRequest().body(errorUtils.sameCityError());
+            return errorUtils.sameCityError();
+        }
+        
+        Instant now = Instant.now();
+        if(!ValidationUtils.isDateNotInPast(date, now)) {
+            logger.error("Date is in the past: {}", date);
+            return errorUtils.dateInPastError();
         }
 
         //STEP 3 : Business Logic
@@ -102,27 +109,32 @@ public class ViewForCustomerControllerImpl implements ViewForCustomerController 
         //STEP 1 : Classic validation
         if(expeditionIdDTO == null) {
             logger.error("ExpeditionIdDTO is null");
-            return ResponseEntity.badRequest().body(errorUtils.criticalError());
+            return errorUtils.criticalError();
         }
 
         int expeditionId = expeditionIdDTO.getExpeditionId();
 
         if(expeditionId <= 0) {
             logger.error("Expedition Id is invalid: {}", expeditionId);
-            return ResponseEntity.badRequest().body(errorUtils.isNull("Expedition Id"));
+            return errorUtils.isNull("Expedition Id");
         }
 
         //STEP 2 : Spesific validation
         if(!expeditionService.expeditionExists(expeditionId)) {
             logger.error("Expedition not found for Id: {}", expeditionId);
-            return ResponseEntity.badRequest().body(errorUtils.notFound("Expedition"));
+            return errorUtils.notFound("Expedition");
         }
 
         //STEP 3 : Business Logic
-        List<SeatForCustomerDTO> availableSeats = seatService.getAvailableSeats(expeditionId);
+        List<SeatForCustomerDTO> availableSeats = seatService.getByAvailableSeats(expeditionId);
+
+        if(availableSeats.isEmpty()) {
+            logger.info("No available seats found for expedition Id {}", expeditionId);
+            return errorUtils.notFound("Available seats");
+        }
 
         logger.info("Found {} available seats for expedition Id {}", availableSeats.size(), expeditionId);
         return ResponseEntity.ok(new SeatsForCustomerDTO("Available seats found", availableSeats));
     }
-    
+
 }

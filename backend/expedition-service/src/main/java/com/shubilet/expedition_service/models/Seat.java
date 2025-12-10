@@ -14,7 +14,7 @@ import jakarta.validation.constraints.NotNull;
 
 import java.io.Serializable;
 
-import com.shubilet.expedition_service.common.enums.SeatStatus;
+import com.shubilet.expedition_service.common.enums.SeatStatusForModel;
 
 /**
  * Represents a seat in a specific expedition.
@@ -51,7 +51,7 @@ public class Seat implements Serializable {
     @NotNull
     @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false, updatable = true)
-    private SeatStatus status;
+    private SeatStatusForModel status;
 
     // ------------------------
     // Constructors
@@ -62,10 +62,10 @@ public class Seat implements Serializable {
     public Seat(Integer expeditionId, Integer seatNo) {
         this.expeditionId = expeditionId;
         this.seatNo = seatNo;
-        this.status = SeatStatus.AVAILABLE;
+        this.status = SeatStatusForModel.AVAILABLE;
     }
 
-    public Seat(Integer expeditionId, Integer seatNo, Integer customerId, SeatStatus status) {
+    public Seat(Integer expeditionId, Integer seatNo, Integer customerId, SeatStatusForModel status) {
         this.expeditionId = expeditionId;
         this.seatNo = seatNo;
         this.customerId = customerId;
@@ -103,20 +103,20 @@ public class Seat implements Serializable {
         this.customerId = customerId;
     }
 
-    public SeatStatus getStatus() {
+    public SeatStatusForModel getStatus() {
         return status;
     }
     public boolean isBooked() {
-        return this.status == SeatStatus.RESERVED;
+        return this.status == SeatStatusForModel.RESERVED;
     }
-    public void setStatus(SeatStatus status) {
+    public void setStatus(SeatStatusForModel status) {
         this.status = status;
     }
     public void setBooked(boolean booked) {
         if (booked) {
-            this.status = SeatStatus.RESERVED;
+            this.status = SeatStatusForModel.RESERVED;
         } else {
-            this.status = SeatStatus.AVAILABLE;
+            this.status = SeatStatusForModel.AVAILABLE;
         }
     }
 
@@ -127,7 +127,7 @@ public class Seat implements Serializable {
     @PrePersist
     protected void onCreate() {
         if (this.status == null) {
-            this.status = SeatStatus.AVAILABLE;
+            this.status = SeatStatusForModel.AVAILABLE;
         }
     }
 

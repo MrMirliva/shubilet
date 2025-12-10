@@ -47,7 +47,7 @@ public class ViewForCompanyControllerImpl implements ViewForCompanyController {
         //STEP 1: Classic validation
         if(expeditionViewByDateDTO == null) {
             logger.error("ExpeditionViewByDateDTO is null");
-            return ResponseEntity.badRequest().body(errorUtils.criticalError());
+            return errorUtils.criticalError();
         }
 
         int companyId = expeditionViewByDateDTO.getCompanyId();
@@ -55,33 +55,33 @@ public class ViewForCompanyControllerImpl implements ViewForCompanyController {
 
         if(companyId <= 0) {
             logger.error("Company Id is invalid: {}", companyId);
-            return ResponseEntity.badRequest().body(errorUtils.isInvalidFormat("Company Id"));
+            return errorUtils.isInvalidFormat("Company Id");
         }
 
         if(StringUtils.isNullOrBlank(date)) {
             logger.error("Date is null or blank");
-            return ResponseEntity.badRequest().body(errorUtils.isInvalidFormat("Date"));
+            return errorUtils.isInvalidFormat("Date");
         }
 
         if(!ValidationUtils.isValidDate(date)) {
             logger.error("Date format is invalid: {}", date);
-            return ResponseEntity.badRequest().body(errorUtils.isInvalidFormat("Date"));
+            return errorUtils.isInvalidFormat("Date");
         }
 
         //STEP 2: Spesific validations
         
         //STEP 3: Business Logic
-        List<ExpeditionForCompanyDTO> expeditions = expeditionService.findExpeditionsByInstant(date);
+        List<ExpeditionForCompanyDTO> expeditions = expeditionService.findExpeditionsByInstantAndCompanyId(date, companyId);
 
         if(expeditions.isEmpty()) {
             logger.error("No expeditions found for date: {}", date);
-            return ResponseEntity.ok().body(errorUtils.notFound("Expeditions"));
+            return errorUtils.notFound("Expeditions");
         }
 
         logger.info("Expeditions found for date: {}", date);
         return ResponseEntity.ok().body(new ExpeditionsForCompanyDTO("Expeditions found", expeditions));
     }
- 
+    
     @PostMapping("/activeExpeditions")
     public ResponseEntity<ExpeditionsForCompanyDTO> viewActiveExpeditions(@RequestBody CompanyIdDTO companyIdDTO) {
         ErrorUtils errorUtils = new ErrorUtils(ErrorUtils.ConversionType.EXPEDITIONS_FOR_COMPANY_DTO);
@@ -89,14 +89,14 @@ public class ViewForCompanyControllerImpl implements ViewForCompanyController {
         //STEP 1: Classic validation
         if(companyIdDTO == null) {
             logger.error("CompanyIdDTO is null");
-            return ResponseEntity.badRequest().body(errorUtils.criticalError());
+            return errorUtils.criticalError();
         }
 
         int companyId = companyIdDTO.getCompanyId();
 
         if(companyId <= 0) {
             logger.error("Company Id is invalid: {}", companyId);
-            return ResponseEntity.badRequest().body(errorUtils.isInvalidFormat("Company Id"));
+            return errorUtils.isInvalidFormat("Company Id");
         }
 
         //STEP 2: Spesific validations
@@ -106,7 +106,7 @@ public class ViewForCompanyControllerImpl implements ViewForCompanyController {
 
         if(expeditions.isEmpty()) {
             logger.error("No active expeditions found for company id: {}", companyId);
-            return ResponseEntity.ok().body(errorUtils.notFound("Expeditions"));
+            return errorUtils.notFound("Expeditions");
         }
 
         logger.info("Active expeditions found for company id: {}", companyId);
@@ -120,14 +120,14 @@ public class ViewForCompanyControllerImpl implements ViewForCompanyController {
         //STEP 1: Classic validation
         if(companyIdDTO == null) {
             logger.error("CompanyIdDTO is null");
-            return ResponseEntity.badRequest().body(errorUtils.criticalError());
+            return errorUtils.criticalError();
         }
 
         int companyId = companyIdDTO.getCompanyId();
 
         if(companyId <= 0) {
             logger.error("Company Id is invalid: {}", companyId);
-            return ResponseEntity.badRequest().body(errorUtils.isInvalidFormat("Company Id"));
+            return errorUtils.isInvalidFormat("Company Id");
         }
 
         //STEP 2: Spesific validations
@@ -137,7 +137,7 @@ public class ViewForCompanyControllerImpl implements ViewForCompanyController {
 
         if(expeditions.isEmpty()) {
             logger.error("No expeditions found for company id: {}", companyId);
-            return ResponseEntity.ok().body(errorUtils.notFound("Expeditions"));
+            return errorUtils.notFound("Expeditions");
         }
 
         logger.info("Expeditions found for company id: {}", companyId);
@@ -151,7 +151,7 @@ public class ViewForCompanyControllerImpl implements ViewForCompanyController {
         //STEP 1: Classic validation
         if(expeditionViewById == null) {
             logger.error("ExpeditionViewByIdDTO is null");
-            return ResponseEntity.badRequest().body(errorUtils.criticalError());
+            return errorUtils.criticalError();
         }
 
         int companyId = expeditionViewById.getCompanyId();
@@ -159,21 +159,21 @@ public class ViewForCompanyControllerImpl implements ViewForCompanyController {
 
         if(companyId <= 0) {
             logger.error("Company Id is invalid: {}", companyId);
-            return ResponseEntity.badRequest().body(errorUtils.isInvalidFormat("Company Id"));
+            return errorUtils.isInvalidFormat("Company Id");
         }
         if(expeditionId <= 0) {
             logger.error("Expedition Id is invalid: {}", expeditionId);
-            return ResponseEntity.badRequest().body(errorUtils.isInvalidFormat("Expedition Id"));
+            return errorUtils.isInvalidFormat("Expedition Id");
         }
 
         //STEP 2: Spesific validations
 
         //STEP 3: Business Logic
-        List<SeatForCompanyDTO> seats = seatService.getSeatsByExpeditionId(expeditionId);
+        List<SeatForCompanyDTO> seats = seatService.getSeatsByExpeditionIdAndCompanyId(expeditionId, companyId);
 
         if(seats.isEmpty()) {
             logger.error("No seats found for expedition id: {}", expeditionId);
-            return ResponseEntity.ok().body(errorUtils.notFound("Seats"));
+            return errorUtils.notFound("Seats");
         }
 
         logger.info("Expedition details found for expedition id: {}", expeditionId);

@@ -1,11 +1,11 @@
-package com.shubilet.expedition_service.common.enums;
+package com.shubilet.expedition_service.common.enums.forReservation;
 
 import org.springframework.http.HttpStatus;
 
-public enum BookStatus {
-    SUCCESS(true, HttpStatus.OK, "SESSION_VALID"),
+public enum SeatStatus {
+    NOT_FOUND(false, HttpStatus.NOT_FOUND, "SEAT_NOT_EXISTS"),
     ALREADY_BOOKED(false, HttpStatus.CONFLICT, "SEAT_ALREADY_BOOKED"),
-    SEAT_NOT_EXISTS(false, HttpStatus.NOT_FOUND, "SEAT_NOT_EXISTS");
+    SUCCESS(true, HttpStatus.OK, "SEAT_BOOK_SUCCESS");
 
     // Is this session usable in the system?
     private final boolean valid;
@@ -16,7 +16,7 @@ public enum BookStatus {
     // Message or error key for client / i18n / ErrorMessages
     private final String messageKey;
 
-    BookStatus(boolean valid, HttpStatus httpStatus, String messageKey) {
+    SeatStatus(boolean valid, HttpStatus httpStatus, String messageKey) {
         this.valid = valid;
         this.httpStatus = httpStatus;
         this.messageKey = messageKey;

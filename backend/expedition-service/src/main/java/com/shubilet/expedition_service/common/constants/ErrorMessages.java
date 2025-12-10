@@ -21,4 +21,5 @@ public final class ErrorMessages {
     //Specific error messages
     public static final String SAME_CITY_ERROR_MESSAGE = "Arrival city cannot be the same as departure city.";
     public static final String ALREADY_BOOKED = " is already booked.";
+    public static final String DATE_IN_PAST_ERROR = "The provided date is in the past.";
 }

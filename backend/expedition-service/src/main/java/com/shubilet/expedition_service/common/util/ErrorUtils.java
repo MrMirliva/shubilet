@@ -1,5 +1,7 @@
 package com.shubilet.expedition_service.common.util;
 
+import org.springframework.http.ResponseEntity;
+
 import com.shubilet.expedition_service.common.constants.ErrorMessages;
 import com.shubilet.expedition_service.dataTransferObjects.responses.complex.CardsDTO;
 import com.shubilet.expedition_service.dataTransferObjects.responses.complex.ExpeditionsForCompanyDTO;
@@ -17,49 +19,54 @@ public class ErrorUtils {
         this.conversionType = conversionType;
     }
 
-    public <T> T isNull(String fieldName) {
+    public <T> ResponseEntity<T> isNull(String fieldName) {
         String message = fieldName + ErrorMessages.NULL_OR_EMPTY;
-        return caster(message);
+        return caster(message, 400);
     }
 
-    public <T> T isInvalidFormat(String fieldName) {
+    public <T> ResponseEntity<T> isInvalidFormat(String fieldName) {
         String message = fieldName + ErrorMessages.INVALID_FORMAT;
-        return caster(message);
+        return caster(message, 400);
     }
 
-    public <T> T criticalError() {
+    public <T> ResponseEntity<T> criticalError() {
         String message = ErrorMessages.CRITICAL_ERROR;
-        return caster(message);
+        return caster(message, 500);
     }
 
-    public <T> T notFound(String fieldName) {
+    public <T> ResponseEntity<T> notFound(String fieldName) {
         String message = fieldName + ErrorMessages.NOT_FOUND;
-        return caster(message);
+        return caster(message, 404);
     }
 
-    public <T> T unauthorized() {
+    public <T> ResponseEntity<T> unauthorized() {
         String message = ErrorMessages.SESSION_NOT_FOUND;
-        return caster(message);
+        return caster(message, 401);
     }
 
-    public <T> T sameCityError() {
+    public <T> ResponseEntity<T> sameCityError() {
         String message = ErrorMessages.SAME_CITY_ERROR_MESSAGE;
-        return caster(message);
+        return caster(message, 400);
     }
 
-    public <T> T alreadyExists(String entityName) {
+    public <T> ResponseEntity<T> alreadyExists(String entityName) {
         String message = entityName + ErrorMessages.ALREADY_EXISTS;
-        return caster(message);
+        return caster(message, 409);
     }
 
-    public <T> T alreadyBooked(String entityName) {
+    public <T> ResponseEntity<T> alreadyBooked(String entityName) {
         String message = entityName + ErrorMessages.ALREADY_BOOKED;
-        return caster(message);
+        return caster(message, 409);
+    }
+
+    public <T> ResponseEntity<T> dateInPastError() {
+        String message = ErrorMessages.DATE_IN_PAST_ERROR;
+        return caster(message, 400);
     }
 
 
 
-    private <T> T caster(String errorMessage) {
+    private <T> ResponseEntity<T> caster(String errorMessage, int errorCode) {
         Object errorObj = null;
 
         switch (conversionType) {
@@ -91,7 +98,7 @@ public class ErrorUtils {
                 throw new IllegalArgumentException("Unsupported conversion type");
         }
 
-        return (T) errorObj;
+        return ResponseEntity.status(errorCode).body((T) errorObj);
     }
 
     public enum ConversionType {

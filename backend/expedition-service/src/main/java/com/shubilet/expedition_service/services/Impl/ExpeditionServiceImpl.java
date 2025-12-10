@@ -6,6 +6,7 @@ import java.math.BigDecimal;
 
 import org.springframework.stereotype.Service;
 
+import com.shubilet.expedition_service.common.enums.forReservation.ExpeditionStatus;
 import com.shubilet.expedition_service.common.util.DTOMapperUtils;
 import com.shubilet.expedition_service.dataTransferObjects.responses.base.ExpeditionForCompanyDTO;
 import com.shubilet.expedition_service.dataTransferObjects.responses.base.ExpeditionForCustomerDTO;
@@ -74,14 +75,15 @@ public class ExpeditionServiceImpl implements ExpeditionService {
         );
     }
 
-    public List<ExpeditionForCompanyDTO> findExpeditionsByInstant(String date) {
+    public List<ExpeditionForCompanyDTO> findExpeditionsByInstantAndCompanyId(String date, int companyId) {
         Instant instantDate = Instant.parse(date + "T00:00:00Z");
         Instant endOfDay = instantDate.plusSeconds(86399); // Add 23 hours, 59 minutes, and 59 seconds to get the end of the day
         
         return DTOMapperUtils.toExpeditionForCompanyDTO(
-            expeditionRepository.findAllByInstant(
+            expeditionRepository.findAllByInstantAndCompanyId(
                 instantDate, 
-                endOfDay
+                endOfDay,
+                companyId
             )
         );
     }
@@ -106,6 +108,43 @@ public class ExpeditionServiceImpl implements ExpeditionService {
 
     public boolean expeditionExists(int expeditionId) {
         return expeditionRepository.existsById(expeditionId);
+    }
+
+    public boolean bookSeat(int expeditionId) {
+        Expedition expedition = expeditionRepository.findById(expeditionId).orElse(null);
+
+        if(expedition == null) {
+            return false;
+        }
+
+        expedition.setNumberOfBookedSeats(expedition.getNumberOfBookedSeats() + 1);
+        expedition.setProfit(expedition.getProfit().add(expedition.getPrice()));
+        expeditionRepository.save(expedition);
+        
+        System.out.println("Expedition after booking: " + expedition.toString());
+        return true;
+    }
+
+    public ExpeditionStatus canBeReserved(int expeditionId) {
+        Expedition expedition = expeditionRepository.findById(expeditionId).orElse(null);
+
+        if(expedition == null) {
+            return ExpeditionStatus.NOT_FOUND;
+        }
+
+        if(expedition.getCapacity() <= 0) {
+            return ExpeditionStatus.NOT_VALID;
+        }
+
+        if(expeditionRepository.isExpeditionTimePassed(expeditionId, Instant.now())) {
+            return ExpeditionStatus.INVALID_TIME;
+        }
+
+        if(expedition.getCapacity() <= expedition.getNumberOfBookedSeats()) {
+            return ExpeditionStatus.ALREADY_BOOKED;
+        }
+
+        return ExpeditionStatus.SUCCESS;
     }
     
 }

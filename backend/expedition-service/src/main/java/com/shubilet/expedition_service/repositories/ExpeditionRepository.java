@@ -82,6 +82,7 @@ public interface ExpeditionRepository extends JpaRepository<Expedition, Integer>
             AND e.arrivalCityId = :arrivalCityId
             AND e.dateAndTime >= :startOfDay
             AND e.dateAndTime < :endOfDay
+            AND e.capacity > e.numberOfBookedSeats
         ORDER BY e.dateAndTime ASC
     """)
     List<ExpeditionForCustomerRepoDTO> findByInstantAndRoute(
@@ -110,10 +111,25 @@ public interface ExpeditionRepository extends JpaRepository<Expedition, Integer>
                         ON e.arrivalCityId = ac.id
                             WHERE e.dateAndTime >= :startOfDay
                                 AND e.dateAndTime < :endOfDay
+                                AND e.companyId = :companyId
         ORDER BY e.dateAndTime ASC
     """)
-    List<ExpeditionForCompanyRepoDTO> findAllByInstant(
+    List<ExpeditionForCompanyRepoDTO> findAllByInstantAndCompanyId(
         @Param("startOfDay") Instant startOfDay, 
-        @Param("endOfDay") Instant endOfDay
+        @Param("endOfDay") Instant endOfDay,
+        @Param("companyId") int companyId
+    );
+
+    @Query("""
+        SELECT CASE 
+            WHEN e.dateAndTime < :now THEN true
+            ELSE false
+        END
+        FROM Expedition e
+        WHERE e.id = :expeditionId
+    """)
+    boolean isExpeditionTimePassed(
+        @Param("expeditionId") int expeditionId, 
+        @Param("now") Instant now
     );
 }
