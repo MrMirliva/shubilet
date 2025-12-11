@@ -25,15 +25,15 @@ import com.shubilet.expedition_service.services.TicketService;
 
 @RestController
 @RequestMapping("/api/reservation")
-public class RezervaitonControllerImpl implements RezervationController {
+public class ReservationControllerImpl implements RezervationController {
 
-    private static final Logger logger = LoggerFactory.getLogger(RezervaitonControllerImpl.class); 
+    private static final Logger logger = LoggerFactory.getLogger(ReservationControllerImpl.class); 
 
     private final ExpeditionService expeditionService;
     private final TicketService ticketService;
     private final SeatService seatService;
 
-    public RezervaitonControllerImpl(
+    public ReservationControllerImpl(
         ExpeditionService expeditionService,
         TicketService ticketService,
         SeatService seatService
