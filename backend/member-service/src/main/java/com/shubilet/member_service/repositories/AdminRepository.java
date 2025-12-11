@@ -7,6 +7,8 @@ import org.springframework.stereotype.Repository;
 
 import com.shubilet.member_service.models.Admin;
 
+import java.util.List;
+
 
 @Repository
 public interface AdminRepository extends JpaRepository<Admin, Integer> {
@@ -20,5 +22,10 @@ public interface AdminRepository extends JpaRepository<Admin, Integer> {
     boolean isAdminExistsByEmail(
             @Param("email") String email
     );
-    
+
+    Admin getAdminByEmail(String email);
+
+    Admin getAdminById(int id);
+
+    boolean existsAdminById(int id);
 }

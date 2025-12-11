@@ -7,6 +7,8 @@ import org.springframework.stereotype.Repository;
 
 import com.shubilet.member_service.models.Customer;
 
+import java.util.List;
+
 
 @Repository
 public interface CustomerRepository extends JpaRepository<Customer, Integer> {
@@ -21,4 +23,6 @@ public interface CustomerRepository extends JpaRepository<Customer, Integer> {
     boolean isCustomerExistsByEmail(
             @Param("email") String email
     );
+
+    Customer getCustomerByEmail(String email);
 }
