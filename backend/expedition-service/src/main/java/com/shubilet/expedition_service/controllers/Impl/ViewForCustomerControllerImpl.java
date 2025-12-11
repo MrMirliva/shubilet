@@ -28,7 +28,7 @@ import com.shubilet.expedition_service.services.SeatService;
 
 
 @RestController
-@RequestMapping("/api/view/customer/")
+@RequestMapping("/api/view/customer")
 public class ViewForCustomerControllerImpl implements ViewForCustomerController {
 
     private static final Logger logger = LoggerFactory.getLogger(ViewForCustomerControllerImpl.class);
