@@ -1,20 +1,13 @@
 package com.shubilet.payment_service.controllers;
 
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RestController;
+import com.shubilet.payment_service.dataTransferObjects.requests.TicketPaymentRequestDTO;
+import org.springframework.http.ResponseEntity;
 
-import com.shubilet.payment_service.services.PaymentService;
+public interface PaymentController {
 
-///TODO: PAYMENT CONTROLLER IMPLEMENTATION
-@RestController
-@RequestMapping("/api/payments")
-@CrossOrigin(origins = "*", allowedHeaders = "*", methods = {RequestMethod.GET, RequestMethod.POST})
-public class PaymentController {
-    private final PaymentService paymentService;
-
-    public PaymentController(PaymentService paymentService) {
-        this.paymentService = paymentService;
-    }
+    /**
+     * Bilet ödeme işlemini başlatır.
+     * Başarılı olursa bilet bilgisini, başarısız olursa hata mesajını döner.
+     */
+    ResponseEntity<Object> makePayment(TicketPaymentRequestDTO dto);
 }

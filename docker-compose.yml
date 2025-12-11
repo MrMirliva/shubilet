@@ -68,7 +68,7 @@ services:
       - eureka-server
       - postgres
     ports:
-      - "8083:8080"
+      - "8083:8083"
     environment:
       - EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE=http://eureka-server:8761/eureka/
       - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/paymentDB

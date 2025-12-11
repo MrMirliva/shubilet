@@ -1,21 +1,33 @@
 package com.shubilet.payment_service.controllers;
 
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RestController;
+import com.shubilet.payment_service.dataTransferObjects.requests.CardDTO;
+import com.shubilet.payment_service.dataTransferObjects.requests.CardDeactivationRequestDTO;
+import com.shubilet.payment_service.dataTransferObjects.requests.CardIdRequestDTO;
+import com.shubilet.payment_service.dataTransferObjects.requests.CustomerIdRequestDTO;
+import org.springframework.http.ResponseEntity;
+import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.annotation.RequestBody;
 
-import com.shubilet.payment_service.services.CardService;
+public interface CardController {
 
-///TODO: CARD CONTROLLER IMPLEMENTATION
-@RestController
-@RequestMapping("/api/cards")
-@CrossOrigin(origins = "*", allowedHeaders = "*", methods = {RequestMethod.GET, RequestMethod.POST})
-public class CardController {
-    
-    private final CardService cardService;
+    /**
+     * Yeni kart ekleme işlemini tanımlar.
+     * Validasyon sonuçları BindingResult ile taşınır.
+     */
+    ResponseEntity<Object> saveNewCard(CardDTO cardDTO, BindingResult bindingResult);
 
-    public CardController(CardService cardService) {
-        this.cardService = cardService;
-    }
+    /**
+     * Bir müşteriye ait aktif kartları listeler.
+     */
+    ResponseEntity<Object> getCardsByCustomer(CustomerIdRequestDTO requestDTO);
+
+    /**
+     * Kartı pasife çekme (silme) işlemini tanımlar.
+     */
+    ResponseEntity<Object> deactivateCard(CardDeactivationRequestDTO requestDTO);
+
+    /**
+     * Kartın sistemde var ve aktif olup olmadığını kontrol eder.
+     */
+    ResponseEntity<Object> checkCardActive(CardIdRequestDTO requestDTO);
 }
