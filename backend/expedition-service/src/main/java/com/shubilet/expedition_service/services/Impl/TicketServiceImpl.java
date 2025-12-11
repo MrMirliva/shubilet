@@ -1,5 +1,7 @@
 package com.shubilet.expedition_service.services.Impl;
 
+import java.util.List;
+
 import org.springframework.stereotype.Service;
 
 import com.shubilet.expedition_service.common.util.DTOMapperUtils;
@@ -44,5 +46,11 @@ public class TicketServiceImpl implements TicketService {
         
         ticketRepository.save(ticket);
         return PNR;
+    }
+
+    public List<TicketDTO> getTicketsByCustomerId(int customerId) {
+        return DTOMapperUtils.toTicketDTO(
+            ticketRepository.findTicketsByCustomerId(customerId)
+        );
     }
 }

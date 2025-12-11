@@ -8,6 +8,7 @@ import com.shubilet.expedition_service.dataTransferObjects.responses.complex.Exp
 import com.shubilet.expedition_service.dataTransferObjects.responses.complex.ExpeditionsForCustomerDTO;
 import com.shubilet.expedition_service.dataTransferObjects.responses.complex.SeatsForCompanyDTO;
 import com.shubilet.expedition_service.dataTransferObjects.responses.complex.SeatsForCustomerDTO;
+import com.shubilet.expedition_service.dataTransferObjects.responses.complex.TicketsDTO;
 import com.shubilet.expedition_service.dataTransferObjects.responses.message.MessageDTO;
 import com.shubilet.expedition_service.dataTransferObjects.responses.middle.ExpeditionInfoForCompanyDTO;
 import com.shubilet.expedition_service.dataTransferObjects.responses.middle.TicketInfoDTO;
@@ -94,6 +95,9 @@ public class ErrorUtils {
             case SEATS_FOR_COMPANY_DTO:
                 errorObj = new SeatsForCompanyDTO(errorMessage);
                 break;
+            case TICKETS_DTO:
+                errorObj = new TicketsDTO(errorMessage);
+                break;
             default:
                 throw new IllegalArgumentException("Unsupported conversion type");
         }
@@ -109,6 +113,7 @@ public class ErrorUtils {
         EXPEDITIONS_FOR_COMPANY_DTO,
         EXPEDITIONS_FOR_CUSTOMER_DTO,
         SEATS_FOR_CUSTOMER_DTO,
-        SEATS_FOR_COMPANY_DTO
+        SEATS_FOR_COMPANY_DTO,
+        TICKETS_DTO
     }
 }

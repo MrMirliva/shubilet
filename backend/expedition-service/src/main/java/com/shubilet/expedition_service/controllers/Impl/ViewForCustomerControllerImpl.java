@@ -17,14 +17,18 @@ import com.shubilet.expedition_service.common.util.ErrorUtils;
 import com.shubilet.expedition_service.common.util.StringUtils;
 import com.shubilet.expedition_service.common.util.ValidationUtils;
 import com.shubilet.expedition_service.controllers.ViewForCustomerController;
+import com.shubilet.expedition_service.dataTransferObjects.requests.CustomerIdDTO;
 import com.shubilet.expedition_service.dataTransferObjects.requests.ExpeditionIdDTO;
 import com.shubilet.expedition_service.dataTransferObjects.requests.ViewDetailsForCustomerDTO;
 import com.shubilet.expedition_service.dataTransferObjects.responses.base.ExpeditionForCustomerDTO;
 import com.shubilet.expedition_service.dataTransferObjects.responses.base.SeatForCustomerDTO;
+import com.shubilet.expedition_service.dataTransferObjects.responses.base.TicketDTO;
 import com.shubilet.expedition_service.dataTransferObjects.responses.complex.ExpeditionsForCustomerDTO;
 import com.shubilet.expedition_service.dataTransferObjects.responses.complex.SeatsForCustomerDTO;
+import com.shubilet.expedition_service.dataTransferObjects.responses.complex.TicketsDTO;
 import com.shubilet.expedition_service.services.ExpeditionService;
 import com.shubilet.expedition_service.services.SeatService;
+import com.shubilet.expedition_service.services.TicketService;
 
 
 @RestController
@@ -35,13 +39,16 @@ public class ViewForCustomerControllerImpl implements ViewForCustomerController 
 
     private final ExpeditionService expeditionService;
     private final SeatService seatService;
+    private final TicketService ticketService;
 
     public ViewForCustomerControllerImpl(
         ExpeditionService expeditionService,
-        SeatService seatService
+        SeatService seatService,
+        TicketService ticketService
     ) {
         this.expeditionService = expeditionService;
         this.seatService = seatService;
+        this.ticketService = ticketService;
     }
 
     @PostMapping("/availableExpeditions")
@@ -137,4 +144,35 @@ public class ViewForCustomerControllerImpl implements ViewForCustomerController 
         return ResponseEntity.ok(new SeatsForCustomerDTO("Available seats found", availableSeats));
     }
 
+    @PostMapping("/allTickets")
+    public ResponseEntity<TicketsDTO> viewAllTickets(@RequestBody CustomerIdDTO customerIdDTO) {
+        ErrorUtils errorUtils = new ErrorUtils(ErrorUtils.ConversionType.TICKETS_DTO);
+
+        //STEP 1 : Classic validation
+        if(customerIdDTO == null) {
+            logger.error("CustomerIdDTO is null");
+            return errorUtils.criticalError();
+        }
+
+        int customerId = customerIdDTO.getCustomerId();
+
+        if(customerId <= 0) {
+            logger.error("Customer Id is invalid: {}", customerId);
+            return errorUtils.isNull("Customer Id");
+        }
+        //STEP 2 : Spesific validation
+        
+
+        //STEP 3 : Business Logic
+
+        List<TicketDTO> tickets = ticketService.getTicketsByCustomerId(customerId);
+
+        if(tickets.isEmpty()) {
+            logger.info("No tickets found for customer Id {}", customerId);
+            return ResponseEntity.ok(new TicketsDTO("No tickets found", tickets));
+        }
+
+        logger.info("Found {} tickets for customer Id {}", tickets.size(), customerId);
+        return ResponseEntity.ok(new TicketsDTO("Tickets retrieved successfully", tickets));
+    }
 }
