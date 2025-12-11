@@ -1,5 +1,8 @@
 package com.shubilet.expedition_service.controllers.Impl;
 
+import java.util.LinkedHashMap;
+import java.util.UUID;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -8,12 +11,19 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.client.RestTemplate;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.MediaType;
 
+import com.shubilet.expedition_service.common.constants.ServiceURLs;
 import com.shubilet.expedition_service.common.enums.forReservation.ExpeditionStatus;
 import com.shubilet.expedition_service.common.enums.forReservation.SeatStatus;
 import com.shubilet.expedition_service.common.util.ErrorUtils;
 import com.shubilet.expedition_service.common.util.StringUtils;
 import com.shubilet.expedition_service.controllers.RezervationController;
+import com.shubilet.expedition_service.dataTransferObjects.internal.requests.CardIdDTORequest;
 import com.shubilet.expedition_service.dataTransferObjects.requests.BuyTicketDTO;
 import com.shubilet.expedition_service.dataTransferObjects.requests.CustomerIdDTO;
 import com.shubilet.expedition_service.dataTransferObjects.responses.base.TicketDTO;
@@ -32,15 +42,18 @@ public class ReservationControllerImpl implements RezervationController {
     private final ExpeditionService expeditionService;
     private final TicketService ticketService;
     private final SeatService seatService;
+    private final RestTemplate restTemplate;
 
     public ReservationControllerImpl(
         ExpeditionService expeditionService,
         TicketService ticketService,
-        SeatService seatService
+        SeatService seatService,
+        RestTemplate restTemplate
     ) {
         this.expeditionService = expeditionService;
         this.ticketService = ticketService;
         this.seatService = seatService;
+        this.restTemplate = restTemplate;
     }
 
     @PostMapping("/buy_ticket")
@@ -127,7 +140,72 @@ public class ReservationControllerImpl implements RezervationController {
             return errorUtils.criticalError();
         }
 
-        ///TODO: CardId kontrolü yapılacak, Eureka servis ile Payment-Service'e istek atılacak
+        // START: Payment Service communication - Card Active Check
+        String requestId = UUID.randomUUID().toString();
+        logger.info("Start Login (requestId={})", requestId);
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("X-Request-Id", requestId);
+
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        HttpEntity<CardIdDTORequest> cardRequest = new HttpEntity<>(new CardIdDTORequest(cardId), headers);
+
+        ResponseEntity<Object> cardResponse = restTemplate.exchange(
+            ServiceURLs.PAYMENT_SERVICE_CHECK_ACTIVATE,
+            HttpMethod.POST,
+            cardRequest,
+            Object.class
+        );
+
+        boolean isCardActive = false;
+
+        /// BURASI GEÇİCİ BİR KONTROL MEKANİZMASI. PAYMENT SERVICE'TEN GELEN CEVABA GÖRE DÜZENLENECEK. ŞİMDİLİK OBJECT OLARAK VERİLMİŞ.
+        /// FLAG START
+        if(!cardResponse.getStatusCode().is2xxSuccessful()) {
+            logger.error("Card is not active or error occurred. Card ID: {}, Response Status: {}", cardId, cardResponse.getStatusCode());
+
+            if(cardResponse.getBody() != null) {
+                logger.error("Card Service Response Body: {}", cardResponse.getBody().toString());
+                Object responseBody = cardResponse.getBody();
+                logger.error("Response Body Class: {}", responseBody.getClass().getName());
+
+                if(responseBody instanceof LinkedHashMap) {
+                    LinkedHashMap<?, ?> map = (LinkedHashMap<?, ?>) responseBody;
+                    Object messageObj = map.get("message");
+                    if(messageObj instanceof String) {
+                        logger.error("Card Service Error Message: {}", (String) messageObj);
+                        return errorUtils.customError(cardResponse, (String) messageObj);
+                    } else {
+                        logger.error("Unexpected 'message' field type in Card Service response: {}", messageObj.getClass().getName());
+                        return errorUtils.criticalError();
+                    }
+                }
+                else {
+                    logger.error("Unexpected response body type from Card Service: {}", responseBody.getClass().getName());
+                    return errorUtils.criticalError();
+                }
+            }
+            return errorUtils.isInvalidFormat("Card is not active or error occurred.");
+        }
+        else {
+            Object resposeBody = cardResponse.getBody();
+
+            if(resposeBody instanceof Boolean) {
+                isCardActive = (Boolean) resposeBody;
+
+                if(!isCardActive) {
+                    logger.error("Card is not active. Card ID: {}", cardId);
+                    return errorUtils.cardNotActive();
+                }
+            } else {
+                logger.error("Unexpected response body type from Card Service: {}", resposeBody.getClass().getName());
+                return errorUtils.criticalError();
+            }
+        }
+        /// FLAG END
+        
+        logger.info("Card is active. Card ID: {}", cardId); 
+        // END: Payment Service communication - Card Active Check
 
         //STEP 3: Logical processing
 

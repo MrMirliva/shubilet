@@ -65,7 +65,15 @@ public class ErrorUtils {
         return caster(message, 400);
     }
 
+    public <T> ResponseEntity<T> cardNotActive() {
+        String message = ErrorMessages.CARD_NOT_ACTIVE;
+        return caster(message, 400);
+    }
 
+    public <T> ResponseEntity<T> customError(ResponseEntity<?> responseEntity, String message) {
+        int statusCode = responseEntity.getStatusCode().value();
+        return caster(message, statusCode);
+    }
 
     private <T> ResponseEntity<T> caster(String errorMessage, int errorCode) {
         Object errorObj = null;
