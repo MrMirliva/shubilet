@@ -1,13 +1,11 @@
 package com.shubilet.payment_service.controllers;
 
 import com.shubilet.payment_service.dataTransferObjects.requests.TicketPaymentRequestDTO;
+import com.shubilet.payment_service.dataTransferObjects.responses.TicketPaymentResponseDTO;
 import org.springframework.http.ResponseEntity;
 
 public interface PaymentController {
 
-    /**
-     * Bilet ödeme işlemini başlatır.
-     * Başarılı olursa bilet bilgisini, başarısız olursa hata mesajını döner.
-     */
-    ResponseEntity<Object> makePayment(TicketPaymentRequestDTO dto);
+    // Object yerine gerçek DTO tipi
+    ResponseEntity<TicketPaymentResponseDTO> makePayment(TicketPaymentRequestDTO dto);
 }

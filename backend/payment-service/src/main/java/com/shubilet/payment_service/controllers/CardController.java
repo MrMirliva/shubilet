@@ -4,30 +4,24 @@ import com.shubilet.payment_service.dataTransferObjects.requests.CardDTO;
 import com.shubilet.payment_service.dataTransferObjects.requests.CardDeactivationRequestDTO;
 import com.shubilet.payment_service.dataTransferObjects.requests.CardIdRequestDTO;
 import com.shubilet.payment_service.dataTransferObjects.requests.CustomerIdRequestDTO;
+import com.shubilet.payment_service.dataTransferObjects.responses.CardSummaryDTO;
+import com.shubilet.payment_service.dataTransferObjects.responses.MessageDTO;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.RequestBody;
+
+import java.util.List;
 
 public interface CardController {
 
-    /**
-     * Yeni kart ekleme işlemini tanımlar.
-     * Validasyon sonuçları BindingResult ile taşınır.
-     */
-    ResponseEntity<Object> saveNewCard(CardDTO cardDTO, BindingResult bindingResult);
+    // Artık ne döneceği belli: MessageDTO
+    ResponseEntity<MessageDTO> saveNewCard(CardDTO cardDTO, BindingResult bindingResult);
 
-    /**
-     * Bir müşteriye ait aktif kartları listeler.
-     */
-    ResponseEntity<Object> getCardsByCustomer(CustomerIdRequestDTO requestDTO);
+    // Artık ne döneceği belli: Liste halinde CardSummaryDTO
+    ResponseEntity<List<CardSummaryDTO>> getCardsByCustomer(CustomerIdRequestDTO requestDTO);
 
-    /**
-     * Kartı pasife çekme (silme) işlemini tanımlar.
-     */
-    ResponseEntity<Object> deactivateCard(CardDeactivationRequestDTO requestDTO);
+    // İşlem sonucu mesajı döner
+    ResponseEntity<MessageDTO> deactivateCard(CardDeactivationRequestDTO requestDTO);
 
-    /**
-     * Kartın sistemde var ve aktif olup olmadığını kontrol eder.
-     */
-    ResponseEntity<Object> checkCardActive(CardIdRequestDTO requestDTO);
+    // True/False döner
+    ResponseEntity<Boolean> checkCardActive(CardIdRequestDTO requestDTO);
 }

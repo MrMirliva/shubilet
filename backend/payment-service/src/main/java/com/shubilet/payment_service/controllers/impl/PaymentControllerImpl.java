@@ -9,8 +9,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api/payment")
-public class PaymentControllerImpl  implements PaymentController {
+@RequestMapping("/payment")
+public class PaymentControllerImpl implements PaymentController {
 
     private final PaymentService paymentService;
 
@@ -18,24 +18,19 @@ public class PaymentControllerImpl  implements PaymentController {
         this.paymentService = paymentService;
     }
 
-    // -----------------------------
-    // MAKE PAYMENT
-    // Use Case: Main Flow 4, 5, 6
-    // POST /payment
-    // -----------------------------
-    @PostMapping("/make")
-    public ResponseEntity<Object> makePayment(@RequestBody TicketPaymentRequestDTO dto) {
-        try {
-            // Servise git, ödeme işlemini başlat
-            TicketPaymentResponseDTO response = paymentService.processTicketPayment(dto);
-            
-            // Başarılı olursa (Use Case: Step 7, 8)
-            return ResponseEntity.ok(response);
-            
-        } catch (Exception e) {
-            // Bir hata olursa (Use Case: Alternate Flow 5a - Payment verification fails)
-            // Hata sebebini (Kart yok, yetki yok, format hatalı vb.) temiz bir mesajla dön.
-            return ResponseEntity.badRequest().body(new MessageDTO("Payment Failed: " + e.getMessage()));
-        }
+    @Override
+    @PostMapping
+    public ResponseEntity<TicketPaymentResponseDTO> makePayment(@RequestBody TicketPaymentRequestDTO dto) {
+        // Servis hata fırlatırsa aşağıdaki handler yakalayacak
+        TicketPaymentResponseDTO response = paymentService.processTicketPayment(dto);
+        return ResponseEntity.ok(response);
+    }
+
+    // --- LOCAL EXCEPTION HANDLER ---
+    // Payment servisi "Yetersiz bakiye" veya "Kart yok" hatası fırlatırsa burası yakalar.
+    // Not: Dönüş tipi MessageDTO olduğu için, istemci hata durumunda JSON alacağını bilir.
+    @ExceptionHandler(RuntimeException.class)
+    public ResponseEntity<MessageDTO> handleException(RuntimeException e) {
+        return ResponseEntity.badRequest().body(new MessageDTO("Payment Failed: " + e.getMessage()));
     }
 }
