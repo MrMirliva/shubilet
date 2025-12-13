@@ -5,7 +5,47 @@ package com.shubilet.security_service.common.util;
 import com.shubilet.security_service.common.constants.ValidationPatterns;
 import com.shubilet.security_service.common.enums.UserType;
 
+/****
 
+    Domain: ErrorHandling
+
+    Provides a centralized utility for constructing standardized authentication and session-related
+    error responses across the application. This class encapsulates common failure scenarios such as
+    invalid input, session lifecycle errors, and critical system failures, and maps them to appropriate
+    HTTP status codes while producing typed DTO-based {@link ResponseEntity} payloads.
+
+    The utility ensures that the current {@link CookieDTO} context is always attached to responses,
+    allowing clients to remain synchronized with the server-side session state after events such as
+    session invalidation, expiration, or logout.
+
+    <p>
+
+        Responsibilities:
+
+        <ul>
+            <li>Generate consistent error messages for null/blank fields and invalid formats</li>
+            <li>Handle authentication and session lifecycle errors (not found, expired, invalid, already logged in)</li>
+            <li>Attach {@link CookieDTO} to all response DTOs for client-side session alignment</li>
+            <li>Translate domain-specific error scenarios into correct HTTP status codes</li>
+        </ul>
+
+    </p>
+
+    <p>
+
+        Technologies:
+
+        <ul>
+            <li>Spring Web</li>
+            <li>Core Java</li>
+        </ul>
+
+    </p>
+
+    @author Abdullah (Mirliva) GÜNDÜZ - https://github.com/MrMilriva
+
+    @version 3.0
+*/
 public final class ValidationUtils {
 
     private ValidationUtils() {
