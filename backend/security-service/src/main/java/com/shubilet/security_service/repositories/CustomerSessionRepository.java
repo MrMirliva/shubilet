@@ -45,7 +45,48 @@ public interface CustomerSessionRepository extends JpaRepository<CustomerSession
     """)
     boolean hasCode(@Param("code") String code);
 
+    /***
 
+        Operation: ExistsByCustomerId
+
+        Checks whether an active session exists for the specified customer identifier.
+        This method is typically used to prevent multiple concurrent sessions for the
+        same customer or to quickly verify session presence without loading the full
+        {@link CustomerSession} entity.
+
+        The query returns a boolean result by evaluating the existence of at least one
+        matching {@link CustomerSession} record for the given customerId.
+
+        <p>
+
+            Usage:
+
+            <pre>
+                boolean hasActiveSession =
+                    customerSessionRepository.existsByCustomerId(25);
+            </pre>
+
+        </p>
+
+        <p>
+
+            Uses:
+
+            <ul>
+                <li>{@link CustomerSession} as the underlying JPA entity</li>
+                <li>{@link Query} for custom JPQL execution</li>
+                <li>{@link Param} for named parameter binding</li>
+                <li>{@link JpaRepository} for repository abstraction</li>
+            </ul>
+
+        </p>
+
+        @param customerId the unique identifier of the customer whose session existence
+        will be checked
+
+        @return {@code true} if an active session exists for the given customerId,
+        otherwise {@code false}
+    */
     @Query("""
         select count(a) > 0
         from CustomerSession a
@@ -156,9 +197,88 @@ public interface CustomerSessionRepository extends JpaRepository<CustomerSession
     )
     void deleteExpiredSessions();
 
-    ///TODO: Add Query method to find CustomerSession by customerId
+    /***
+
+        Operation: DeleteByCustomerIdAndCode
+
+        Deletes an active customer session that matches the given customer identifier
+        and session authorization code. This method is typically invoked during logout
+        operations to invalidate a specific customer session in a transactional context.
+
+        The return value represents the number of rows affected by the delete operation,
+        allowing callers to determine whether a session was successfully removed.
+
+        <p>
+
+            Usage:
+
+            <pre>
+                int deletedCount =
+                    customerSessionRepository.deleteByCustomerIdAndCode(25, "ABC123XYZ");
+            </pre>
+
+        </p>
+
+        <p>
+
+            Uses:
+
+            <ul>
+                <li>{@link CustomerSession} as the underlying JPA entity</li>
+                <li>{@link JpaRepository} for derived delete query support</li>
+                <li>{@link Transactional} to ensure atomic delete behavior</li>
+            </ul>
+
+        </p>
+
+        @param customerId the unique identifier of the customer whose session will be deleted
+        @param code the session authorization code associated with the customer session
+
+        @return the number of deleted session records (0 if no matching session exists)
+    */
     @Transactional
     int deleteByCustomerIdAndCode(int customerId, String code);
 
+    /***
+
+        Operation: FindByCustomerIdAndCode
+
+        Retrieves an active customer session that matches the provided customer identifier
+        and session authorization code. This method is commonly used during session
+        validation and authentication flows to confirm that a specific customer session
+        exists and is still valid.
+
+        The result is wrapped in an {@link Optional} to explicitly represent the possibility
+        that no matching session is found.
+
+        <p>
+
+            Usage:
+
+            <pre>
+                Optional<CustomerSession> session =
+                    customerSessionRepository.findByCustomerIdAndCode(25, "ABC123XYZ");
+            </pre>
+
+        </p>
+
+        <p>
+
+            Uses:
+
+            <ul>
+                <li>{@link CustomerSession} as the underlying JPA entity</li>
+                <li>{@link JpaRepository} for derived query method support</li>
+                <li>{@link Optional} for null-safe result handling</li>
+            </ul>
+
+        </p>
+
+        @param customerId the unique identifier of the customer
+        @param code the session authorization code associated with the customer session
+
+        @return an {@link Optional} containing the matching {@link CustomerSession} if found,
+        or {@link Optional#empty()} if no session exists for the given parameters
+    */
     Optional<CustomerSession> findByCustomerIdAndCode(int customerId, String code);
 }

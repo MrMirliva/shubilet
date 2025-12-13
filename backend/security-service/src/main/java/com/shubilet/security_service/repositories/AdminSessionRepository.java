@@ -45,6 +45,46 @@ public interface AdminSessionRepository extends JpaRepository<AdminSession, Inte
     """)
     boolean hasCode(@Param("code") String code);
 
+    /***
+
+        Operation: ExistsByAdminId
+
+        Checks whether at least one active session exists for the specified admin identifier.
+        This query is commonly used to prevent multiple concurrent sessions for the same admin
+        account, such as during login flows where only a single active session is allowed.
+
+        The method leverages a JPQL query that evaluates the existence of records by returning
+        a boolean result based on the count of matching {@link AdminSession} entities.
+
+        <p>
+
+            Usage:
+
+            <pre>
+                boolean hasActiveSession =
+                    adminSessionRepository.existsByAdminId(5);
+            </pre>
+
+        </p>
+
+        <p>
+
+            Uses:
+
+            <ul>
+                <li>{@link AdminSession} as the underlying JPA entity</li>
+                <li>{@link Query} for defining a custom JPQL existence check</li>
+                <li>{@link Param} for named parameter binding</li>
+                <li>{@link JpaRepository} for repository abstraction</li>
+            </ul>
+
+        </p>
+
+        @param adminId the unique identifier of the admin to check for active sessions
+
+        @return {@code true} if at least one session exists for the given adminId,
+        otherwise {@code false}
+    */
     @Query("""
         select count(a) > 0
         from AdminSession a
@@ -156,9 +196,82 @@ public interface AdminSessionRepository extends JpaRepository<AdminSession, Inte
     )
     void deleteExpiredSessions();
 
-    ///TODO: Add Query method to find AdminSession by adminId
+    /***
+
+        Operation: DeleteSession
+
+        Deletes an active admin session by matching the given admin identifier and session
+        authorization code. This operation is executed within a transactional context to
+        ensure atomic removal of the session record from the persistence layer. It is typically
+        invoked during logout or session invalidation flows.
+
+        <p>
+
+            Usage:
+
+            <pre>
+                deleteByAdminIdAndCode(5, "ABC123XYZ");
+            </pre>
+
+        </p>
+
+        <p>
+
+            Uses:
+
+            <ul>
+                <li>{@link AdminSession} as the underlying JPA entity</li>
+                <li>{@link JpaRepository} for data access abstraction</li>
+                <li>{@link Transactional} to ensure transactional delete semantics</li>
+            </ul>
+
+        </p>
+
+        @param adminId the unique identifier of the admin whose session will be deleted
+        @param code the authorization/session code associated with the admin session
+
+        @return the number of session records deleted (0 if none matched, 1 if deletion succeeded)
+    */
     @Transactional
     int deleteByAdminIdAndCode(int adminId, String code);
 
+    /***
+
+        Operation: FindSession
+
+        Retrieves an admin session by matching the provided admin identifier and session
+        authorization code. This method is used to validate whether an active session exists
+        for the given admin context and to inspect session state before performing operations
+        such as validation, renewal, or deletion.
+
+        <p>
+
+            Usage:
+
+            <pre>
+                Optional<AdminSession> session =
+                    adminSessionRepository.findByAdminIdAndCode(5, "ABC123XYZ");
+            </pre>
+
+        </p>
+
+        <p>
+
+            Uses:
+
+            <ul>
+                <li>{@link AdminSession} as the underlying JPA entity</li>
+                <li>{@link Optional} to safely represent presence or absence of a session</li>
+                <li>{@link JpaRepository} for repository abstraction</li>
+            </ul>
+
+        </p>
+
+        @param adminId the unique identifier of the admin whose session is being queried
+        @param code the authorization/session code associated with the admin session
+
+        @return an {@link Optional} containing the {@link AdminSession} if found,
+        or {@link Optional#empty()} if no matching session exists
+    */
     Optional<AdminSession> findByAdminIdAndCode(int adminId, String code);
 }

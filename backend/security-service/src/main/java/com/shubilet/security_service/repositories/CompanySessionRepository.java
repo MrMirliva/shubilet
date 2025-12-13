@@ -44,6 +44,46 @@ public interface CompanySessionRepository extends JpaRepository<CompanySession, 
     """)
     boolean hasCode(@Param("code") String code);
 
+    /***
+
+        Operation: ExistsByCompanyId
+
+        Checks whether at least one active session exists for the specified company identifier.
+        This method is typically used during authentication or session-creation workflows to
+        prevent a company account from having multiple concurrent active sessions.
+
+        The query evaluates the existence of {@link CompanySession} records by returning a
+        boolean result derived from a count-based JPQL expression.
+
+        <p>
+
+            Usage:
+
+            <pre>
+                boolean hasActiveSession =
+                    companySessionRepository.existsByCompanyId(10);
+            </pre>
+
+        </p>
+
+        <p>
+
+            Uses:
+
+            <ul>
+                <li>{@link CompanySession} as the underlying JPA entity</li>
+                <li>{@link Query} for defining a custom JPQL existence check</li>
+                <li>{@link Param} for named parameter binding</li>
+                <li>{@link JpaRepository} for repository abstraction</li>
+            </ul>
+
+        </p>
+
+        @param companyId the unique identifier of the company to check for active sessions
+
+        @return {@code true} if at least one session exists for the given companyId,
+        otherwise {@code false}
+    */
     @Query("""
         select count(a) > 0
         from CompanySession a
@@ -154,9 +194,87 @@ public interface CompanySessionRepository extends JpaRepository<CompanySession, 
     )
     void deleteExpiredSessions();
 
-    ///TODO: Add Query method to find CompanySession by companyId
+    /***
+
+        Operation: DeleteByCompanyIdAndCode
+
+        Deletes an active company session that matches the given company identifier and
+        session authorization code. This method is primarily used during logout operations
+        to invalidate a specific authenticated session belonging to a company.
+
+        The operation executes within a transactional context to ensure data consistency
+        and returns the number of records affected by the deletion.
+
+        <p>
+
+            Usage:
+
+            <pre>
+                int deletedCount =
+                    companySessionRepository.deleteByCompanyIdAndCode(10, "XXXX-XXXX-XXXX-XXXX");
+            </pre>
+
+        </p>
+
+        <p>
+
+            Uses:
+
+            <ul>
+                <li>{@link CompanySession} as the underlying JPA entity</li>
+                <li>{@link JpaRepository} for derived delete query support</li>
+                <li>{@link Transactional} to ensure atomic execution</li>
+            </ul>
+
+        </p>
+
+        @param companyId the unique identifier of the company whose session will be deleted
+        @param code the session authorization code associated with the company session
+
+        @return the number of deleted session records (0 if none matched, 1 if deletion succeeded)
+    */
     @Transactional
     int deleteByCompanyIdAndCode(int companyId, String code);
 
+    /***
+
+        Operation: FindByCompanyIdAndCode
+
+        Retrieves an active company session that matches the given company identifier and
+        session authorization code. This method is typically used during session validation
+        and authentication checks to verify that a specific session exists and is valid.
+
+        The result is wrapped in an {@link Optional} to explicitly handle the case where
+        no matching session is found.
+
+        <p>
+
+            Usage:
+
+            <pre>
+                Optional<CompanySession> session =
+                    companySessionRepository.findByCompanyIdAndCode(10, "XXXX-XXXX-XXXX-XXXX");
+            </pre>
+
+        </p>
+
+        <p>
+
+            Uses:
+
+            <ul>
+                <li>{@link CompanySession} as the underlying JPA entity</li>
+                <li>{@link JpaRepository} for derived query method support</li>
+                <li>{@link Optional} for null-safe result handling</li>
+            </ul>
+
+        </p>
+
+        @param companyId the unique identifier of the company
+        @param code the session authorization code associated with the company session
+
+        @return an {@link Optional} containing the matching {@link CompanySession} if found,
+        or {@link Optional#empty()} if no session exists for the given parameters
+    */
     Optional<CompanySession> findByCompanyIdAndCode(int companyId, String code);
 }
