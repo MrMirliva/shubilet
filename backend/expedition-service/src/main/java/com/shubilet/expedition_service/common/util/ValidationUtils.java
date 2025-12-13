@@ -41,10 +41,6 @@ public final class ValidationUtils {
     public static boolean isValidDate(String date) {
         return date != null && date.matches(ValidationPatterns.DATE_PATTERN);
     }
-    
-    public static boolean isValidTime(String time) {
-        return time != null && time.matches(ValidationPatterns.TIME_PATTERN);
-    }
 
     public static boolean isDateNotInPast(String date, Instant referenceInstant) {
         try {

@@ -118,11 +118,6 @@ public class CreationControllerImpl implements CreationController {
             return errorUtils.isInvalidFormat("Date");
         }
 
-        if(!ValidationUtils.isValidTime(time)) {
-            logger.error("Time format is invalid: {}", time);
-            return errorUtils.isInvalidFormat("Time");
-        }
-
         if(capacity > 1000) {
             logger.error("Capacity exceeds maximum limit: {}", capacity);
             return errorUtils.isInvalidFormat("Capacity");
