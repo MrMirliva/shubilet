@@ -26,10 +26,37 @@ import com.shubilet.security_service.services.AdminSessionService;
 import com.shubilet.security_service.services.CompanySessionService;
 import com.shubilet.security_service.services.CustomerSessionService;
 
-/// TODO: Class yorum satırı eklenecek.
+/****
+
+    Domain: Authentication
+
+    Exposes REST endpoints to manage authentication session lifecycle for multiple user domains (ADMIN, COMPANY, CUSTOMER).
+    This controller coordinates session creation, logout, and session validity checks by delegating user-type-specific
+    operations to dedicated session services. It applies defensive validation of incoming request payloads and cookie-backed
+    session attributes, normalizes failures into consistent DTO-based responses, and proactively clears session attributes
+    on invalid, expired, or inconsistent states to prevent reuse of stale authentication data.
+
+    <p>
+
+        Technologies:
+
+        <ul>
+            <li>Spring Web</li>
+            <li>SLF4J</li>
+        </ul>
+
+    </p>
+
+    @author Abdullah (Mirliva) GÜNDÜZ - https://github.com/MrMilriva
+
+    @see AdminSessionService
+    @see CompanySessionService
+    @see CustomerSessionService
+
+    @version 2.0
+*/
 @RestController
 @RequestMapping("/api/auth")
-//@CrossOrigin(origins = "*", allowedHeaders = "*", methods = { RequestMethod.POST})
 public class AuthControllerImpl implements AuthController {
     private static final Logger logger = LoggerFactory.getLogger(AuthControllerImpl.class);
 
@@ -46,7 +73,39 @@ public class AuthControllerImpl implements AuthController {
         this.customerSessionService = customerSessionService;
     }
 
-    /// TODO: method yorum satırı eklenecek.
+    /****
+
+        Operation: CreateSession
+
+        Creates an authenticated session for a user by validating the incoming {@link LoginDTO} payload and
+        ensuring no active session already exists within the provided {@link CookieDTO}. Based on the provided user type,
+        delegates session creation to the corresponding session service and persists the resulting identifiers and
+        authorization code into the cookie-backed session attributes. Returns a {@link MessageDTO} containing the updated
+        cookie context and a success message, or an error response when validation or session creation fails.
+
+        <p>
+
+            Uses:
+
+            <ul>
+                <li>{@link ErrorUtils} for building {@link MessageDTO}-based error responses</li>
+                <li>{@link CookieDTO} as a cookie/session carrier for userId, userType, and authCode</li>
+                <li>{@link SessionKeys} for session attribute key management</li>
+                <li>{@link StringUtils} for null/blank checks</li>
+                <li>{@link ValidationUtils} for user type validation</li>
+                <li>{@link UserType} for resolving the user type code to an enum</li>
+                <li>Session services{@link AdminSessionService}, {@link CompanySessionService}, {@link CustomerSessionService} (admin/company/customer) 
+                    for user-type-specific session creation</li>
+                <li>{@link Logger} for audit and diagnostic logging</li>
+            </ul>
+
+        </p>
+
+        @param loginDTO the login request containing the cookie/session carrier, user identifier, and user type code
+
+        @return a response entity containing a {@link MessageDTO} with the updated {@link CookieDTO} and a business message,
+        or an error response when the session is invalid, already active, or cannot be created
+    */
     @PostMapping("/createSession")
     public ResponseEntity<MessageDTO> createSession(@RequestBody LoginDTO loginDTO) {
         ErrorUtils errorUtils = new ErrorUtils(ErrorUtils.ConversionType.MESSAGE_DTO);
@@ -139,6 +198,37 @@ public class AuthControllerImpl implements AuthController {
         return ResponseEntity.ok().body(new MessageDTO(session, "Login successful."));
     }
 
+    /****
+
+        Operation: Logout
+
+        Terminates an authenticated user session by validating the provided {@link CookieDTO} attributes and delegating
+        the logout operation to the appropriate user-type-specific session service. Clears the session cookie attributes
+        on invalid input, invalid auth code format, non-numeric userId, unknown user type, or when the backend session
+        cannot be found/terminated. Returns a {@link MessageDTO} containing the cleared cookie context and a logout message
+        upon success, or an error response describing the failure condition.
+
+        <p>
+
+            Uses:
+
+            <ul>
+                <li>{@link ErrorUtils} for building {@link MessageDTO}-based error responses</li>
+                <li>{@link CookieDTO} as a cookie/session carrier for userId, userType, and authCode</li>
+                <li>{@link StringUtils} for null/blank and numeric validations</li>
+                <li>{@link ValidationUtils} for auth code/session key validation</li>
+                <li>{@link UserType} for user type code comparisons</li>
+                <li>Session services{@link AdminSessionService}, {@link CompanySessionService}, {@link CustomerSessionService} for user-type-specific logout processing</li>
+                <li>{@link Logger} for audit and diagnostic logging</li>
+            </ul>
+
+        </p>
+
+        @param session the cookie/session payload containing the userId, userType, and authCode to be invalidated
+
+        @return a response entity containing a {@link MessageDTO} with the cleared {@link CookieDTO} and a business message,
+        or an error response when the session is missing, malformed, not found, or cannot be terminated
+    */
     @PostMapping("/logout")
     public ResponseEntity<MessageDTO> logout(@RequestBody CookieDTO session) {
         ErrorUtils errorUtils = new ErrorUtils(ErrorUtils.ConversionType.MESSAGE_DTO);
@@ -217,6 +307,40 @@ public class AuthControllerImpl implements AuthController {
         return ResponseEntity.ok().body(new MessageDTO(session, "Logout successful."));
     }
 
+    /****
+
+        Operation: Check
+
+        Verifies whether the provided {@link CookieDTO} represents a valid and active authenticated session by performing
+        defensive validation of required attributes (userId, userType, authCode) and delegating the verification to the
+        appropriate user-type-specific session service. Clears the session cookie attributes when the payload is malformed,
+        when the auth code format is invalid, when the userId is not numeric, or when the user type is unknown. Returns a
+        {@link MessageDTO} indicating session validity on success, or an error response when the session is missing, invalid,
+        expired, or cannot be confirmed.
+
+        <p>
+
+            Uses:
+
+            <ul>
+                <li>{@link ErrorUtils} for building {@link MessageDTO}-based error responses</li>
+                <li>{@link CookieDTO} as a cookie/session carrier for userId, userType, and authCode</li>
+                <li>{@link StringUtils} for null/blank checks and numeric validation</li>
+                <li>{@link ValidationUtils} for session key/auth code format validation</li>
+                <li>{@link UserType} for user type code comparisons</li>
+                <li>{@link StatusDTO} as the backend session status payload returned by session services</li>
+                <li>{@code validateSessionStatus(...)} for normalizing backend status checks into {@link MessageDTO} responses</li>
+                <li>Session services{@link AdminSessionService}, {@link CompanySessionService}, {@link CustomerSessionService} (admin/company/customer) for user-type-specific session verification</li>
+                <li>{@link Logger} for audit and diagnostic logging</li>
+            </ul>
+
+        </p>
+
+        @param session the cookie/session payload containing the userId, userType, and authCode to be validated
+
+        @return a response entity containing a {@link MessageDTO} with the original/cleared {@link CookieDTO} and a business message,
+        or an error response when the session is missing, malformed, expired, or cannot be validated
+    */
     @PostMapping("/check")
     public ResponseEntity<MessageDTO> check(@RequestBody CookieDTO session) {
         ErrorUtils errorUtils = new ErrorUtils(ErrorUtils.ConversionType.MESSAGE_DTO);
@@ -315,6 +439,39 @@ public class AuthControllerImpl implements AuthController {
         return ResponseEntity.ok().body(new MessageDTO(session, "Session is valid."));
     }
 
+    /****
+
+        Operation: CheckAdmin
+
+        Validates that the incoming {@link CookieDTO} represents an authenticated session and specifically enforces that the
+        session belongs to an ADMIN user. Reuses shared session-validation logic to ensure required attributes are present
+        and consistent, then performs an admin-specific session status check via the admin session service. Maps generic
+        {@link MessageDTO}-based validation outcomes into {@link CheckMessageDTO} responses and returns a payload containing
+        the validated session context and the resolved admin userId when the session is confirmed as active.
+
+        <p>
+
+            Uses:
+
+            <ul>
+                <li>{@link ErrorUtils} for building {@link CheckMessageDTO}-based error responses</li>
+                <li>{@code handleValidUserSession(...)} for common authenticated-session validation</li>
+                <li>{@link SessionKeys} for retrieving userId, userType, and authCode from the session carrier</li>
+                <li>{@link UserType} for enforcing ADMIN-only access</li>
+                <li>{@link StatusDTO} as the backend session status payload returned by the admin session service</li>
+                <li>{@code validateSessionStatus(...)} for normalizing backend status checks into {@link MessageDTO} responses</li>
+                <li>{@link ResponseEntityMapper} for converting {@link MessageDTO} responses into {@link CheckMessageDTO} responses</li>
+                <li>{@link AdminSessionService} for admin-specific session verification</li>
+                <li>{@link Logger} for audit and diagnostic logging</li>
+            </ul>
+
+        </p>
+
+        @param session the cookie/session payload used to resolve and validate the current authenticated session context
+
+        @return a response entity containing a {@link CheckMessageDTO} with the session context, a business message, and the admin userId,
+        or an error response when the session is invalid, not admin-scoped, expired, or cannot be validated
+    */
     @PostMapping("/checkAdmin")
     public ResponseEntity<CheckMessageDTO> checkAdminSession(@RequestBody CookieDTO session) {
         ErrorUtils errorUtils = new ErrorUtils(ErrorUtils.ConversionType.CHECK_MESSAGE_DTO);
@@ -348,6 +505,40 @@ public class AuthControllerImpl implements AuthController {
         return ResponseEntity.ok().body(new CheckMessageDTO(session, "Session is valid.", Integer.parseInt(userId)));
     }
 
+    /****
+
+        Operation: CheckCompany
+
+        Validates that the incoming {@link CookieDTO} represents an authenticated session and enforces that the session
+        belongs to a COMPANY user. Reuses shared session-validation logic to verify required session attributes are present
+        and consistent, then delegates to the company session service to confirm the session status using the resolved
+        userId and authCode. Maps generic {@link MessageDTO}-based validation outcomes into {@link CheckMessageDTO} responses
+        and returns a payload containing the validated session context and the resolved company userId when the session is
+        confirmed as active.
+
+        <p>
+
+            Uses:
+
+            <ul>
+                <li>{@link ErrorUtils} for building {@link CheckMessageDTO}-based error responses</li>
+                <li>{@code handleValidUserSession(...)} for common authenticated-session validation</li>
+                <li>{@link SessionKeys} for retrieving userId, userType, and authCode from the session carrier</li>
+                <li>{@link UserType} for enforcing COMPANY-only access</li>
+                <li>{@link StatusDTO} as the backend session status payload returned by the company session service</li>
+                <li>{@code validateSessionStatus(...)} for normalizing backend status checks into {@link MessageDTO} responses</li>
+                <li>{@link ResponseEntityMapper} for converting {@link MessageDTO} responses into {@link CheckMessageDTO} responses</li>
+                <li>{@link CompanySessionService} for company-specific session verification</li>
+                <li>{@link Logger} for audit and diagnostic logging</li>
+            </ul>
+            
+        </p>
+
+        @param session the cookie/session payload used to resolve and validate the current authenticated session context
+
+        @return a response entity containing a {@link CheckMessageDTO} with the session context, a business message, and the company userId,
+        or an error response when the session is invalid, not company-scoped, expired, or cannot be validated
+    */
     @PostMapping("/checkCompany")
     public ResponseEntity<CheckMessageDTO> checkCompanySession(@RequestBody CookieDTO session) {
         ErrorUtils errorUtils = new ErrorUtils(ErrorUtils.ConversionType.CHECK_MESSAGE_DTO);
@@ -380,6 +571,41 @@ public class AuthControllerImpl implements AuthController {
         return ResponseEntity.ok().body(new CheckMessageDTO(session, "Session is valid.", Integer.parseInt(userId)));
     }
 
+    /****
+
+        Operation: CheckCustomer
+
+        Validates that the incoming {@link CookieDTO} represents an authenticated session and enforces that the session
+        belongs to a CUSTOMER user. Reuses shared session-validation logic to verify required session attributes are present
+        and consistent, then delegates to the customer session service to confirm the session status using the resolved
+        userId and authCode. Maps generic {@link MessageDTO}-based validation outcomes into {@link CheckMessageDTO} responses
+        and returns a payload containing the validated session context and the resolved customer userId when the session is
+        confirmed as active.
+
+        <p>
+
+            Uses:
+
+            <ul>
+                <li>{@link ErrorUtils} for building {@link CheckMessageDTO}-based error responses</li>
+                <li>{@code handleValidUserSession(...)} for common authenticated-session validation</li>
+                <li>{@link SessionKeys} for retrieving userId, userType, and authCode from the session carrier</li>
+                <li>{@link UserType} for enforcing CUSTOMER-only access</li>
+                <li>{@link StatusDTO} as the backend session status payload returned by the customer session service</li>
+                <li>{@code validateSessionStatus(...)} for normalizing backend status checks into {@link MessageDTO} responses</li>
+                <li>{@link ResponseEntityMapper} for converting {@link MessageDTO} responses into {@link CheckMessageDTO} responses</li>
+                <li>{@link CustomerSessionService} for customer-specific session verification</li>
+                <li>{@link Logger} for audit and diagnostic logging</li>
+            </ul>
+
+        </p>
+
+        @param session the cookie/session payload used to resolve and validate the current authenticated session context
+
+        @return a response entity containing a {@link CheckMessageDTO} with the session context, a business message, and the customer userId,
+
+        or an error response when the session is invalid, not customer-scoped, expired, or cannot be validated
+    */
     @PostMapping("/checkCustomer")
     public ResponseEntity<CheckMessageDTO> checkCustomerSession(@RequestBody CookieDTO session) {
         ErrorUtils errorUtils = new ErrorUtils(ErrorUtils.ConversionType.CHECK_MESSAGE_DTO);
@@ -416,6 +642,29 @@ public class AuthControllerImpl implements AuthController {
 
     ///HELPER METHODS START
 
+    /****
+
+        Operation: Clear
+
+        Removes all authentication-related attributes from the provided {@link CookieDTO} to fully invalidate the
+        current session context. This method clears the stored user identifier, user type, and authorization code
+        and is typically invoked during logout, session invalidation, or error-handling flows to ensure no stale
+        authentication data remains.
+
+        <p>
+
+            Uses:
+
+            <ul>
+                <li>{@link CookieDTO} for session attribute storage and removal</li>
+                <li>{@link SessionKeys} for identifying authentication-related session attributes</li>
+                <li>{@link Logger} for audit logging of session cleanup actions</li>
+            </ul>
+        
+        </p>
+
+        @param session the cookie/session carrier whose authentication attributes will be removed
+    */
     private void clearSession(CookieDTO session) {
         session.removeAttribute(SessionKeys.USER_ID);
         session.removeAttribute(SessionKeys.USER_TYPE);
@@ -423,6 +672,37 @@ public class AuthControllerImpl implements AuthController {
         logger.info("Session attributes cleared.");
     }
 
+    /****
+
+        Operation: Validate
+
+        Performs centralized validation of an authenticated user session carried by {@link CookieDTO} by ensuring the
+        presence and correctness of required attributes (userId, userType, authCode). Differentiates between a completely
+        missing session (no attributes present) and a malformed session (partial/invalid attributes), clearing session
+        attributes on invalid states to prevent reuse of stale authentication data. Returns a successful {@link MessageDTO}
+        response when the session appears structurally valid, or an error response when the session is missing or invalid.
+
+        <p>
+
+            Uses:
+
+            <ul>
+                <li>{@link ErrorUtils} for building {@link MessageDTO}-based error responses</li>
+                <li>{@link CookieDTO} for retrieving and clearing session attributes</li>
+                <li>{@link SessionKeys} for identifying authentication-related session attributes</li>
+                <li>{@link StringUtils} for null/blank checks and numeric validation</li>
+                <li>{@link ValidationUtils} for session key/auth code format validation</li>
+                <li>{@code clearSession(...)} for removing invalid authentication attributes</li>
+                <li>{@link Logger} for audit and diagnostic logging</li>
+            </ul>
+
+        </p>
+
+        @param session the cookie/session carrier containing authentication attributes to validate
+
+        @return a response entity containing a {@link MessageDTO} when the session is valid, or an error response when the
+        session is missing, malformed, or fails format checks
+    */
     private ResponseEntity<MessageDTO> handleValidUserSession(CookieDTO session) {
         ErrorUtils errorUtils = new ErrorUtils(ErrorUtils.ConversionType.MESSAGE_DTO);
         if(session == null) {
@@ -470,6 +750,40 @@ public class AuthControllerImpl implements AuthController {
         return ResponseEntity.ok().body(new MessageDTO(session, "Session is valid."));
     }
 
+    /****
+
+        Operation: ValidateStatus
+
+        Normalizes the result of a backend session status check into a {@link MessageDTO}-based HTTP response by evaluating
+        the provided {@link ResponseEntity} and its {@link StatusDTO} payload. Clears session attributes on invalid or
+        non-successful outcomes to prevent reuse of stale authentication data, and maps specific {@link SessionStatus}
+        values (e.g., NOT_FOUND, EXPIRED) to corresponding error responses. Returns an OK response when the backend confirms
+        the session as valid.
+
+        <p>
+
+            Uses:
+
+            <ul>
+                <li>{@link ErrorUtils} for building {@link MessageDTO}-based error responses</li>
+                <li>{@link StatusDTO} for retrieving the backend {@link SessionStatus}</li>
+                <li>{@link SessionStatus} for interpreting session validity states</li>
+                <li>{@link CookieDTO} for clearing invalid session attributes</li>
+                <li>{@code clearSession(...)} for removing authentication attributes on failure</li>
+                <li>{@link Logger} for audit and diagnostic logging</li>
+            </ul>
+
+        </p>
+
+        @param response the backend response containing a {@link StatusDTO} with the evaluated {@link SessionStatus}
+
+        @param session the cookie/session carrier to be cleared when the session is invalid, expired, or not found
+
+        @param userType the expected user type context for the validation flow (used to scope the check in the calling layer)
+
+        @return a response entity containing a {@link MessageDTO} when the session is valid, or an error response when the
+        backend indicates the session is missing, expired, or otherwise invalid
+    */
     private ResponseEntity<MessageDTO> validateSessionStatus(ResponseEntity<StatusDTO> response, CookieDTO session, UserType userType) {
         ErrorUtils errorUtils = new ErrorUtils(ErrorUtils.ConversionType.MESSAGE_DTO);
     
