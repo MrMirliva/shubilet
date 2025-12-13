@@ -1,28 +1,28 @@
 package com.shubilet.expedition_service.common.util;
 
-/**
+/****
 
     Domain: Validation
 
-    Provides lightweight, null-safe utility helpers for common string validation and comparison
-    tasks. This class centralizes frequently used operations such as blank checking, numeric
-    verification, and safe equality comparison to reduce duplication across the codebase. As a
-    final utility class, it cannot be instantiated and is intended to support input validation
-    and defensive programming throughout the application.
+    Provides lightweight, null-safe utility helpers for common string validation and comparison tasks.
+    This class centralizes frequently used operations such as null or blank checks, numeric string
+    verification, and safe equality comparison to reduce duplication across the codebase. Designed as
+    a final utility class, it cannot be instantiated and is intended to support defensive programming
+    and input validation consistently across controller, service, and utility layers.
 
     <p>
 
         Technologies:
 
         <ul>
-            <li>Core Java (utility methods only)</li>
+            <li>Core Java</li>
         </ul>
 
     </p>
 
     @author Abdullah (Mirliva) GÜNDÜZ - https://github.com/MrMilriva
 
-    @version 1.0
+    @version 2.0
 */
 public final class StringUtils {
 

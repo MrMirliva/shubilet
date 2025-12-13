@@ -13,6 +13,31 @@ import com.shubilet.expedition_service.dataTransferObjects.responses.message.Mes
 import com.shubilet.expedition_service.dataTransferObjects.responses.middle.ExpeditionInfoForCompanyDTO;
 import com.shubilet.expedition_service.dataTransferObjects.responses.middle.TicketInfoDTO;
 
+/****
+
+    Domain: ErrorHandling
+
+    Provides a centralized utility for constructing standardized error responses across the application.
+    This class maps business and validation error scenarios to appropriate HTTP status codes and converts
+    them into typed DTO-based {@link ResponseEntity} responses according to the configured {@link ConversionType}.
+    It enables consistent error messaging and payload structures for different API domains such as expeditions,
+    tickets, cards, and sessions, while abstracting repetitive response-building logic from controllers.
+
+    <p>
+
+        Technologies:
+
+        <ul>
+            <li>Spring Web</li>
+            <li>Core Java</li>
+        </ul>
+
+    </p>
+
+    @author Abdullah (Mirliva) GÜNDÜZ - https://github.com/MrMilriva
+
+    @version 3.0
+*/
 public class ErrorUtils {
     private ConversionType conversionType;
 

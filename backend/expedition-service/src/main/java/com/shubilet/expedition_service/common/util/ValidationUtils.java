@@ -7,6 +7,30 @@ import java.time.format.DateTimeParseException;
 
 import com.shubilet.expedition_service.common.constants.ValidationPatterns;
 
+/****
+
+    Domain: Validation
+
+    Provides centralized, reusable validation utilities for enforcing common data integrity and business
+    format rules across the application. This utility class offers static helper methods for validating
+    numeric constraints (such as bounded decimal precision), date format correctness, and temporal rules
+    like preventing past-date usage. It is designed as a non-instantiable helper class to promote
+    consistency and reduce duplication of validation logic throughout service and controller layers.
+
+    <p>
+
+        Technologies:
+
+        <ul>
+            <li>Java Time API</li>
+        </ul>
+
+    </p>
+
+    @author Abdullah (Mirliva) GÜNDÜZ - https://github.com/MrMilriva
+
+    @version 1.0
+*/
 public final class ValidationUtils {
     
     private ValidationUtils() {

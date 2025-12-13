@@ -10,6 +10,58 @@ import com.shubilet.expedition_service.dataTransferObjects.responses.base.Ticket
 
 import com.shubilet.expedition_service.dataTransferObjects.responses.forRepositories.*;
 
+/****
+
+    Domain: Mapping
+
+    Provides centralized, null-safe mapping utilities for converting repository-layer DTOs
+    into API-facing response DTOs. This utility class encapsulates all transformation logic
+    between persistence/query projections (RepoDTOs) and outward-facing transport objects,
+    ensuring consistent data shaping, defensive null handling, and formatting (such as
+    date/time normalization) across the application.
+
+    <p>
+
+        Responsibilities:
+
+        <ul>
+            <li>Convert expedition repository projections to company/customer response DTOs</li>
+            <li>Convert seat repository projections to company/customer seat DTOs</li>
+            <li>Convert ticket repository projections to ticket response DTOs</li>
+            <li>Normalize date-time fields into separate date and time strings</li>
+            <li>Provide list-level mapping helpers using Java Stream API</li>
+            <li>Ensure null-safety and default value assignment for all fields</li>
+        </ul>
+
+    </p>
+
+    <p>
+
+        Design Notes:
+
+        <ul>
+            <li>Declared as {@code final} to prevent inheritance</li>
+            <li>Private constructor enforces non-instantiability</li>
+            <li>Stateless and thread-safe by design</li>
+            <li>Acts as a boundary-layer adapter between repository and controller layers</li>
+        </ul>
+
+    </p>
+
+    <p>
+
+        Technologies:
+
+        <ul>
+            <li>Java Stream API</li>
+            <li>Core Java (null handling, string processing)</li>
+        </ul>
+
+    </p>
+
+    @author Abdullah (Mirliva) GÜNDÜZ - https://github.com/MrMilriva
+    @version 1.0
+*/
 public class DTOMapperUtils {
     
     private DTOMapperUtils() {

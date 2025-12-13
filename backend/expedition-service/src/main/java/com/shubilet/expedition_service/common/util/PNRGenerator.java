@@ -2,6 +2,29 @@ package com.shubilet.expedition_service.common.util;
 
 import com.shubilet.expedition_service.common.constants.AppConstants;
 
+/****
+
+    Domain: Utility
+
+    Provides a simple utility for generating unique Passenger Name Record (PNR) codes used to
+    identify tickets within the system. This class generates a fixed-length alphanumeric code
+    by randomly selecting characters from a predefined alphabet constant. It is intended to be
+    used during ticket creation workflows to produce human-readable, compact identifiers.
+
+    <p>
+
+        Technologies:
+
+        <ul>
+            <li>Core Java</li>
+        </ul>
+
+    </p>
+
+    @author Abdullah (Mirliva) GÜNDÜZ - https://github.com/MrMilriva
+
+    @version 1.0
+*/
 public class PNRGenerator {
     
     public static String generatePNR() {
