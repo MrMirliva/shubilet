@@ -1,6 +1,7 @@
 package com.shubilet.expedition_service.controllers.Impl;
 
-import java.util.LinkedHashMap;
+import java.util.Arrays;
+import java.util.List;
 import java.util.UUID;
 
 import org.slf4j.Logger;
@@ -11,6 +12,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.client.HttpStatusCodeException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -24,8 +26,13 @@ import com.shubilet.expedition_service.common.util.ErrorUtils;
 import com.shubilet.expedition_service.common.util.StringUtils;
 import com.shubilet.expedition_service.controllers.RezervationController;
 import com.shubilet.expedition_service.dataTransferObjects.internal.requests.CardIdDTORequest;
+import com.shubilet.expedition_service.dataTransferObjects.internal.requests.CustomerIdRequestDTO;
+import com.shubilet.expedition_service.dataTransferObjects.internal.requests.TicketPaymentRequestDTO;
+import com.shubilet.expedition_service.dataTransferObjects.internal.responses.CardSummaryDTO;
+import com.shubilet.expedition_service.dataTransferObjects.internal.responses.TicketPaymentResponseDTO;
 import com.shubilet.expedition_service.dataTransferObjects.requests.BuyTicketDTO;
 import com.shubilet.expedition_service.dataTransferObjects.requests.CustomerIdDTO;
+import com.shubilet.expedition_service.dataTransferObjects.responses.base.CardDTO;
 import com.shubilet.expedition_service.dataTransferObjects.responses.base.TicketDTO;
 import com.shubilet.expedition_service.dataTransferObjects.responses.complex.CardsDTO;
 import com.shubilet.expedition_service.dataTransferObjects.responses.middle.TicketInfoDTO;
@@ -142,75 +149,112 @@ public class ReservationControllerImpl implements RezervationController {
 
         // START: Payment Service communication - Card Active Check
         String requestId = UUID.randomUUID().toString();
-        logger.info("Start Login (requestId={})", requestId);
-
         HttpHeaders headers = new HttpHeaders();
         headers.set("X-Request-Id", requestId);
-
         headers.setContentType(MediaType.APPLICATION_JSON);
+
         HttpEntity<CardIdDTORequest> cardRequest = new HttpEntity<>(new CardIdDTORequest(cardId), headers);
 
-        ResponseEntity<Object> cardResponse = restTemplate.exchange(
-            ServiceURLs.PAYMENT_SERVICE_CHECK_ACTIVATE,
-            HttpMethod.POST,
-            cardRequest,
-            Object.class
-        );
+        boolean isCardActive;
 
-        boolean isCardActive = false;
+        try {
+            // IMPORTANT: Boolean.class not String.class
+            ResponseEntity<String> cardResponse = restTemplate.exchange(
+                ServiceURLs.PAYMENT_SERVICE_CHECK_ACTIVATE,
+                HttpMethod.POST,
+                cardRequest,
+                String.class
+            );
 
-        /// BURASI GEÇİCİ BİR KONTROL MEKANİZMASI. PAYMENT SERVICE'TEN GELEN CEVABA GÖRE DÜZENLENECEK. ŞİMDİLİK OBJECT OLARAK VERİLMİŞ.
-        /// FLAG START
-        if(!cardResponse.getStatusCode().is2xxSuccessful()) {
-            logger.error("Card is not active or error occurred. Card ID: {}, Response Status: {}", cardId, cardResponse.getStatusCode());
-
-            if(cardResponse.getBody() != null) {
-                logger.error("Card Service Response Body: {}", cardResponse.getBody().toString());
-                Object responseBody = cardResponse.getBody();
-                logger.error("Response Body Class: {}", responseBody.getClass().getName());
-
-                if(responseBody instanceof LinkedHashMap) {
-                    LinkedHashMap<?, ?> map = (LinkedHashMap<?, ?>) responseBody;
-                    Object messageObj = map.get("message");
-                    if(messageObj instanceof String) {
-                        logger.error("Card Service Error Message: {}", (String) messageObj);
-                        return errorUtils.customError(cardResponse, (String) messageObj);
-                    } else {
-                        logger.error("Unexpected 'message' field type in Card Service response: {}", messageObj.getClass().getName());
-                        return errorUtils.criticalError();
-                    }
-                }
-                else {
-                    logger.error("Unexpected response body type from Card Service: {}", responseBody.getClass().getName());
-                    return errorUtils.criticalError();
-                }
-            }
-            return errorUtils.isInvalidFormat("Card is not active or error occurred.");
-        }
-        else {
-            Object resposeBody = cardResponse.getBody();
-
-            if(resposeBody instanceof Boolean) {
-                isCardActive = (Boolean) resposeBody;
-
-                if(!isCardActive) {
-                    logger.error("Card is not active. Card ID: {}", cardId);
-                    return errorUtils.cardNotActive();
-                }
-            } else {
-                logger.error("Unexpected response body type from Card Service: {}", resposeBody.getClass().getName());
+            // If 2xx, body will be "true"/"false" (JSON boolean converted to string)
+            if (!cardResponse.getStatusCode().is2xxSuccessful()) {
+                // Normally won't reach here (RestTemplate throws exception on 4xx),
+                // but still safe to check.
                 return errorUtils.criticalError();
             }
+
+            String body = cardResponse.getBody(); // "true" veya "false"
+            isCardActive = Boolean.parseBoolean(body);
+
+        } catch (HttpStatusCodeException ex) {
+            // Falls here when 4xx/5xx occurs and body is usually {"message":"..."}
+            String errorBody = ex.getResponseBodyAsString();
+
+            // Here you have two options:
+            // A) Directly consider "card not active" and proceed
+            // B) Parse the message from the body and return it to the user
+
+            // Simple and robust:
+            logger.error("Card active check failed. status={}, body={}", ex.getStatusCode(), errorBody);
+            return errorUtils.cardNotActive();
+
+        } catch (Exception ex) {
+            logger.error("Card active check unexpected error", ex);
+            return errorUtils.criticalError();
         }
-        /// FLAG END
-        
-        logger.info("Card is active. Card ID: {}", cardId); 
+
+        if (!isCardActive) {
+            logger.error("Card is not active. Card ID: {}", cardId);
+            return errorUtils.cardNotActive();
+        }
+
+        logger.info("Card is active. Card ID: {}", cardId);
+
         // END: Payment Service communication - Card Active Check
 
         //STEP 3: Logical processing
+        int amount = expeditionService.getExpeditionPrice(expeditionId);
 
-        ///TODO: Ödeme işlemi yapılacak, Eureka servis ile Payment-Service'e istek atılacak
-        int paymentId = 86952;
+        //START: Payment Service communication - Make Payment
+        HttpEntity<TicketPaymentRequestDTO> paymentRequest = new HttpEntity<>(
+            new TicketPaymentRequestDTO(cardId, String.valueOf(amount), customerId),
+            headers
+        );
+
+        int paymentId;
+
+        try {
+            ResponseEntity<TicketPaymentResponseDTO> paymentResponse = restTemplate.exchange(
+                ServiceURLs.PAYMENT_SERVICE_MAKE_PAYMENT,
+                HttpMethod.POST,
+                paymentRequest,
+                TicketPaymentResponseDTO.class
+            );
+
+            if (!paymentResponse.getStatusCode().is2xxSuccessful()) {
+                logger.error("Payment failed (non-2xx). Expedition ID: {}, Customer ID: {}, Seat No: {}, Status: {}",
+                    expeditionId, customerId, seatNo, paymentResponse.getStatusCode());
+                return errorUtils.criticalError();
+            }
+
+            TicketPaymentResponseDTO body = paymentResponse.getBody();
+            if (body == null) {
+                logger.error("Payment response body is null. Expedition ID: {}, Customer ID: {}, Seat No: {}",
+                    expeditionId, customerId, seatNo);
+                return errorUtils.criticalError();
+            }
+
+            paymentId = body.getPaymentId();
+            if (paymentId <= 0) {
+                logger.error("PaymentId is missing/invalid. Expedition ID: {}, Customer ID: {}, Seat No: {}, paymentId: {}",
+                    expeditionId, customerId, seatNo, paymentId);
+                return errorUtils.criticalError();
+            }
+
+            logger.info("Payment successful. Payment ID: {}, Expedition ID: {}, Customer ID: {}, Seat No: {}",
+                paymentId, expeditionId, customerId, seatNo
+            );
+        }catch (HttpStatusCodeException ex) {
+            logger.error("Payment failed. Expedition ID: {}, Customer ID: {}, Seat No: {}, Status: {}, Body: {}",
+                expeditionId, customerId, seatNo, ex.getStatusCode(), ex.getResponseBodyAsString());
+
+            ResponseEntity<Object> dummy = ResponseEntity.status(ex.getStatusCode()).build();
+            return errorUtils.customError(dummy, "Payment failed");
+        } catch (Exception ex) {
+            logger.error("Payment unexpected error", ex);
+            return errorUtils.criticalError();
+        }
+        //END: Payment Service communication - Make Payment
         
         int seatId = seatService.bookSeat(expeditionId, customerId, seatNo);
         if(seatId == -1) {
@@ -235,30 +279,78 @@ public class ReservationControllerImpl implements RezervationController {
         return ResponseEntity.ok(new TicketInfoDTO(ticketDTO, "Ticket booked successfully."));
     }
 
-    ///TODO: Daha implemente edilmedi.
     @PostMapping("/view_cards")
     public ResponseEntity<CardsDTO> viewCards(@RequestBody CustomerIdDTO customerIdDTO) {
         ErrorUtils errorUtils = new ErrorUtils(ErrorUtils.ConversionType.CARDS_DTO);
 
-        //STEP 1: Classic validation
-        if(customerIdDTO == null) {
+        // STEP 1: Classic validation
+        if (customerIdDTO == null) {
             logger.error("CustomerIdDTO is null");
             return errorUtils.criticalError();
         }
 
         int customerId = customerIdDTO.getCustomerId();
-
-        if(customerId <= 0) {
+        if (customerId <= 0) {
             logger.error("Invalid Customer ID: {}", customerId);
-            return errorUtils.isInvalidFormat(String.valueOf(customerId));
+            return errorUtils.isInvalidFormat("Customer Id");
         }
 
-        //STEP 2: Spesific validation
+        // STEP 2: Specific validation
+        // (none – intentional)
 
-        //STEP 3: Logical processing
+        // STEP 3: Business Logic (Payment-Service call)
+        try {
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_JSON);
 
-        ///TODO: Müşteriye ait kartlar getirilecek, Eureka servis ile Payment-Service'e istek atılacak.
-        return null;
+            HttpEntity<CustomerIdRequestDTO> request =
+                new HttpEntity<>(new CustomerIdRequestDTO(customerId), headers);
+
+            ResponseEntity<CardSummaryDTO[]> response = restTemplate.exchange(
+                ServiceURLs.PAYMENT_SERVICE_CUSTOMER_CARDS,
+                HttpMethod.POST,
+                request,
+                CardSummaryDTO[].class
+            );
+
+            CardSummaryDTO[] body = response.getBody();
+
+            if (body == null || body.length == 0) {
+                logger.info("No cards found for customerId={}", customerId);
+                return errorUtils.notFound("Cards");
+            }
+
+            // Map Payment DTO → Expedition DTO
+            List<CardDTO> cards = Arrays.stream(body)
+                .map(c -> new CardDTO(
+                    Integer.parseInt(c.getCardId()),   // String → int
+                    c.getLast4Digits(),
+                    c.getExpirationMonth(),
+                    c.getExpirationYear()
+                ))
+                .toList();
+
+            logger.info("Cards found for customerId={}", customerId);
+            return ResponseEntity.ok(new CardsDTO("Cards found", cards));
+
+        } catch (HttpStatusCodeException ex) {
+            // Payment-service 4xx/5xx
+            logger.error(
+                "Payment-service error while fetching cards. customerId={}, status={}, body={}",
+                customerId,
+                ex.getStatusCode(),
+                ex.getResponseBodyAsString()
+            );
+
+            ResponseEntity<Object> dummy =
+                ResponseEntity.status(ex.getStatusCode()).build();
+
+            return errorUtils.customError(dummy, "Cards could not be fetched");
+
+        } catch (Exception ex) {
+            logger.error("Unexpected error while fetching cards", ex);
+            return errorUtils.criticalError();
+        }
     }
     
 }

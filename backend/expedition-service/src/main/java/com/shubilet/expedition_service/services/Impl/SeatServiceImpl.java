@@ -9,7 +9,6 @@ import com.shubilet.expedition_service.common.enums.forReservation.SeatStatus;
 import com.shubilet.expedition_service.common.util.DTOMapperUtils;
 import com.shubilet.expedition_service.dataTransferObjects.responses.base.SeatForCompanyDTO;
 import com.shubilet.expedition_service.dataTransferObjects.responses.base.SeatForCustomerDTO;
-import com.shubilet.expedition_service.dataTransferObjects.responses.base.TicketDTO;
 import com.shubilet.expedition_service.models.Seat;
 import com.shubilet.expedition_service.services.SeatService;
 import com.shubilet.expedition_service.repositories.ExpeditionRepository;

@@ -147,4 +147,13 @@ public class ExpeditionServiceImpl implements ExpeditionService {
         return ExpeditionStatus.SUCCESS;
     }
     
+    public int getExpeditionPrice(int expeditionId) {
+        Expedition expedition = expeditionRepository.findById(expeditionId).orElse(null);
+
+        if(expedition == null) {
+            return -1; // or throw an exception
+        }
+
+        return expedition.getPrice().intValue();
+    }
 }

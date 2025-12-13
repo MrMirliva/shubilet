@@ -1,7 +1,5 @@
 package com.shubilet.expedition_service.dataTransferObjects.responses.base;
 
-import java.math.BigDecimal;
-
 public class ExpeditionForCompanyDTO {
     private int expeditionId;
     private String departureCity;

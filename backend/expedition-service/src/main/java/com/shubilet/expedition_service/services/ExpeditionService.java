@@ -23,4 +23,6 @@ public interface ExpeditionService {
     public boolean bookSeat(int expeditionId);
 
     public ExpeditionStatus canBeReserved(int expeditionId);
+
+    public int getExpeditionPrice(int expeditionId);
 }
