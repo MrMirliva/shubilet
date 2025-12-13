@@ -24,6 +24,31 @@ import com.shubilet.expedition_service.dataTransferObjects.responses.complex.Sea
 import com.shubilet.expedition_service.services.ExpeditionService;
 import com.shubilet.expedition_service.services.SeatService;
 
+/****
+
+    Domain: Expedition
+
+    Serves as the REST controller responsible for company-scoped expedition viewing operations. This controller
+    exposes endpoints that allow companies to query their expeditions by date, retrieve all active (upcoming)
+    expeditions, list all expeditions regardless of status, and inspect detailed seat information for a specific
+    expedition. It acts as a read-focused boundary layer, performing request validation, enforcing company context,
+    and delegating data retrieval responsibilities to underlying expedition and seat services.
+
+    <p>
+
+        Technologies:
+
+        <ul>
+            <li>Spring Web</li>
+            <li>SLF4J</li>
+        </ul>
+
+    </p>
+
+    @author Abdullah (Mirliva) GÜNDÜZ - https://github.com/MrMilriva
+
+    @version 1.0
+*/
 @RestController
 @RequestMapping("/api/view/company")
 public class ViewForCompanyControllerImpl implements ViewForCompanyController {
@@ -40,6 +65,38 @@ public class ViewForCompanyControllerImpl implements ViewForCompanyController {
         this.seatService = seatService;
     }
     
+    /****
+
+        Operation: ViewByDate
+
+        Retrieves the list of expeditions for a specific company filtered by the given date. Validates the incoming
+        {@link ExpeditionViewByDateDTO} request by checking company identity and date format, then delegates the lookup
+        to the expedition service to fetch matching expeditions. Returns an {@link ExpeditionsForCompanyDTO} containing
+        the expedition list when results are found, or a standardized error response when the request is invalid or
+        no expeditions exist for the specified criteria.
+
+        <p>
+
+            Uses:
+
+            <ul>
+                <li>{@link ExpeditionViewByDateDTO} for companyId and date filter input</li>
+                <li>{@link ErrorUtils} for building standardized {@link ExpeditionsForCompanyDTO}-based error responses</li>
+                <li>{@link StringUtils} for null/blank checks</li>
+                <li>{@link ValidationUtils} for date format validation</li>
+                <li>{@link ExpeditionService} for querying expeditions by date and companyId</li>
+                <li>{@link ExpeditionsForCompanyDTO} as the response wrapper containing expedition results</li>
+                <li>{@link ExpeditionForCompanyDTO} as the per-expedition response representation</li>
+                <li>{@link Logger} for audit and diagnostic logging</li>
+            </ul>
+
+        </p>
+
+        @param expeditionViewByDateDTO the request payload containing the companyId and date filter
+
+        @return a response entity containing an {@link ExpeditionsForCompanyDTO} with expeditions for the given date,
+        or an error response when the request is invalid or no expeditions are found
+    */
     @PostMapping("/expeditionsByDate")
     public ResponseEntity<ExpeditionsForCompanyDTO> viewExpeditionsByDate(@RequestBody ExpeditionViewByDateDTO expeditionViewByDateDTO) {
         ErrorUtils errorUtils = new ErrorUtils(ErrorUtils.ConversionType.EXPEDITIONS_FOR_COMPANY_DTO);
@@ -81,7 +138,37 @@ public class ViewForCompanyControllerImpl implements ViewForCompanyController {
         logger.info("Expeditions found for date: {}", date);
         return ResponseEntity.ok().body(new ExpeditionsForCompanyDTO("Expeditions found", expeditions));
     }
-    
+
+    /****
+
+        Operation: ViewActive
+
+        Retrieves all upcoming (active) expeditions associated with the specified company. Validates the incoming
+        {@link CompanyIdDTO} request to ensure a valid company identifier is provided, then delegates the lookup
+        to the expedition service to fetch expeditions that are scheduled for future execution. Returns an
+        {@link ExpeditionsForCompanyDTO} containing the active expeditions when available, or a standardized
+        error response when the request is invalid or no active expeditions are found.
+
+        <p>
+
+            Uses:
+
+            <ul>
+                <li>{@link CompanyIdDTO} for company identifier input</li>
+                <li>{@link ErrorUtils} for building standardized {@link ExpeditionsForCompanyDTO}-based error responses</li>
+                <li>{@link ExpeditionService} for querying upcoming expeditions by companyId</li>
+                <li>{@link ExpeditionsForCompanyDTO} as the response wrapper containing expedition results</li>
+                <li>{@link ExpeditionForCompanyDTO} as the per-expedition response representation</li>
+                <li>{@link Logger} for audit and diagnostic logging</li>
+            </ul>
+
+        </p>
+
+        @param companyIdDTO the request payload containing the companyId whose active expeditions will be retrieved
+
+        @return a response entity containing an {@link ExpeditionsForCompanyDTO} with upcoming expeditions for the company,
+        or an error response when the request is invalid or no active expeditions are found
+    */
     @PostMapping("/activeExpeditions")
     public ResponseEntity<ExpeditionsForCompanyDTO> viewActiveExpeditions(@RequestBody CompanyIdDTO companyIdDTO) {
         ErrorUtils errorUtils = new ErrorUtils(ErrorUtils.ConversionType.EXPEDITIONS_FOR_COMPANY_DTO);
@@ -112,6 +199,37 @@ public class ViewForCompanyControllerImpl implements ViewForCompanyController {
         logger.info("Active expeditions found for company id: {}", companyId);
         return ResponseEntity.ok().body(new ExpeditionsForCompanyDTO("Expeditions found", expeditions));
     }
+
+    /****
+
+        Operation: ViewAll
+
+        Retrieves all expeditions associated with the specified company, regardless of their temporal state
+        (past, active, or upcoming). Validates the incoming {@link CompanyIdDTO} to ensure a valid company identifier
+        is provided, then delegates the lookup to the expedition service to fetch the complete expedition list.
+        Returns an {@link ExpeditionsForCompanyDTO} containing the expeditions when results are available, or a
+        standardized error response when the request is invalid or no expeditions are found.
+
+        <p>
+
+            Uses:
+
+            <ul>
+                <li>{@link CompanyIdDTO} for company identifier input</li>
+                <li>{@link ErrorUtils} for building standardized {@link ExpeditionsForCompanyDTO}-based error responses</li>
+                <li>{@link ExpeditionService} for querying all expeditions by companyId</li>
+                <li>{@link ExpeditionsForCompanyDTO} as the response wrapper containing expedition results</li>
+                <li>{@link ExpeditionForCompanyDTO} as the per-expedition response representation</li>
+                <li>{@link Logger} for audit and diagnostic logging</li>
+            </ul>
+
+        </p>
+
+        @param companyIdDTO the request payload containing the companyId whose expeditions will be retrieved
+
+        @return a response entity containing an {@link ExpeditionsForCompanyDTO} with all expeditions for the company,
+        or an error response when the request is invalid or no expeditions are found
+    */
 
     @PostMapping("/allExpeditions")
     public ResponseEntity<ExpeditionsForCompanyDTO> viewAllExpeditions(@RequestBody CompanyIdDTO companyIdDTO) {
@@ -144,6 +262,37 @@ public class ViewForCompanyControllerImpl implements ViewForCompanyController {
         return ResponseEntity.ok().body(new ExpeditionsForCompanyDTO("Expeditions found", expeditions));
     }
 
+    /****
+
+        Operation: ViewDetails
+
+        Retrieves detailed seat information for a specific expedition belonging to the given company. Validates the
+        incoming {@link ExpeditionViewByIdDTO} request to ensure both company and expedition identifiers are valid,
+        then delegates the lookup to the seat service to fetch seat-level details for the expedition. Returns a
+        {@link SeatsForCompanyDTO} containing the seat list when data is available, or a standardized error response
+        when the request is invalid or no seat information is found.
+
+        <p>
+
+            Uses:
+
+            <ul>
+                <li>{@link ExpeditionViewByIdDTO} for companyId and expeditionId input</li>
+                <li>{@link ErrorUtils} for building standardized {@link SeatsForCompanyDTO}-based error responses</li>
+                <li>{@link SeatService} for querying seats by expeditionId and companyId</li>
+                <li>{@link SeatsForCompanyDTO} as the response wrapper containing seat details</li>
+                <li>{@link SeatForCompanyDTO} as the per-seat response representation</li>
+                <li>{@link Logger} for audit and diagnostic logging</li>
+            </ul>
+
+        </p>
+
+        @param expeditionViewById the request payload containing the companyId and expeditionId to inspect
+
+        @return a response entity containing a {@link SeatsForCompanyDTO} with seat details for the expedition,
+        or an error response when the request is invalid or no seat data is found
+    */
+   
     @PostMapping("/expeditionDetails")
     public ResponseEntity<SeatsForCompanyDTO> viewExpeditionDetails(@RequestBody ExpeditionViewByIdDTO expeditionViewById) {
         ErrorUtils errorUtils = new ErrorUtils(ErrorUtils.ConversionType.SEATS_FOR_COMPANY_DTO);

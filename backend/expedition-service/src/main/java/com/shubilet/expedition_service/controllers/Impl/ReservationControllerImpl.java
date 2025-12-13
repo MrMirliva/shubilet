@@ -40,6 +40,33 @@ import com.shubilet.expedition_service.services.ExpeditionService;
 import com.shubilet.expedition_service.services.SeatService;
 import com.shubilet.expedition_service.services.TicketService;
 
+/****
+
+    Domain: Reservation
+
+    Acts as the REST controller responsible for reservation-related operations, including ticket purchasing and
+    retrieval of customer payment cards. This controller orchestrates complex business workflows such as validating
+    expedition and seat availability, coordinating with external payment services, executing payment transactions,
+    booking seats, generating tickets, and exposing customer card information. It serves as the boundary between
+    HTTP requests and the reservation domain services, ensuring consistent validation, error handling, and response
+    mapping across reservation use cases.
+
+    <p>
+
+        Technologies:
+
+        <ul>
+            <li>Spring Web</li>
+            <li>SLF4J</li>
+            <li>Spring RestTemplate</li>
+        </ul>
+
+    </p>
+
+    @author Abdullah (Mirliva) GÜNDÜZ - https://github.com/MrMilriva
+
+    @version 1.0
+*/
 @RestController
 @RequestMapping("/api/reservation")
 public class ReservationControllerImpl implements RezervationController {
@@ -63,6 +90,47 @@ public class ReservationControllerImpl implements RezervationController {
         this.restTemplate = restTemplate;
     }
 
+    /****
+
+        Operation: BuyTicket
+
+        Processes a ticket purchase request by validating the {@link BuyTicketDTO} payload, verifying expedition and seat
+        availability, and ensuring the selected payment card is active via an external payment service call. If validations
+        pass, calculates the payable amount, performs the payment transaction, books the requested seat, updates expedition
+        capacity state, and generates a ticket PNR to retrieve full ticket details. Returns a {@link TicketInfoDTO} containing
+        the booked {@link TicketDTO} and a success message, or an error response when any validation, payment, or booking step fails.
+
+        <p>
+
+            Uses:
+
+            <ul>
+                <li>{@link BuyTicketDTO} for customerId, expeditionId, seatNo, and cardId inputs</li>
+                <li>{@link ErrorUtils} for building standardized {@link TicketInfoDTO}-based error responses</li>
+                <li>{@link ExpeditionService} for expedition existence, reservability checks, pricing lookup, and seat booking updates</li>
+                <li>{@link SeatService} for seat existence checks, reservability checks, seat booking, and seatId resolution</li>
+                <li>{@link SeatStatus} and {@link ExpeditionStatus} for domain-level reservability outcomes</li>
+                <li>{@link RestTemplate} for communicating with external payment service endpoints</li>
+                <li>{@link ServiceURLs} for payment service endpoint locations</li>
+                <li>{@link HttpHeaders}, {@link HttpEntity}, {@link MediaType}, and {@link HttpMethod} for HTTP request construction</li>
+                <li>{@link UUID} for generating an idempotency/correlation request identifier</li>
+                <li>{@link CardIdDTORequest} for card activation check requests</li>
+                <li>{@link TicketPaymentRequestDTO} and {@link TicketPaymentResponseDTO} for payment execution</li>
+                <li>{@link HttpStatusCodeException} for handling downstream HTTP error responses</li>
+                <li>{@link TicketService} for ticket generation and ticket detail retrieval</li>
+                <li>{@link TicketDTO} and {@link TicketInfoDTO} for ticket detail transport and response wrapping</li>
+                <li>{@link StringUtils} for blank checks on generated PNR</li>
+                <li>{@link Logger} for audit and diagnostic logging</li>
+            </ul>
+
+        </p>
+
+        @param buyTicketDTO the purchase request containing customerId, expeditionId, seatNo, and cardId
+
+        @return a response entity containing a {@link TicketInfoDTO} with booked ticket details and a business message,
+        or an error response when the request is invalid, the seat/expedition cannot be reserved, the card is inactive,
+        payment fails, or ticket generation cannot be completed
+    */
     @PostMapping("/buy_ticket")
     public ResponseEntity<TicketInfoDTO> buyTicket(@RequestBody BuyTicketDTO buyTicketDTO) {
         ErrorUtils errorUtils = new ErrorUtils(ErrorUtils.ConversionType.TICKET_INFO_DTO);
@@ -279,6 +347,42 @@ public class ReservationControllerImpl implements RezervationController {
         return ResponseEntity.ok(new TicketInfoDTO(ticketDTO, "Ticket booked successfully."));
     }
 
+    /****
+
+        Operation: ViewCards
+
+        Retrieves the list of payment cards associated with the given customer by validating the incoming
+        {@link CustomerIdDTO} and delegating the lookup to the external payment service. Maps the payment-service
+        {@link CardSummaryDTO} array into the domain-facing {@link CardDTO} list and wraps the result in a {@link CardsDTO}.
+        Returns a not-found response when the customer has no registered cards, and propagates downstream failures as
+        standardized error responses.
+
+        <p>
+
+            Uses:
+
+            <ul>
+                <li>{@link CustomerIdDTO} for customer identifier input</li>
+                <li>{@link ErrorUtils} for building standardized {@link CardsDTO}-based error responses</li>
+                <li>{@link RestTemplate} for communicating with external payment service endpoints</li>
+                <li>{@link ServiceURLs} for payment service endpoint locations</li>
+                <li>{@link HttpHeaders}, {@link HttpEntity}, {@link MediaType}, and {@link HttpMethod} for HTTP request construction</li>
+                <li>{@link CustomerIdRequestDTO} as the payment-service request payload</li>
+                <li>{@link CardSummaryDTO} as the payment-service response payload</li>
+                <li>{@link CardDTO} as the mapped card representation returned by this service</li>
+                <li>{@link CardsDTO} as the response wrapper containing the card list</li>
+                <li>{@link Arrays} and {@link List} for mapping and collection handling</li>
+                <li>{@link HttpStatusCodeException} for handling downstream HTTP error responses</li>
+                <li>{@link Logger} for audit and diagnostic logging</li>
+            </ul>
+
+        </p>
+
+        @param customerIdDTO the request payload containing the customerId whose cards will be retrieved
+
+        @return a response entity containing a {@link CardsDTO} with the customer's card summaries, or an error response
+        when the input is invalid, no cards are found, or the payment service cannot be reached/returns an error
+    */
     @PostMapping("/view_cards")
     public ResponseEntity<CardsDTO> viewCards(@RequestBody CustomerIdDTO customerIdDTO) {
         ErrorUtils errorUtils = new ErrorUtils(ErrorUtils.ConversionType.CARDS_DTO);

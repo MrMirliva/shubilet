@@ -30,7 +30,31 @@ import com.shubilet.expedition_service.services.ExpeditionService;
 import com.shubilet.expedition_service.services.SeatService;
 import com.shubilet.expedition_service.services.TicketService;
 
+/****
 
+    Domain: View
+
+    Provides customer-facing read-only REST endpoints for discovering expeditions, browsing available seats, and
+    retrieving ticket history. This controller validates customer query criteria such as route, date, and identifiers,
+    enforces basic business constraints (e.g., non-past travel dates and expedition existence), and delegates data
+    retrieval to the underlying expedition, seat, and ticket services. It returns DTO-based responses suitable for
+    customer UI consumption, including empty-result payloads where applicable.
+
+    <p>
+
+        Technologies:
+
+        <ul>
+            <li>Spring Web</li>
+            <li>SLF4J</li>
+        </ul>
+
+    </p>
+
+    @author Abdullah (Mirliva) GÜNDÜZ - https://github.com/MrMilriva
+
+    @version 1.0
+*/
 @RestController
 @RequestMapping("/api/view/customer")
 public class ViewForCustomerControllerImpl implements ViewForCustomerController {
@@ -51,6 +75,39 @@ public class ViewForCustomerControllerImpl implements ViewForCustomerController 
         this.ticketService = ticketService;
     }
 
+    /****
+
+        Operation: ViewAvailable
+
+        Retrieves available expeditions for customers based on the provided route and date criteria. Validates the
+        incoming {@link ViewDetailsForCustomerDTO} by checking departure and arrival cities, ensuring they are not the
+        same, and verifying that the requested date is well-formed and not in the past. Delegates the lookup to the
+        expedition service to fetch expeditions matching the route and date, and returns the results in an
+        {@link ExpeditionsForCustomerDTO}.
+
+        <p>
+
+            Uses:
+
+            <ul>
+                <li>{@link ViewDetailsForCustomerDTO} for departureCity, arrivalCity, and date input</li>
+                <li>{@link ErrorUtils} for building standardized {@link ExpeditionsForCustomerDTO}-based error responses</li>
+                <li>{@link StringUtils} for null/blank and equality checks</li>
+                <li>{@link ValidationUtils} for date format and temporal validation</li>
+                <li>{@link Instant} for current time comparison</li>
+                <li>{@link ExpeditionService} for querying expeditions by route and date</li>
+                <li>{@link ExpeditionForCustomerDTO} as the per-expedition response representation</li>
+                <li>{@link ExpeditionsForCustomerDTO} as the response wrapper containing expedition results</li>
+                <li>{@link Logger} for audit and diagnostic logging</li>
+            </ul>
+
+        </p>
+
+        @param viewDetailsForCustomerDTO the request payload containing departure city, arrival city, and travel date
+
+        @return a response entity containing an {@link ExpeditionsForCustomerDTO} with available expeditions for the
+        specified route and date, or an error response when the request is invalid
+    */
     @PostMapping("/availableExpeditions")
     public ResponseEntity<ExpeditionsForCustomerDTO> viewAvailableExpeditions(@RequestBody ViewDetailsForCustomerDTO viewDetailsForCustomerDTO) {
         ErrorUtils errorUtils = new ErrorUtils(ErrorUtils.ConversionType.EXPEDITIONS_FOR_CUSTOMER_DTO);
@@ -109,6 +166,38 @@ public class ViewForCustomerControllerImpl implements ViewForCustomerController 
         return ResponseEntity.ok(new ExpeditionsForCustomerDTO("Expeditions found", expeditions));
     }
 
+    /****
+
+        Operation: ViewAvailableSeats
+
+        Retrieves the list of currently available seats for a specific expedition. Validates the incoming
+        {@link ExpeditionIdDTO} to ensure a valid expedition identifier is provided and verifies that the expedition
+        exists before delegating the lookup to the seat service. Returns a {@link SeatsForCustomerDTO} containing
+        available seat information when seats are found, or a standardized error response when the request is invalid,
+        the expedition does not exist, or no seats are available.
+
+        <p>
+
+            Uses:
+
+            <ul>
+                <li>{@link ExpeditionIdDTO} for expedition identifier input</li>
+                <li>{@link ErrorUtils} for building standardized {@link SeatsForCustomerDTO}-based error responses</li>
+                <li>{@link ExpeditionService} for expedition existence validation</li>
+                <li>{@link SeatService} for retrieving available seats by expeditionId</li>
+                <li>{@link SeatForCustomerDTO} as the per-seat response representation</li>
+                <li>{@link SeatsForCustomerDTO} as the response wrapper containing available seats</li>
+                <li>{@link Logger} for audit and diagnostic logging</li>
+            </ul>
+
+        </p>
+
+        @param expeditionIdDTO the request payload containing the expeditionId whose available seats will be retrieved
+
+        @return a response entity containing a {@link SeatsForCustomerDTO} with available seats for the expedition,
+        or an error response when the request is invalid, the expedition is not found, or no seats are available
+    */
+
     @PostMapping("/availableSeats")
     public ResponseEntity<SeatsForCustomerDTO> viewAvailableSeats(@RequestBody ExpeditionIdDTO expeditionIdDTO) {
         ErrorUtils errorUtils = new ErrorUtils(ErrorUtils.ConversionType.SEATS_FOR_CUSTOMER_DTO);
@@ -144,6 +233,36 @@ public class ViewForCustomerControllerImpl implements ViewForCustomerController 
         return ResponseEntity.ok(new SeatsForCustomerDTO("Available seats found", availableSeats));
     }
 
+    /****
+
+        Operation: ViewAllTickets
+
+        Retrieves all tickets associated with the specified customer. Validates the incoming {@link CustomerIdDTO}
+        to ensure a valid customer identifier is provided, then delegates the lookup to the ticket service to fetch
+        all tickets owned by the customer. Returns a {@link TicketsDTO} containing the customer’s tickets when found,
+        or an empty-result response when no tickets exist for the given customer.
+
+        <p>
+
+            Uses:
+
+            <ul>
+                <li>{@link CustomerIdDTO} for customer identifier input</li>
+                <li>{@link ErrorUtils} for building standardized {@link TicketsDTO}-based error responses</li>
+                <li>{@link TicketService} for retrieving tickets by customerId</li>
+                <li>{@link TicketDTO} as the per-ticket response representation</li>
+                <li>{@link TicketsDTO} as the response wrapper containing ticket results</li>
+                <li>{@link Logger} for audit and diagnostic logging</li>
+            </ul>
+
+        </p>
+
+        @param customerIdDTO the request payload containing the customerId whose tickets will be retrieved
+
+        @return a response entity containing a {@link TicketsDTO} with all tickets for the customer, or an empty-result
+        response when the customer has no tickets
+    */
+   
     @PostMapping("/allTickets")
     public ResponseEntity<TicketsDTO> viewAllTickets(@RequestBody CustomerIdDTO customerIdDTO) {
         ErrorUtils errorUtils = new ErrorUtils(ErrorUtils.ConversionType.TICKETS_DTO);
