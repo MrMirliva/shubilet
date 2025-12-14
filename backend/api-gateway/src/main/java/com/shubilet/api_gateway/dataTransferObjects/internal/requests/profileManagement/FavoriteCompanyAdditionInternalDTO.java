@@ -1,25 +1,15 @@
-package com.shubilet.member_service.dataTransferObjects.requests;
+package com.shubilet.api_gateway.dataTransferObjects.internal.requests.profileManagement;
 
-public class FavoriteCompanyDTO {
-    private int relationId;
+public class
+
+
+FavoriteCompanyAdditionInternalDTO {
     private int customerId;
     private int companyId;
 
-    public FavoriteCompanyDTO(int relationId) {
-        this.relationId = relationId;
-    }
-
-    public FavoriteCompanyDTO(int customerId, int companyId) {
+    public FavoriteCompanyAdditionInternalDTO(int customerId, int companyId) {
         this.customerId = customerId;
         this.companyId = companyId;
-    }
-
-    public int getRelationId() {
-        return relationId;
-    }
-
-    public void setRelationId(int relationId) {
-        this.relationId = relationId;
     }
 
     public int getCustomerId() {
