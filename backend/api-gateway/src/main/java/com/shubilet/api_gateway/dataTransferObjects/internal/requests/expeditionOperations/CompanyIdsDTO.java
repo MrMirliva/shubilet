@@ -1,4 +1,4 @@
-package com.shubilet.api_gateway.dataTransferObjects.internal.requests;
+package com.shubilet.api_gateway.dataTransferObjects.internal.requests.expeditionOperations;
 
 import java.util.List;
 

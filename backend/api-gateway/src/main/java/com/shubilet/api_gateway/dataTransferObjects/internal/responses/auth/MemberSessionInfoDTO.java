@@ -1,14 +1,16 @@
-package com.shubilet.api_gateway.dataTransferObjects.internal.responses;
+package com.shubilet.api_gateway.dataTransferObjects.internal.responses.auth;
 
 
-public class MemberSessionDTO {
+public class MemberSessionInfoDTO {
     private int userId;
     private String userType;
+    private String message;
 
-    MemberSessionDTO() {
+    MemberSessionInfoDTO() {
 
     }
-    MemberSessionDTO(int userId, String userType) {
+
+    MemberSessionInfoDTO(int userId, String userType) {
         this.userId = userId;
         this.userType = userType;
     }
@@ -27,5 +29,13 @@ public class MemberSessionDTO {
 
     public void setUserType(String userType) {
         this.userType = userType;
+    }
+
+    public String getMessage() {
+        return message;
+    }
+
+    public void setMessage(String message) {
+        this.message = message;
     }
 }

@@ -23,7 +23,7 @@ public class ResourceControllerImpl {
         this.resourceService = resourceService;
     }
 
-    @GetMapping("company/names")
+    @PostMapping("/company/name")
     public ResponseEntity<CompanyIdNameMapDTO> sendCompanyNames(@RequestBody List<CompanyIdDTO> companyIDsDTO) {
         // DTO Existence Check
         if (companyIDsDTO == null) {
@@ -34,8 +34,10 @@ public class ResourceControllerImpl {
         if (companyIDsDTO.isEmpty()) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new CompanyIdNameMapDTO("Company IDs Can't be Empty"));
         }
+        logger.info("Retrieving Company Names for IDs: {}", companyIDsDTO.getFirst().getCompanyId());
 
         HashMap<Integer, String> companyNamesMap = resourceService.sendCompanyNames(companyIDsDTO);
+        logger.info("Retrieved Company Names: {}", companyNamesMap);
         if (companyNamesMap == null || companyNamesMap.isEmpty()) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new CompanyIdNameMapDTO("No Matching Company has been Found"));
         }
