@@ -1,6 +1,4 @@
-package com.shubilet.api_gateway.dataTransferObjects.internal.responses;
-
-import com.shubilet.api_gateway.dataTransferObjects.internal.ExpeditionForCustomerDTO;
+package com.shubilet.api_gateway.dataTransferObjects.internal.responses.expeditionOperations;
 
 import java.util.ArrayList;
 import java.util.List;

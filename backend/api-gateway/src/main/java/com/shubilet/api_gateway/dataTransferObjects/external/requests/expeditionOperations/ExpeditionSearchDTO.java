@@ -1,4 +1,4 @@
-package com.shubilet.api_gateway.dataTransferObjects.external.requests;
+package com.shubilet.api_gateway.dataTransferObjects.external.requests.expeditionOperations;
 
 public class ExpeditionSearchDTO {
     private String departureCity;
