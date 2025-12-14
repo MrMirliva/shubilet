@@ -1,10 +1,13 @@
 package com.shubilet.member_service.services.Impl;
 
 import com.shubilet.member_service.models.Admin;
+import com.shubilet.member_service.models.Company;
 import com.shubilet.member_service.repositories.AdminRepository;
 import com.shubilet.member_service.repositories.CompanyRepository;
 import com.shubilet.member_service.services.VerificationService;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 
 @Service
@@ -36,11 +39,25 @@ public class VerificationServiceImpl implements VerificationService {
 
     }
 
-    public boolean markCompanyVerified(int companyId) {
+    public boolean markCompanyVerified(int adminId, int candidateCompanyId) {
+        List<Company> company_result = companyRepository.getCompanyById(candidateCompanyId);
+        if (company_result == null || company_result.isEmpty()) {
+            return false;
+        }
+        Company company = company_result.getFirst();
+        company.setVerified(true);
+        company.setRefAdminId(adminId);
+        companyRepository.save(company);
         return true;
     }
 
-    public boolean markAdminVerified(int adminId) {
+    public boolean markAdminVerified(int adminId, int candidateAdminId) {
+        Admin admin = adminRepository.getAdminById(candidateAdminId);
+        if (admin == null) {
+            return false;
+        }
+        admin.setRefAdminId(adminId);
+        adminRepository.save(admin);
         return true;
     }
 }

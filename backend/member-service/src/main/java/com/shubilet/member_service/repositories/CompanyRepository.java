@@ -30,4 +30,6 @@ public interface CompanyRepository extends JpaRepository<Company, Integer> {
 
 
     List<Company> getCompaniesByIdIn(Collection<Integer> ids);
+
+    List<Company> getCompanyById(int id);
 }

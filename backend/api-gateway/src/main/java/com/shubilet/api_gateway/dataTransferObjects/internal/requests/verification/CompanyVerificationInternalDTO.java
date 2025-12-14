@@ -1,14 +1,13 @@
-package com.shubilet.member_service.dataTransferObjects.requests;
+package com.shubilet.api_gateway.dataTransferObjects.internal.requests.verification;
 
-public class CompanyVerificationDTO {
+public class CompanyVerificationInternalDTO {
     private int adminId;
     private int candidateCompanyId;
 
-    public CompanyVerificationDTO() {
+    public CompanyVerificationInternalDTO() {
 
     }
-
-    public CompanyVerificationDTO(int adminId, int candidateCompanyId) {
+    public CompanyVerificationInternalDTO(int adminId, int candidateCompanyId) {
         this.adminId = adminId;
         this.candidateCompanyId = candidateCompanyId;
     }
