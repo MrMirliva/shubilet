@@ -1,24 +1,24 @@
-package com.shubilet.api_gateway.dataTransferObjects.external.requests;
+package com.shubilet.api_gateway.dataTransferObjects.external.requests.auth;
 
 
-public class AdminRegistrationDTO {
+public class CustomerRegistrationDTO {
     private String name;
     private String surname;
+    private String gender;
     private String email;
     private String password;
 
-    AdminRegistrationDTO() {
-
+    CustomerRegistrationDTO() {
     }
 
-    AdminRegistrationDTO(String name, String surname, String email, String password) {
+    CustomerRegistrationDTO(String name, String surname, String gender, String email, String password) {
         this.name = name;
         this.surname = surname;
+        this.gender = gender;
         this.email = email;
         this.password = password;
     }
 
-    // Getters-Setters
     public String getName() {
         return name;
     }
@@ -33,6 +33,14 @@ public class AdminRegistrationDTO {
 
     public void setSurname(String surname) {
         this.surname = surname;
+    }
+
+    public String getGender() {
+        return gender;
+    }
+
+    public void setGender(String gender) {
+        this.gender = gender;
     }
 
     public String getEmail() {
