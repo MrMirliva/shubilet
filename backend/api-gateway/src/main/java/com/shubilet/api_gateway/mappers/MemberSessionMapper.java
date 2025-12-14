@@ -1,9 +1,8 @@
 package com.shubilet.api_gateway.mappers;
 
-import com.shubilet.api_gateway.dataTransferObjects.external.requests.MemberCredentialsDTO;
 import com.shubilet.api_gateway.dataTransferObjects.internal.CookieDTO;
-import com.shubilet.api_gateway.dataTransferObjects.internal.requests.SessionCreationDTO;
-import com.shubilet.api_gateway.dataTransferObjects.internal.responses.MemberSessionDTO;
+import com.shubilet.api_gateway.dataTransferObjects.internal.requests.auth.SessionCreationDTO;
+import com.shubilet.api_gateway.dataTransferObjects.internal.responses.auth.MemberSessionInfoDTO;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
@@ -12,7 +11,7 @@ import org.mapstruct.Mapping;
 public interface MemberSessionMapper {
 
     @Mapping(source = "cookieDTO", target = "cookie")
-    @Mapping(source = "memberSessionDTO.userId", target = "userId")
-    @Mapping(source = "memberSessionDTO.userType", target = "userType")
-    public SessionCreationDTO toSessionCreationDTO(CookieDTO cookieDTO, MemberSessionDTO memberSessionDTO);
+    @Mapping(source = "memberSessionInfoDTO.userId", target = "userId")
+    @Mapping(source = "memberSessionInfoDTO.userType", target = "userType")
+    public SessionCreationDTO toSessionCreationDTO(CookieDTO cookieDTO, MemberSessionInfoDTO memberSessionInfoDTO);
 }

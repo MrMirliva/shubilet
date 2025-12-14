@@ -1,6 +1,8 @@
 package com.shubilet.api_gateway.mappers;
 
-public interface MemberCheckMessageMapper {
+import org.mapstruct.Mapper;
 
+@Mapper(componentModel = "spring")
+public interface MemberCheckMessageMapper {
 
 }
