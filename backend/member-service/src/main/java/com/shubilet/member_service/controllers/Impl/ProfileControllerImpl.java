@@ -276,7 +276,7 @@ public class ProfileControllerImpl {
 
         logger.info("Start Card Addition (requestId={})", requestId);
 
-        String paymentService = "http://payment-service/api/customer/card/add";
+        String paymentService = "http://payment-service/cards/newcard";
 
         HttpHeaders headers = new HttpHeaders();
         headers.set("X-Request-Id", requestId);
@@ -329,7 +329,7 @@ public class ProfileControllerImpl {
 
         logger.info("Start Card Deletion (requestId={})", requestId);
 
-        String paymentService = "http://payment-service/api/customer/card/delete";
+        String paymentService = "http://payment-service/cards/deactivate";
 
         HttpHeaders headers = new HttpHeaders();
         headers.set("X-Request-Id", requestId);
