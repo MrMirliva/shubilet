@@ -1,23 +1,16 @@
-# 1. aşama: React build
-FROM node:20-alpine AS build
+FROM node:20-alpine
 
 WORKDIR /app
 
-# Paket dosyalarını kopyala ve bağımlılıkları kur
+# Paket dosyaları
 COPY package*.json ./
 RUN npm install
 
-# Geri kalan her şeyi kopyala ve production build al
+# Kaynak kodlar
 COPY . .
-RUN npm run build
 
-# 2. aşama: Nginx ile statik dosyaları serve et
-FROM nginx:alpine
+# Vite dev server portu
+EXPOSE 5173
 
-# Build edilen dosyaları nginx'in root'una kopyala
-COPY --from=build /app/dist /usr/share/nginx/html
-
-# Dışarıya açacağımız port
-EXPOSE 80
-
-CMD ["nginx", "-g", "daemon off;"]
+# Frontend'i DEV modunda çalıştır
+CMD ["npm", "run", "dev", "--", "--host"]

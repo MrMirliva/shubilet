@@ -50,15 +50,51 @@ export default function LoginPage() {
     setServerError("");
 
     try {
-      // TODO: backend login entegrasyonu
-      await new Promise((r) => setTimeout(r, 600));
+      const response = await fetch("/api/auth/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        credentials: "include",
+        body: JSON.stringify({
+          email: form.email.trim(),
+          password: form.password,
+        }),
+      });
+
+      // 🔹 Önce raw text alıyoruz (gateway / backend fark etmez)
+      const rawText = await response.text();
+
+      let data = null;
+      try {
+        data = rawText ? JSON.parse(rawText) : null;
+      } catch {
+        data = null;
+      }
+
+      // 🔹 HTTP status kontrolü
+      if (!response.ok) {
+        const message =
+          data?.message ||
+          `Login failed (HTTP ${response.status})`;
+        throw new Error(message);
+      }
+
+      // 🔹 Backend MessageDTO dönüyor → ister logla, ister göster
+      console.log("LOGIN SUCCESS:", data?.message);
+
+      // 🔹 Başarılı login → yönlendir
       navigate("/", { replace: true });
-    } catch {
-      setServerError("Giriş yapılamadı. Bilgilerini kontrol et.");
+
+    } catch (err) {
+      setServerError(
+        err?.message || "Giriş yapılamadı. Bilgilerini kontrol et."
+      );
     } finally {
       setIsSubmitting(false);
     }
   }
+
 
   return (
     <div className="loginPage">
