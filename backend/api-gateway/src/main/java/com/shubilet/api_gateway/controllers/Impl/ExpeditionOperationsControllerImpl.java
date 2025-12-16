@@ -121,7 +121,7 @@ public class ExpeditionOperationsControllerImpl implements ExpeditionOperationsC
         return ResponseEntity.status(HttpStatus.OK).body(expeditionServiceExpeditionCreationInternalResponse.getBody());
     }
 
-    @PostMapping("/customer/get/search")
+    @PostMapping("/customer/get/search/expeditions")
     @Override
     public ResponseEntity<ExpeditionSearchResultsCompanyDTO> sendExpeditions(HttpSession httpSession, @RequestBody ExpeditionSearchDTO expeditionSearchDTO) {
         String requestId = UUID.randomUUID().toString();
@@ -223,7 +223,7 @@ public class ExpeditionOperationsControllerImpl implements ExpeditionOperationsC
     }
 
 
-    @PostMapping("/customer/get/search")
+    @PostMapping("/customer/get/search/seats")
     @Override
     public ResponseEntity<SeatsForCustomerDTO> sendSeats(HttpSession httpSession, @RequestBody ExpeditionIdDTO expeditionIdDTO) {
         String requestId = UUID.randomUUID().toString();
