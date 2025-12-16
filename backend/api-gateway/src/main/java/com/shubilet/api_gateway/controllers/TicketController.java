@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
 public interface TicketController {
-    public ResponseEntity<TicketsExternalDTO> sendTicketDetailsForCustomer(HttpSession httpSession, @RequestBody ExpeditionSearchDTO expeditionSearchDTO);
+    public ResponseEntity<TicketsExternalDTO> sendTicketDetailsForCustomer(HttpSession httpSession);
 
 
     @PostMapping("/buy")

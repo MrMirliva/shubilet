@@ -1,6 +1,6 @@
 package com.shubilet.api_gateway.mappers.ticket;
 
-import com.shubilet.api_gateway.dataTransferObjects.internal.requests.expeditionOperations.CompanyIdDTO;
+import com.shubilet.api_gateway.dataTransferObjects.internal.requests.CompanyIdDTO;
 import com.shubilet.api_gateway.dataTransferObjects.internal.responses.ticket.TicketInternalDTO;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;

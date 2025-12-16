@@ -11,7 +11,7 @@ import com.shubilet.api_gateway.dataTransferObjects.external.responses.expeditio
 import com.shubilet.api_gateway.dataTransferObjects.external.responses.expeditionOperations.ExpeditionsForCompanyDTO;
 import com.shubilet.api_gateway.dataTransferObjects.external.responses.expeditionOperations.SeatsForCustomerDTO;
 import com.shubilet.api_gateway.dataTransferObjects.internal.CookieDTO;
-import com.shubilet.api_gateway.dataTransferObjects.internal.requests.expeditionOperations.CompanyIdDTO;
+import com.shubilet.api_gateway.dataTransferObjects.internal.requests.CompanyIdDTO;
 import com.shubilet.api_gateway.dataTransferObjects.internal.requests.expeditionOperations.ExpeditionCreationInternalDTO;
 import com.shubilet.api_gateway.dataTransferObjects.internal.responses.expeditionOperations.CompanyIdNameMapDTO;
 import com.shubilet.api_gateway.dataTransferObjects.internal.responses.expeditionOperations.ExpeditionsForCustomerDTO;

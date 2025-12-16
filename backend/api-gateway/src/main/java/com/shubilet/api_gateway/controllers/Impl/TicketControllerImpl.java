@@ -3,17 +3,19 @@ package com.shubilet.api_gateway.controllers.Impl;
 import com.shubilet.api_gateway.common.constants.ServiceURLs;
 import com.shubilet.api_gateway.controllers.TicketController;
 import com.shubilet.api_gateway.dataTransferObjects.external.requests.expeditionOperations.BuyTicketExternalDTO;
-import com.shubilet.api_gateway.dataTransferObjects.external.requests.expeditionOperations.ExpeditionSearchDTO;
 import com.shubilet.api_gateway.dataTransferObjects.external.responses.ticket.TicketExternalDTO;
 import com.shubilet.api_gateway.dataTransferObjects.external.responses.ticket.TicketsExternalDTO;
-import com.shubilet.api_gateway.dataTransferObjects.internal.requests.expeditionOperations.CompanyIdDTO;
+import com.shubilet.api_gateway.dataTransferObjects.internal.requests.CompanyIdDTO;
 import com.shubilet.api_gateway.dataTransferObjects.internal.requests.ticket.BuyTicketInternalDTO;
 import com.shubilet.api_gateway.dataTransferObjects.internal.CookieDTO;
+import com.shubilet.api_gateway.dataTransferObjects.internal.requests.CustomerIdDTO;
 import com.shubilet.api_gateway.dataTransferObjects.internal.responses.expeditionOperations.CompanyIdNameMapDTO;
 import com.shubilet.api_gateway.dataTransferObjects.internal.responses.ticket.TicketInfoDTO;
 import com.shubilet.api_gateway.dataTransferObjects.internal.responses.auth.MemberCheckMessageDTO;
 import com.shubilet.api_gateway.dataTransferObjects.internal.responses.ticket.TicketsInternalDTO;
 import com.shubilet.api_gateway.managers.HttpSessionManager;
+import com.shubilet.api_gateway.mappers.CookieMapper;
+import com.shubilet.api_gateway.mappers.auth.MemberCheckMessageMapper;
 import com.shubilet.api_gateway.mappers.ticket.BuyTicketExternalMapper;
 import com.shubilet.api_gateway.mappers.CompanyIdNameMapper;
 import com.shubilet.api_gateway.mappers.ticket.TicketsInternalMapper;
@@ -22,7 +24,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.*;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestTemplate;
@@ -36,11 +37,13 @@ public class TicketControllerImpl implements TicketController {
     private final Logger logger = LoggerFactory.getLogger(TicketControllerImpl.class);
     private final RestTemplate restTemplate;
     private final HttpSessionManager httpSessionManager;
+    private final CookieMapper cookieMapper;
     private final BuyTicketExternalMapper buyTicketExternalMapper;
     private final TicketsInternalMapper ticketsInternalMapper;
 
-    public TicketControllerImpl(RestTemplate restTemplate, BuyTicketExternalMapper buyTicketExternalMapper, TicketsInternalMapper ticketsInternalMapper) {
+    public TicketControllerImpl(RestTemplate restTemplate, MemberCheckMessageMapper memberCheckMessageMapper, CookieMapper cookieMapper, BuyTicketExternalMapper buyTicketExternalMapper, TicketsInternalMapper ticketsInternalMapper) {
         this.restTemplate = restTemplate;
+        this.cookieMapper = cookieMapper;
         this.buyTicketExternalMapper = buyTicketExternalMapper;
         this.ticketsInternalMapper = ticketsInternalMapper;
         this.httpSessionManager = new HttpSessionManager();
@@ -48,7 +51,7 @@ public class TicketControllerImpl implements TicketController {
     }
 
     @PostMapping("/get/customer")
-    public ResponseEntity<TicketsExternalDTO> sendTicketDetailsForCustomer(HttpSession httpSession, @RequestBody ExpeditionSearchDTO expeditionSearchDTO) {
+    public ResponseEntity<TicketsExternalDTO> sendTicketDetailsForCustomer(HttpSession httpSession) {
         String requestId = UUID.randomUUID().toString();
         logger.info("Start Expedition Search (requestId={})", requestId);
 
@@ -88,9 +91,10 @@ public class TicketControllerImpl implements TicketController {
                     .body(new TicketsExternalDTO(securityServiceCheckCustomerSessionResponse.getBody().getMessage()));
         }
 
-        HttpEntity<ExpeditionSearchDTO> expeditionServiceGetTicketsRequest = new HttpEntity<>(expeditionSearchDTO, headers);
+        CustomerIdDTO customerIdDTO = cookieMapper.toCustomerIdDTO(cookieDTO);
+        HttpEntity<CustomerIdDTO> expeditionServiceGetTicketsRequest = new HttpEntity<>(customerIdDTO, headers);
         ResponseEntity<TicketsInternalDTO> expeditionServiceGetTicketsResponse = restTemplate.exchange(
-                ServiceURLs.EXPEDITION_SERVICE_SEARCH_EXPEDITION_URL,
+                ServiceURLs.EXPEDITION_SERVICE_SEARCH_SEAT_URL,
                 HttpMethod.POST,
                 expeditionServiceGetTicketsRequest,
                 TicketsInternalDTO.class
