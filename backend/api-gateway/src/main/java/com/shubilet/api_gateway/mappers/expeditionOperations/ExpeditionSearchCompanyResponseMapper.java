@@ -1,4 +1,4 @@
-package com.shubilet.api_gateway.mappers;
+package com.shubilet.api_gateway.mappers.expeditionOperations;
 
 import com.shubilet.api_gateway.dataTransferObjects.internal.responses.expeditionOperations.ExpeditionForCustomerDTO;
 import com.shubilet.api_gateway.dataTransferObjects.internal.requests.expeditionOperations.CompanyIdDTO;

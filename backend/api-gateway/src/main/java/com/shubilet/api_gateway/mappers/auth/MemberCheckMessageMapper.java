@@ -1,4 +1,4 @@
-package com.shubilet.api_gateway.mappers;
+package com.shubilet.api_gateway.mappers.auth;
 
 import org.mapstruct.Mapper;
 

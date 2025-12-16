@@ -9,14 +9,13 @@ import com.shubilet.api_gateway.dataTransferObjects.external.requests.auth.Custo
 
 
 import com.shubilet.api_gateway.dataTransferObjects.external.requests.auth.MemberCredentialsDTO;
-import com.shubilet.api_gateway.dataTransferObjects.external.responses.expeditionOperations.ExpeditionSearchResultsCompanyDTO;
 import com.shubilet.api_gateway.dataTransferObjects.internal.CookieDTO;
 import com.shubilet.api_gateway.dataTransferObjects.internal.requests.auth.SessionCreationDTO;
 import com.shubilet.api_gateway.dataTransferObjects.internal.responses.CookieInfoDTO;
 import com.shubilet.api_gateway.dataTransferObjects.internal.responses.auth.MemberCheckMessageDTO;
 import com.shubilet.api_gateway.dataTransferObjects.internal.responses.auth.MemberSessionInfoDTO;
 import com.shubilet.api_gateway.managers.HttpSessionManager;
-import com.shubilet.api_gateway.mappers.MemberSessionMapper;
+import com.shubilet.api_gateway.mappers.auth.MemberSessionMapper;
 import jakarta.servlet.http.HttpSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

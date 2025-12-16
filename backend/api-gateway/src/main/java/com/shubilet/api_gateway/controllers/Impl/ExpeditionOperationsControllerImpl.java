@@ -18,8 +18,8 @@ import com.shubilet.api_gateway.dataTransferObjects.internal.responses.expeditio
 import com.shubilet.api_gateway.dataTransferObjects.internal.responses.auth.MemberCheckMessageDTO;
 import com.shubilet.api_gateway.managers.HttpSessionManager;
 import com.shubilet.api_gateway.mappers.CompanyIdNameMapper;
-import com.shubilet.api_gateway.mappers.ExpeditionCreationExternalMapper;
-import com.shubilet.api_gateway.mappers.ExpeditionSearchCompanyResponseMapper;
+import com.shubilet.api_gateway.mappers.expeditionOperations.ExpeditionCreationExternalMapper;
+import com.shubilet.api_gateway.mappers.expeditionOperations.ExpeditionSearchCompanyResponseMapper;
 import jakarta.servlet.http.HttpSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

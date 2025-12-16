@@ -8,7 +8,7 @@ import com.shubilet.api_gateway.dataTransferObjects.internal.requests.profileMan
 import com.shubilet.api_gateway.dataTransferObjects.internal.CookieDTO;
 import com.shubilet.api_gateway.dataTransferObjects.internal.responses.auth.MemberCheckMessageDTO;
 import com.shubilet.api_gateway.managers.HttpSessionManager;
-import com.shubilet.api_gateway.mappers.*;
+import com.shubilet.api_gateway.mappers.profileManagement.*;
 import jakarta.servlet.http.HttpSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

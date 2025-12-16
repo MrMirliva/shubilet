@@ -1,4 +1,4 @@
-package com.shubilet.api_gateway.mappers;
+package com.shubilet.api_gateway.mappers.ticket;
 
 import com.shubilet.api_gateway.dataTransferObjects.external.requests.expeditionOperations.BuyTicketExternalDTO;
 import com.shubilet.api_gateway.dataTransferObjects.internal.requests.ticket.BuyTicketInternalDTO;

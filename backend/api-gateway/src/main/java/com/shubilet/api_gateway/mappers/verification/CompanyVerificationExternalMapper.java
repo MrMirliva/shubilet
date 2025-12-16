@@ -1,4 +1,4 @@
-package com.shubilet.api_gateway.mappers;
+package com.shubilet.api_gateway.mappers.verification;
 
 import com.shubilet.api_gateway.dataTransferObjects.internal.requests.verification.CompanyVerificationInternalDTO;
 import com.shubilet.api_gateway.dataTransferObjects.external.requests.VerificationController.CompanyVerificationExternalDTO;

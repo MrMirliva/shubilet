@@ -1,4 +1,4 @@
-package com.shubilet.api_gateway.mappers;
+package com.shubilet.api_gateway.mappers.auth;
 
 import com.shubilet.api_gateway.dataTransferObjects.internal.CookieDTO;
 import com.shubilet.api_gateway.dataTransferObjects.internal.requests.auth.SessionCreationDTO;

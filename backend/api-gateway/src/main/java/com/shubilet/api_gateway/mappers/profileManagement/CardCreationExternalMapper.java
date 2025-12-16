@@ -1,4 +1,4 @@
-package com.shubilet.api_gateway.mappers;
+package com.shubilet.api_gateway.mappers.profileManagement;
 
 import com.shubilet.api_gateway.dataTransferObjects.external.requests.profileManagement.CardCreationExternalDTO;
 import com.shubilet.api_gateway.dataTransferObjects.internal.requests.profileManagement.CardCreationInternalDTO;
