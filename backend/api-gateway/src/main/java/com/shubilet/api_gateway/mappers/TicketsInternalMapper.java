@@ -1,0 +1,18 @@
+package com.shubilet.api_gateway.mappers;
+
+import com.shubilet.api_gateway.dataTransferObjects.internal.requests.expeditionOperations.CompanyIdDTO;
+import com.shubilet.api_gateway.dataTransferObjects.internal.responses.expeditionOperations.ExpeditionForCustomerDTO;
+import com.shubilet.api_gateway.dataTransferObjects.internal.responses.ticket.TicketInternalDTO;
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
+
+import java.util.List;
+
+@Mapper(componentModel = "spring")
+public interface TicketsInternalMapper {
+
+    @Mapping(source = "t.companyId", target = "companyId")
+    CompanyIdDTO toCompanyIdDTO(TicketInternalDTO t);
+
+    List<CompanyIdDTO> toCompanyIdDTOs(List<TicketInternalDTO> ticketInternalDTOS);
+}

@@ -1,10 +1,8 @@
 package com.shubilet.api_gateway.dataTransferObjects.internal.responses.ticket;
 
-import com.shubilet.api_gateway.dataTransferObjects.internal.responses.ticket.TicketDTO;
-
 public class TicketInfoDTO {
     private String message;
-    private TicketDTO ticketDTO;
+    private TicketInternalDTO ticketInternalDTO;
 
     public TicketInfoDTO() {
 
@@ -12,12 +10,12 @@ public class TicketInfoDTO {
 
     public TicketInfoDTO(String message) {
         this.message = message;
-        this.ticketDTO = new TicketDTO();
+        this.ticketInternalDTO = new TicketInternalDTO();
     }
 
-    public TicketInfoDTO(TicketDTO ticketDTO, String message) {
+    public TicketInfoDTO(TicketInternalDTO ticketInternalDTO, String message) {
         this.message = message;
-        this.ticketDTO = ticketDTO;
+        this.ticketInternalDTO = ticketInternalDTO;
     }
 
     public String getMessage() {
@@ -27,10 +25,10 @@ public class TicketInfoDTO {
         this.message = message;
     }
 
-    public TicketDTO getTicketDTO() {
-        return ticketDTO;
+    public TicketInternalDTO getTicketDTO() {
+        return ticketInternalDTO;
     }
-    public void setTicketDTO(TicketDTO ticketDTO) {
-        this.ticketDTO = ticketDTO;
+    public void setTicketDTO(TicketInternalDTO ticketInternalDTO) {
+        this.ticketInternalDTO = ticketInternalDTO;
     }
 }

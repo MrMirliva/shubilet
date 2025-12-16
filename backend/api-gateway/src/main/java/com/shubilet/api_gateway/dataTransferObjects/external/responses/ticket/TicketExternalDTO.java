@@ -1,35 +1,35 @@
-package com.shubilet.api_gateway.dataTransferObjects.internal.responses.ticket;
+package com.shubilet.api_gateway.dataTransferObjects.external.responses.ticket;
 
-public class TicketDTO {
+public class TicketExternalDTO {
     private String PNR;
     private int seatNo;
     private int expeditionId;
-    private int companyId;
+    private String companyName;
     private String departureCity;
     private String arrivalCity;
     private String date;
     private String time;
     private int duration;
 
-    public TicketDTO() {
-    
+    public TicketExternalDTO() {
+
     }
 
-    public TicketDTO(
-        String PNR, 
-        int seatNo, 
-        int expeditionId, 
-        int companyId, 
-        String departureCity, 
-        String arrivalCity, 
-        String date, 
-        String time, 
-        int duration
+    public TicketExternalDTO(
+            String PNR,
+            int seatNo,
+            int expeditionId,
+            String companyName,
+            String departureCity,
+            String arrivalCity,
+            String date,
+            String time,
+            int duration
     ) {
         this.PNR = PNR;
         this.seatNo = seatNo;
         this.expeditionId = expeditionId;
-        this.companyId = companyId;
+        this.companyName = companyName;
         this.departureCity = departureCity;
         this.arrivalCity = arrivalCity;
         this.date = date;
@@ -40,6 +40,7 @@ public class TicketDTO {
     public String getPNR() {
         return PNR;
     }
+
     public void setPNR(String PNR) {
         this.PNR = PNR;
     }
@@ -47,6 +48,7 @@ public class TicketDTO {
     public int getSeatNo() {
         return seatNo;
     }
+
     public void setSeatNo(int seatNo) {
         this.seatNo = seatNo;
     }
@@ -54,20 +56,23 @@ public class TicketDTO {
     public int getExpeditionId() {
         return expeditionId;
     }
+
     public void setExpeditionId(int expeditionId) {
         this.expeditionId = expeditionId;
     }
 
-    public int getCompanyId() {
-        return companyId;
+    public String getCompanyName() {
+        return companyName;
     }
-    public void setCompanyId(int companyId) {
-        this.companyId = companyId;
+
+    public void setCompanyName(String companyName) {
+        this.companyName = companyName;
     }
 
     public String getDepartureCity() {
         return departureCity;
     }
+
     public void setDepartureCity(String departureCity) {
         this.departureCity = departureCity;
     }
@@ -75,6 +80,7 @@ public class TicketDTO {
     public String getArrivalCity() {
         return arrivalCity;
     }
+
     public void setArrivalCity(String arrivalCity) {
         this.arrivalCity = arrivalCity;
     }
@@ -82,6 +88,7 @@ public class TicketDTO {
     public String getDate() {
         return date;
     }
+
     public void setDate(String date) {
         this.date = date;
     }
@@ -89,6 +96,7 @@ public class TicketDTO {
     public String getTime() {
         return time;
     }
+
     public void setTime(String time) {
         this.time = time;
     }
@@ -96,8 +104,9 @@ public class TicketDTO {
     public int getDuration() {
         return duration;
     }
+
     public void setDuration(int duration) {
         this.duration = duration;
     }
-    
+
 }
