@@ -2,7 +2,8 @@ package com.shubilet.api_gateway.common.constants;
 
 public class ServiceURLs {
     // Expedition Service URLs
-    public static final String EXPEDITION_SERVICE_SEARCH_URL = "http://expedition-service/api/view/customer/availableExpeditions";
+    public static final String EXPEDITION_SERVICE_SEARCH_EXPEDITION_URL = "http://expedition-service/api/view/customer/availableExpeditions";
+    public static final String EXPEDITION_SERVICE_SEARCH_SEAT_URL = "http://expedition-service/api/view/customer/availableSeats";
     public static final String EXPEDITION_SERVICE_BUY_TICKET = "http://expedition-service/api/reservation/buy_ticket";
     public static final String EXPEDITION_SERVICE_CREATE_EXPEDITION_URL = "http://expedition-service/api/expeditions/create";
     public static final String EXPEDITION_SERVICE_GET_COMPANY_EXPEDITIONS_ALL_URL = "http://expedition-service/api/view/company/allExpeditions";
