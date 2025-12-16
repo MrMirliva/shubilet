@@ -1,10 +1,7 @@
 package com.shubilet.api_gateway.controllers;
 
 import com.shubilet.api_gateway.dataTransferObjects.MessageDTO;
-import com.shubilet.api_gateway.dataTransferObjects.external.requests.profileManagement.CardCreationExternalDTO;
-import com.shubilet.api_gateway.dataTransferObjects.external.requests.profileManagement.FavoriteCompanyAdditionExternalDTO;
-import com.shubilet.api_gateway.dataTransferObjects.external.requests.profileManagement.FavoriteCompanyDeletionExternalDTO;
-import com.shubilet.api_gateway.dataTransferObjects.external.requests.profileManagement.MemberAttributeChangeExternalDTO;
+import com.shubilet.api_gateway.dataTransferObjects.external.requests.profileManagement.*;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -33,5 +30,8 @@ public interface ProfileManagementController {
     ResponseEntity<MessageDTO> deleteFavoriteCompany(HttpSession httpSession, FavoriteCompanyDeletionExternalDTO favoriteCompanyDeletionExternalDTO);
 
     @PostMapping("/customer/edit/card/add")
-    ResponseEntity<MessageDTO> editCards(HttpSession httpSession, @RequestBody CardCreationExternalDTO cardCreationExternalDTO);
+    ResponseEntity<MessageDTO> addCard(HttpSession httpSession, @RequestBody CardCreationExternalDTO cardCreationExternalDTO);
+
+    @PostMapping("/customer/edit/card/delete")
+    ResponseEntity<MessageDTO> deleteCard(HttpSession httpSession, @RequestBody CardDeletionExternalDTO cardDeletionExternalDTO);
 }

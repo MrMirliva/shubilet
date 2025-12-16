@@ -3,21 +3,12 @@ package com.shubilet.api_gateway.controllers.Impl;
 import com.shubilet.api_gateway.common.constants.ServiceURLs;
 import com.shubilet.api_gateway.controllers.ProfileManagementController;
 import com.shubilet.api_gateway.dataTransferObjects.MessageDTO;
-import com.shubilet.api_gateway.dataTransferObjects.external.requests.profileManagement.CardCreationExternalDTO;
-import com.shubilet.api_gateway.dataTransferObjects.internal.requests.profileManagement.CardCreationInternalDTO;
-import com.shubilet.api_gateway.dataTransferObjects.external.requests.profileManagement.MemberAttributeChangeExternalDTO;
-import com.shubilet.api_gateway.dataTransferObjects.external.requests.profileManagement.FavoriteCompanyAdditionExternalDTO;
-import com.shubilet.api_gateway.dataTransferObjects.external.requests.profileManagement.FavoriteCompanyDeletionExternalDTO;
+import com.shubilet.api_gateway.dataTransferObjects.external.requests.profileManagement.*;
+import com.shubilet.api_gateway.dataTransferObjects.internal.requests.profileManagement.*;
 import com.shubilet.api_gateway.dataTransferObjects.internal.CookieDTO;
-import com.shubilet.api_gateway.dataTransferObjects.internal.requests.profileManagement.FavoriteCompanyAdditionInternalDTO;
-import com.shubilet.api_gateway.dataTransferObjects.internal.requests.profileManagement.FavoriteCompanyDeletionInternalDTO;
-import com.shubilet.api_gateway.dataTransferObjects.internal.requests.profileManagement.MemberAttributeChangeInternalDTO;
 import com.shubilet.api_gateway.dataTransferObjects.internal.responses.auth.MemberCheckMessageDTO;
 import com.shubilet.api_gateway.managers.HttpSessionManager;
-import com.shubilet.api_gateway.mappers.CardCreationExternalMapper;
-import com.shubilet.api_gateway.mappers.FavoriteCompanyAdditionExternalMapper;
-import com.shubilet.api_gateway.mappers.FavoriteCompanyDeletionExternalMapper;
-import com.shubilet.api_gateway.mappers.MemberAttributeChangeExternalMapper;
+import com.shubilet.api_gateway.mappers.*;
 import jakarta.servlet.http.HttpSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -41,19 +32,21 @@ public class ProfileManagementControllerImpl implements ProfileManagementControl
     private final FavoriteCompanyAdditionExternalMapper favoriteCompanyAdditionExternalMapper;
     private final FavoriteCompanyDeletionExternalMapper favoriteCompanyDeletionExternalMapper;
     private final CardCreationExternalMapper cardCreationExternalMapper;
+    private final CardDeletionExternalMapper cardDeletionExternalMapper;
 
 
     public ProfileManagementControllerImpl(
             RestTemplate restTemplate, MemberAttributeChangeExternalMapper memberAttributeChangeExternalMapper,
             FavoriteCompanyAdditionExternalMapper favoriteCompanyAdditionExternalMapper,
             FavoriteCompanyDeletionExternalMapper favoriteCompanyDeletionExternalMapper,
-            CardCreationExternalMapper cardCreationExternalMapper
+            CardCreationExternalMapper cardCreationExternalMapper, CardDeletionExternalMapper cardDeletionExternalMapper
     ) {
         this.restTemplate = restTemplate;
         this.memberAttributeChangeExternalMapper = memberAttributeChangeExternalMapper;
         this.favoriteCompanyAdditionExternalMapper = favoriteCompanyAdditionExternalMapper;
         this.favoriteCompanyDeletionExternalMapper = favoriteCompanyDeletionExternalMapper;
         this.cardCreationExternalMapper = cardCreationExternalMapper;
+        this.cardDeletionExternalMapper = cardDeletionExternalMapper;
         this.httpSessionManager = new HttpSessionManager();
     }
 
@@ -538,7 +531,7 @@ public class ProfileManagementControllerImpl implements ProfileManagementControl
 
     @PostMapping("/customer/edit/card/add")
     @Override
-    public ResponseEntity<MessageDTO> editCards(HttpSession httpSession, @RequestBody CardCreationExternalDTO cardCreationExternalDTO) {
+    public ResponseEntity<MessageDTO> addCard(HttpSession httpSession, @RequestBody CardCreationExternalDTO cardCreationExternalDTO) {
         String requestId = UUID.randomUUID().toString();
         logger.info("Start Expedition Search (requestId={})", requestId);
 
@@ -593,4 +586,64 @@ public class ProfileManagementControllerImpl implements ProfileManagementControl
         }
         return ResponseEntity.status(HttpStatus.OK).body(memberServiceCardCreationResponse.getBody());
     }
+
+    @PostMapping("/customer/edit/card/delte")
+    @Override
+    public ResponseEntity<MessageDTO> deleteCard(HttpSession httpSession, @RequestBody CardDeletionExternalDTO cardDeletionExternalDTO) {
+        String requestId = UUID.randomUUID().toString();
+        logger.info("Start Expedition Search (requestId={})", requestId);
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("X-Request-Id", requestId);
+        headers.setContentType(MediaType.APPLICATION_JSON);
+
+        // Send Request to Security Service for Checking Existing Session
+        CookieDTO cookieDTO = httpSessionManager.fromSessionToCookieDTO(httpSession);
+        HttpEntity<CookieDTO> securityServiceCheckSessionCustomerRequest = new HttpEntity<>(cookieDTO, headers);
+        ResponseEntity<MemberCheckMessageDTO> securityServiceCheckCustomerSessionResponse = restTemplate.exchange(
+                ServiceURLs.SECURITY_SERVICE_CHECK_CUSTOMER_SESSION_URL,
+                HttpMethod.POST,
+                securityServiceCheckSessionCustomerRequest,
+                MemberCheckMessageDTO.class
+        );
+
+        // Session Existence Clarified by Security Service
+        if (securityServiceCheckCustomerSessionResponse.getStatusCode().is2xxSuccessful()) {
+            logger.info("Customer Session Exists (requestId={})", requestId);
+        } else if (securityServiceCheckCustomerSessionResponse.getStatusCode().is4xxClientError()) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new MessageDTO("There is no Existing Customer Session."));
+        } else if (securityServiceCheckCustomerSessionResponse.getStatusCode().is5xxServerError()) {
+            return ResponseEntity
+                    .status(securityServiceCheckCustomerSessionResponse.getStatusCode())
+                    .body(new MessageDTO(securityServiceCheckCustomerSessionResponse.getBody().getMessage()));
+        }
+
+        CardDeletionInternalDTO cardDeletionInternalDTO = cardDeletionExternalMapper.toCardDeletionInternalDTO(cardDeletionExternalDTO, securityServiceCheckCustomerSessionResponse.getBody());
+
+        HttpEntity<CardDeletionInternalDTO> memberServiceCardCreationRequest = new HttpEntity<>(cardDeletionInternalDTO, headers);
+        ResponseEntity<MessageDTO> memberServiceCardCreationResponse = restTemplate.exchange(
+                ServiceURLs.MEMBER_SERVICE_CARD_DELETE_URL,
+                HttpMethod.POST,
+                memberServiceCardCreationRequest,
+                MessageDTO.class
+        );
+
+        // Successfully De-activated Card on Member Service
+        if (memberServiceCardCreationResponse.getStatusCode().is2xxSuccessful()) {
+            logger.info("Card Successfully De-Activated (requestId={})", requestId);
+        } else if (memberServiceCardCreationResponse.getStatusCode().is4xxClientError()) {
+            logger.info("Bad Request for Member Service (requestId={})", requestId);
+            return ResponseEntity
+                    .status(memberServiceCardCreationResponse.getStatusCode())
+                    .body(memberServiceCardCreationResponse.getBody());
+        } else if (memberServiceCardCreationResponse.getStatusCode().is5xxServerError()) {
+            logger.info("Internal Server Error of Member Service (requestId={})", requestId);
+            return ResponseEntity
+                    .status(memberServiceCardCreationResponse.getStatusCode())
+                    .body(memberServiceCardCreationResponse.getBody());
+        }
+        return ResponseEntity.status(HttpStatus.OK).body(memberServiceCardCreationResponse.getBody());
+    }
+
+
 }

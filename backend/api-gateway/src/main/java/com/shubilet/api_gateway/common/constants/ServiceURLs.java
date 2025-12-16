@@ -1,13 +1,15 @@
 package com.shubilet.api_gateway.common.constants;
 
+import java.net.URI;
+
 public class ServiceURLs {
     // Expedition Service URLs
     public static final String EXPEDITION_SERVICE_SEARCH_EXPEDITION_URL = "http://expedition-service/api/view/customer/availableExpeditions";
     public static final String EXPEDITION_SERVICE_SEARCH_SEAT_URL = "http://expedition-service/api/view/customer/availableSeats";
+    public static final String EXPEDITION_SERVICE_GET_CUSTOMER_TICKETS_SEAT_URL = "http://expedition-service/api/view/customer/allTickets";
     public static final String EXPEDITION_SERVICE_BUY_TICKET = "http://expedition-service/api/reservation/buy_ticket";
     public static final String EXPEDITION_SERVICE_CREATE_EXPEDITION_URL = "http://expedition-service/api/expeditions/create";
     public static final String EXPEDITION_SERVICE_GET_COMPANY_EXPEDITIONS_ALL_URL = "http://expedition-service/api/view/company/allExpeditions";
-
 
     // Member Service URLs
     public static String MEMBER_SERVICE_CREDENTIALS_CHECK_URL = "http://member-service/api/auth/checkCredentials";
@@ -24,6 +26,7 @@ public class ServiceURLs {
     public static String MEMBER_SERVICE_FAVORITE_COMPANY_ADD_URL = "http://member-service/api/favorite/company/add";
     public static String MEMBER_SERVICE_FAVORITE_COMPANY_DELETE_URL = "http://member-service/api/favorite/company/add";
     public static String MEMBER_SERVICE_CARD_ADD_URL = "http://member-service/api/customer/profile/edit/card/add";
+    public static String MEMBER_SERVICE_CARD_DELETE_URL = "http://member-service/api/customer/profile/edit/card/delete";
 
 
     public static String MEMBER_SERVICE_GET_COMPANY_NAMES_URL = "http://member-service/api/get/company/name";
