@@ -10,7 +10,7 @@ import org.mapstruct.Mapping;
 public interface CardDeletionExternalMapper {
 
     @Mapping(source = "cardDeletionExternalDTO.cardId", target = "cardId")
-    @Mapping(source = "memberCheckMessage.userId", target = "customerId")
+    @Mapping(source = "memberCheckMessageDTO.userId", target = "customerId")
     CardDeletionInternalDTO toCardDeletionInternalDTO(CardDeletionExternalDTO cardDeletionExternalDTO, MemberCheckMessageDTO memberCheckMessageDTO);
 
 }
