@@ -21,7 +21,7 @@ function App() {
       <Header />
       <Routes>
         {/* Ana sayfaya girince direkt Login açılsın diye path="/" verdim */}
-        <Route path="/" element={<LoginPage />} />
+        <Route path="/" element={<CustomerHomePage />} />
 
         {/* "/login" yazınca da açılsın */}
         <Route path="/login" element={<LoginPage />} />
@@ -31,7 +31,6 @@ function App() {
         <Route path="/register/customer" element={<CustomerRegister />} />
         <Route path="/register/company" element={<CompanyRegister />} />
         <Route path="/register/admin" element={<AdminRegister />} />
-        <Route path="/customer/home" element={<CustomerHomePage />} />
       </Routes>
     </Router>
   );
