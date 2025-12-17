@@ -1,6 +1,6 @@
 package com.shubilet.api_gateway.dataTransferObjects.external.responses.expeditionOperations;
 
-public class ExpeditionSearchResultCompanyDTO {
+public class ExpeditionSearchResultCustomerDTO {
     private int expeditionId;
     private String departureCity;
     private String arrivalCity;
@@ -9,12 +9,12 @@ public class ExpeditionSearchResultCompanyDTO {
     private double price;
     private int duration;
     private String companyName;
-
-    public ExpeditionSearchResultCompanyDTO() {
+    
+    public ExpeditionSearchResultCustomerDTO() {
 
     }
 
-    public ExpeditionSearchResultCompanyDTO(
+    public ExpeditionSearchResultCustomerDTO(
             int expeditionId,
             String departureCity,
             String arrivalCity,

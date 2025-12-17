@@ -6,7 +6,7 @@ import com.shubilet.api_gateway.dataTransferObjects.MessageDTO;
 import com.shubilet.api_gateway.dataTransferObjects.external.requests.expeditionOperations.ExpeditionCreationExternalDTO;
 import com.shubilet.api_gateway.dataTransferObjects.external.requests.expeditionOperations.ExpeditionIdDTO;
 import com.shubilet.api_gateway.dataTransferObjects.external.requests.expeditionOperations.ExpeditionSearchDTO;
-import com.shubilet.api_gateway.dataTransferObjects.external.responses.expeditionOperations.ExpeditionSearchResultCompanyDTO;
+import com.shubilet.api_gateway.dataTransferObjects.external.responses.expeditionOperations.ExpeditionSearchResultCustomerDTO;
 import com.shubilet.api_gateway.dataTransferObjects.external.responses.expeditionOperations.ExpeditionSearchResultsCompanyDTO;
 import com.shubilet.api_gateway.dataTransferObjects.external.responses.expeditionOperations.ExpeditionsForCompanyDTO;
 import com.shubilet.api_gateway.dataTransferObjects.external.responses.expeditionOperations.SeatsForCustomerDTO;
@@ -215,7 +215,7 @@ public class ExpeditionOperationsControllerImpl implements ExpeditionOperationsC
         }
 
 
-        List<ExpeditionSearchResultCompanyDTO> expeditionSearchResults = CompanyIdNameMapper.toExpeditionSearchResultsDTO(
+        List<ExpeditionSearchResultCustomerDTO> expeditionSearchResults = CompanyIdNameMapper.toExpeditionSearchResultsDTO(
                 expeditionServiceSearchExpeditionResponse.getBody(),
                 memberServiceGetCompanyNamesResponse.getBody()
         );

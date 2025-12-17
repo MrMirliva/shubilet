@@ -5,7 +5,7 @@ import java.util.List;
 
 public class ExpeditionSearchResultsCompanyDTO {
     private String message;
-    private List<ExpeditionSearchResultCompanyDTO> expeditions;
+    private List<ExpeditionSearchResultCustomerDTO> expeditions;
 
     public ExpeditionSearchResultsCompanyDTO() {
 
@@ -16,7 +16,7 @@ public class ExpeditionSearchResultsCompanyDTO {
         expeditions = new ArrayList<>();
     }
 
-    public ExpeditionSearchResultsCompanyDTO(String message, List<ExpeditionSearchResultCompanyDTO> expeditions) {
+    public ExpeditionSearchResultsCompanyDTO(String message, List<ExpeditionSearchResultCustomerDTO> expeditions) {
         this.message = message;
         this.expeditions = expeditions;
     }
@@ -29,11 +29,11 @@ public class ExpeditionSearchResultsCompanyDTO {
         this.message = message;
     }
 
-    public List<ExpeditionSearchResultCompanyDTO> getExpeditions() {
+    public List<ExpeditionSearchResultCustomerDTO> getExpeditions() {
         return expeditions;
     }
 
-    public void setExpeditions(List<ExpeditionSearchResultCompanyDTO> expeditions) {
+    public void setExpeditions(List<ExpeditionSearchResultCustomerDTO> expeditions) {
         this.expeditions = expeditions;
     }
 }
