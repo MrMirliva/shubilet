@@ -25,7 +25,7 @@ import com.shubilet.security_service.dataTransferObjects.responses.MessageDTO;
             <li>Build consistent error messages for null/blank fields, invalid formats, and incorrect inputs</li>
             <li>Represent session lifecycle failures such as not found, expired, invalid, or already logged-in states</li>
             <li>Attach {@link CookieDTO} to response DTOs for client-side session state alignment</li>
-            <li>Translate error scenarios into HTTP status codes (e.g., 400, 401, 404, 500)</li>
+            <li>Translate error scenarios into HTTP status codes (e.g., 400, 401, 500)</li>
         </ul>
     </p>
 
@@ -74,7 +74,7 @@ public final class ErrorUtils {
 
     public <T> ResponseEntity<T> notFound(CookieDTO cookie, String entityName) {
         String message = entityName + ErrorMessages.NOT_FOUND;
-        return caster(cookie, message, 404);
+        return caster(cookie, message, 400);
     }
 
     public <T> ResponseEntity<T> isIncorrect(CookieDTO cookie, String fieldName) {
@@ -84,7 +84,7 @@ public final class ErrorUtils {
 
     public <T> ResponseEntity<T> sessionNotFound(CookieDTO cookie) {
         String message = ErrorMessages.SESSION_NOT_FOUND;
-        return caster(cookie, message, 404);
+        return caster(cookie, message, 400);
     }
 
     public <T> ResponseEntity<T> sessionExpired(CookieDTO cookie) {

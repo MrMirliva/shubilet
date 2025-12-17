@@ -1,5 +1,6 @@
 
 services:
+
 # Frontend Service (React + Nginx)
   frontend:
     build:
@@ -9,9 +10,9 @@ services:
     depends_on:
       - api-gateway
     ports:
-      - "3000:80"
+      - "3000:5173"
     networks:
-      - spring-net    
+      - spring-net  
 
 #API Gateway
   api-gateway:

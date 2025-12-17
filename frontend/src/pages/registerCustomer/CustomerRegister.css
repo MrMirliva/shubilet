@@ -1,5 +1,5 @@
-/* LoginPage.css — GARANTİ ORTALAMA */
-.loginPage::before {
+/* CustomerRegister.css */
+.customerRegPage::before {
   content: "";
   position: absolute;
   inset: 0;
@@ -15,8 +15,7 @@
   z-index: 0;
   pointer-events: none; /* ✅ BUNU EKLE */
 }
-
-.loginPage {
+.customerRegPage {
   min-height: calc(100vh - 64px);
   width: 100vw;
   background: #F0F4F8;
@@ -27,11 +26,10 @@
   padding: 24px;
   box-sizing: border-box;
 
-  position: relative;   /* <-- şart */
+  position: relative;
   overflow-x: hidden;
 }
-
-.loginPage::after {
+.customerRegPage::after {
   content: "";
   position: absolute;
   inset: 0;
@@ -46,36 +44,29 @@
   pointer-events: none; /* ✅ BUNU EKLE */
 }
 
-
-
-/* Login kartı */
-.loginCard {
-  position: relative;
-  z-index: 2;
-
+.customerRegCard {
   width: 100%;
-  max-width: 460px;
+  max-width: 560px;
 
-  background: #FFFFFF;   /* ← BU SATIR ŞART */
-  opacity: 1;            /* ← ekstra garanti */
-
+  background: #FFFFFF;
   border-radius: 12px;
   padding: 28px;
   box-sizing: border-box;
 
-  box-shadow: 0 20px 40px rgba(30, 41, 59, 0.18);
+  box-shadow: 0 20px 40px rgba(30, 41, 59, 0.12);
+
+  position: relative;
+  z-index: 2;
 }
 
-
-/* Header */
 .header {
   text-align: center;
-  margin-bottom: 24px;
+  margin-bottom: 18px;
 }
 
 .title {
   margin: 0;
-  font-size: 28px;
+  font-size: 24px;
   color: #1E293B;
 }
 
@@ -84,77 +75,104 @@
 }
 
 .subtitle {
-  margin-top: 6px;
+  margin-top: 8px;
   font-size: 14px;
   color: #64748B;
 }
 
-/* Form */
+.alert {
+  border-radius: 12px;
+  padding: 10px 12px;
+  font-size: 14px;
+  margin: 10px 0 14px 0;
+}
+
+.alertError {
+  border: 1px solid rgba(220, 38, 38, 0.25);
+  background: rgba(220, 38, 38, 0.08);
+  color: #DC2626;
+}
+
+.alertOk {
+  border: 1px solid rgba(0, 86, 210, 0.22);
+  background: rgba(0, 86, 210, 0.08);
+  color: #0056D2;
+}
+
 .form {
   display: flex;
   flex-direction: column;
-  gap: 18px;
+  gap: 14px;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
 }
 
 .field {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 8px;
 }
 
-label {
+.label {
   font-size: 13px;
   font-weight: 600;
   color: #1E293B;
 }
 
-/* Input */
-.input {
+.input,
+.select {
   width: 100%;
   padding: 12px;
   border-radius: 8px;
-  border: 1px solid #CBD5E1;
+  border: 1px solid rgba(100, 116, 139, 0.32);
   font-size: 14px;
-
   background: #FFFFFF;
-
-  color: #1E293B;        /* ✅ YAZI RENGİ */
-  caret-color: #0056D2;  /* ✅ YANIP SÖNEN İMLEÇ */
-
+  color: #1E293B;
+  caret-color: #0056D2;
   box-sizing: border-box;
-}
-
-.input::placeholder {
-  color: #94A3B8;
-}
-
-
-.input:focus {
   outline: none;
+}
+
+.select {
+  appearance: none;
+}
+
+.input:focus,
+.select:focus {
   border-color: #0056D2;
-  box-shadow: 0 0 0 3px rgba(0, 86, 210, 0.15);
+  box-shadow: 0 0 0 4px rgba(0, 86, 210, 0.12);
+}
+
+.inputError {
+  border-color: rgba(220, 38, 38, 0.75);
+}
+
+.inputError:focus {
+  border-color: #DC2626;
+  box-shadow: 0 0 0 4px rgba(220, 38, 38, 0.12);
 }
 
 .error {
-  border-color: #DC2626;
-}
-
-.errorText {
   font-size: 12px;
   color: #DC2626;
+  margin-top: -2px;
 }
 
-/* Button */
 .primaryButton {
   width: 100%;
-  margin-top: 6px;
   padding: 14px;
-  background: #0056D2;
-  color: #FFFFFF;
   border: none;
   border-radius: 8px;
+  background: #0056D2;
+  color: #FFFFFF;
   font-weight: 600;
+  font-size: 14px;
   cursor: pointer;
+  transition: background 0.15s ease;
 }
 
 .primaryButton:hover {
@@ -166,10 +184,29 @@ label {
   cursor: not-allowed;
 }
 
-/* Footer */
-.footerText {
-  margin-top: 16px;
-  text-align: center;
+.bottomRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  margin-top: 6px;
+}
+
+.ghostButton {
+  background: transparent;
+  border: 1px solid rgba(100, 116, 139, 0.22);
+  color: #1E293B;
+  padding: 10px 12px;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.ghostButton:hover {
+  background: rgba(100, 116, 139, 0.08);
+}
+
+.muted {
   font-size: 13px;
   color: #64748B;
 }
@@ -182,4 +219,10 @@ label {
 
 .link:hover {
   text-decoration: underline;
+}
+
+@media (max-width: 520px) {
+  .grid {
+    grid-template-columns: 1fr;
+  }
 }

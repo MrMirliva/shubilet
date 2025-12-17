@@ -1,144 +1,162 @@
-// src/pages/Login/LoginPage.jsx
+﻿import { useMemo, useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import "./LoginPage.css";
 
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom'; // Yönlendirme için (react-router-dom kurulu varsayıyorum)
-import './LoginPage.css';
+export default function LoginPage() {
+  const navigate = useNavigate();
 
-const LoginPage = () => {
-    const navigate = useNavigate();
+  const [form, setForm] = useState({ email: "", password: "" });
+  const [touched, setTouched] = useState({ email: false, password: false });
+  const [showPassword, setShowPassword] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [serverError, setServerError] = useState("");
 
-    // State Yönetimi
-    const [formData, setFormData] = useState({
-        email: '',
-        password: ''
-    });
-    const [error, setError] = useState(null);
-    const [isLoading, setIsLoading] = useState(false);
+  const errors = useMemo(() => {
+    const e = {};
+    const email = form.email.trim();
+    const password = form.password;
 
-    // Input değişimi
-    const handleChange = (e) => {
-        setFormData({
-            ...formData,
-            [e.target.name]: e.target.value
-        });
-        // Kullanıcı yazmaya başlayınca hatayı sil
-        if (error) setError(null);
-    };
+    if (!email) e.email = "Email is required.";
+    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))
+      e.email = "Please enter a valid email address.";
 
-    // Form Gönderimi (Use Case 4: Main Flow)
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-        
-        // Temel Validasyon (Use Case 4: Alternate Flow 2a)
-        if (!formData.email || !formData.password) {
-            setError("Lütfen e-posta ve şifre alanlarını doldurunuz.");
-            return;
-        }
+    if (!password) e.password = "Password is required.";
+    else if (password.length < 6)
+      e.password = "Password must be at least 6 characters.";
 
-        setIsLoading(true);
+    return e;
+  }, [form]);
 
-        try {
-            // --- BACKEND BAĞLANTISI (SİMÜLASYON) ---
-            // Gerçekte burası: const response = await AuthService.login(formData);
-            
-            const response = await mockLoginProcess(formData.email, formData.password);
+  const canSubmit = Object.keys(errors).length === 0 && !isSubmitting;
 
-            if (response.success) {
-                // Token'ı kaydet (LocalStorage veya Context)
-                localStorage.setItem('token', response.token);
-                localStorage.setItem('userRole', response.role);
+  function onChange(e) {
+    const { name, value } = e.target;
+    setForm((p) => ({ ...p, [name]: value }));
+    if (serverError) setServerError("");
+  }
 
-                // Rol bazlı yönlendirme (Use Case 4: Step 5)
-                switch(response.role) {
-                    case 'ADMIN':
-                        navigate('/admin-panel');
-                        break;
-                    case 'COMPANY':
-                        navigate('/company-panel');
-                        break;
-                    case 'CUSTOMER':
-                    default:
-                        navigate('/'); // Anasayfa
-                        break;
+  function onBlur(e) {
+    const { name } = e.target;
+    setTouched((p) => ({ ...p, [name]: true }));
+  }
+
+  async function safeReadMessageDTO(response) {
+    try {
+      const data = await response.json();
+      return data ?? null;
+    } catch {
+      return null;
+    }
+  }
+
+  async function onSubmit(e) {
+    e.preventDefault();
+    setTouched({ email: true, password: true });
+    if (!canSubmit) return;
+
+    setIsSubmitting(true);
+    setServerError("");
+
+    try {
+      const response = await fetch("/api/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({
+          email: form.email.trim(),
+          password: form.password,
+        }),
+      });
+
+      const data = await safeReadMessageDTO(response);
+      const backendMessage = data?.message;
+
+      if (!response.ok) {
+        setServerError(backendMessage || "");
+        return;
+      }
+
+      if (backendMessage) console.log("LOGIN SUCCESS:", backendMessage);
+
+      navigate("/", { replace: true });
+    } catch {
+      setServerError("Unable to reach the server.");
+    } finally {
+      setIsSubmitting(false);
+    }
+  }
+
+  return (
+    <div className="loginPage">
+      <div className="loginCard">
+        <header className="header">
+          <h1 className="title">
+            Shu<span>Bilet</span>
+          </h1>
+          <p className="subtitle">
+            Sign in to start your journey
+          </p>
+        </header>
+
+        {serverError && <div className="alert">{serverError}</div>}
+
+        <form className="form" onSubmit={onSubmit} noValidate>
+          <div className="field">
+            <label>Email Address</label>
+            <input
+              name="email"
+              type="email"
+              placeholder="example@email.com"
+              value={form.email}
+              onChange={onChange}
+              onBlur={onBlur}
+              className={touched.email && errors.email ? "input error" : "input"}
+            />
+            {touched.email && errors.email && (
+              <span className="errorText">{errors.email}</span>
+            )}
+          </div>
+
+          <div className="field passwordField">
+            <label>Password</label>
+            <div className="passwordInput">
+              <input
+                name="password"
+                type={showPassword ? "text" : "password"}
+                placeholder="********"
+                value={form.password}
+                onChange={onChange}
+                onBlur={onBlur}
+                className={
+                  touched.password && errors.password ? "input error" : "input"
                 }
-            } else {
-                // Hata Mesajı (Use Case 4: Alternate Flows 3b, 3c)
-                setError(response.message);
-            }
-
-        } catch (err) {
-            setError("Sunucuya bağlanırken bir hata oluştu. Lütfen tekrar deneyin.");
-        } finally {
-            setIsLoading(false);
-        }
-    };
-
-    // --- MOCK LOGIN FONKSİYONU (Backend hazır olana kadar test için) ---
-    const mockLoginProcess = (email, password) => {
-        return new Promise((resolve) => {
-            setTimeout(() => {
-                // Basit bir test senaryosu
-                if (email === "admin@shubilet.com" && password === "123456") {
-                    resolve({ success: true, role: 'ADMIN', token: 'fake-jwt-token' });
-                } else if (email === "user@shubilet.com" && password === "123456") {
-                    resolve({ success: true, role: 'CUSTOMER', token: 'fake-jwt-token' });
-                } else {
-                    resolve({ success: false, message: "E-posta veya şifre hatalı." });
-                }
-            }, 1000); // 1 saniye bekleme süresi
-        });
-    };
-
-    return (
-        <div className="login-container">
-            <div className="login-card">
-                <div className="login-header">
-                    <h2>Shu<span className="brand-highlight">Bilet</span></h2>
-                    <p>Yolculuğunuza başlamak için giriş yapın</p>
-                </div>
-
-                {error && <div className="error-message">{error}</div>}
-
-                <form onSubmit={handleSubmit}>
-                    <div className="form-group">
-                        <label htmlFor="email">E-posta Adresi</label>
-                        <input
-                            type="email"
-                            id="email"
-                            name="email"
-                            className="form-control"
-                            placeholder="ornek@email.com"
-                            value={formData.email}
-                            onChange={handleChange}
-                            disabled={isLoading}
-                        />
-                    </div>
-
-                    <div className="form-group">
-                        <label htmlFor="password">Şifre</label>
-                        <input
-                            type="password"
-                            id="password"
-                            name="password"
-                            className="form-control"
-                            placeholder="********"
-                            value={formData.password}
-                            onChange={handleChange}
-                            disabled={isLoading}
-                        />
-                    </div>
-
-                    <button type="submit" className="login-btn" disabled={isLoading}>
-                        {isLoading ? 'Giriş Yapılıyor...' : 'Giriş Yap'}
-                    </button>
-                </form>
-
-                <div className="signup-link">
-                    Hesabınız yok mu? <a href="/register">Hemen Kayıt Olun</a>
-                </div>
+              />
+              <button
+                type="button"
+                className="togglePassword"
+                onClick={() => setShowPassword((p) => !p)}
+                aria-label={showPassword ? "Hide password" : "Show password"}
+              >
+                {showPassword ? "Hide" : "Show"}
+              </button>
             </div>
-        </div>
-    );
-};
+            {touched.password && errors.password && (
+              <span className="errorText">{errors.password}</span>
+            )}
+          </div>
 
-export default LoginPage;
+          <button className="primaryButton" disabled={!canSubmit}>
+            {isSubmitting ? "Signing in..." : "Sign In"}
+          </button>
+
+          <p className="footerText">
+            Don’t have an account?{" "}
+            <Link to="/register" className="link">
+              Sign Up Now
+            </Link>
+          </p>
+        </form>
+      </div>
+    </div>
+  );
+}

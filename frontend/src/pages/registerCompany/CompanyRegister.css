@@ -1,5 +1,5 @@
-/* LoginPage.css — GARANTİ ORTALAMA */
-.loginPage::before {
+/* src/pages/registerCompany/CompanyRegister.css */
+.companyRegPage::before {
   content: "";
   position: absolute;
   inset: 0;
@@ -16,22 +16,18 @@
   pointer-events: none; /* ✅ BUNU EKLE */
 }
 
-.loginPage {
+.companyRegPage {
   min-height: calc(100vh - 64px);
   width: 100vw;
-  background: #F0F4F8;
-
   display: grid;
   place-items: center;
-
   padding: 24px;
   box-sizing: border-box;
 
-  position: relative;   /* <-- şart */
-  overflow-x: hidden;
+  position: relative;   /* ← ŞART */
+  overflow: hidden;     /* ← bonus güvenlik */
 }
-
-.loginPage::after {
+.companyRegPage::after {
   content: "";
   position: absolute;
   inset: 0;
@@ -44,56 +40,45 @@
 
   z-index: 1;
   pointer-events: none; /* ✅ BUNU EKLE */
+  
 }
 
-
-
-/* Login kartı */
-.loginCard {
-  position: relative;
-  z-index: 2;
-
+.companyRegCard {
   width: 100%;
-  max-width: 460px;
-
-  background: #FFFFFF;   /* ← BU SATIR ŞART */
-  opacity: 1;            /* ← ekstra garanti */
-
+  max-width: 480px;
+  background: #ffffff;
   border-radius: 12px;
   padding: 28px;
-  box-sizing: border-box;
-
-  box-shadow: 0 20px 40px rgba(30, 41, 59, 0.18);
+  box-shadow: 0 20px 40px rgba(30, 41, 59, 0.12);
+  position: relative;
+  z-index: 2;
 }
 
-
-/* Header */
 .header {
   text-align: center;
-  margin-bottom: 24px;
+  margin-bottom: 20px;
 }
 
 .title {
   margin: 0;
-  font-size: 28px;
-  color: #1E293B;
+  font-size: 26px;
+  color: #1e293b;
 }
 
 .title span {
-  color: #0056D2;
+  color: #0056d2;
 }
 
 .subtitle {
   margin-top: 6px;
   font-size: 14px;
-  color: #64748B;
+  color: #64748b;
 }
 
-/* Form */
 .form {
   display: flex;
   flex-direction: column;
-  gap: 18px;
+  gap: 14px;
 }
 
 .field {
@@ -102,55 +87,29 @@
   gap: 6px;
 }
 
-label {
-  font-size: 13px;
-  font-weight: 600;
-  color: #1E293B;
-}
-
-/* Input */
 .input {
-  width: 100%;
   padding: 12px;
   border-radius: 8px;
-  border: 1px solid #CBD5E1;
+  border: 1px solid #cbd5e1;
   font-size: 14px;
-
-  background: #FFFFFF;
-
-  color: #1E293B;        /* ✅ YAZI RENGİ */
-  caret-color: #0056D2;  /* ✅ YANIP SÖNEN İMLEÇ */
-
-  box-sizing: border-box;
 }
-
-.input::placeholder {
-  color: #94A3B8;
-}
-
 
 .input:focus {
   outline: none;
-  border-color: #0056D2;
+  border-color: #0056d2;
   box-shadow: 0 0 0 3px rgba(0, 86, 210, 0.15);
 }
 
 .error {
-  border-color: #DC2626;
-}
-
-.errorText {
   font-size: 12px;
-  color: #DC2626;
+  color: #dc2626;
 }
 
-/* Button */
 .primaryButton {
-  width: 100%;
   margin-top: 6px;
   padding: 14px;
-  background: #0056D2;
-  color: #FFFFFF;
+  background: #0056d2;
+  color: white;
   border: none;
   border-radius: 8px;
   font-weight: 600;
@@ -158,28 +117,30 @@ label {
 }
 
 .primaryButton:hover {
-  background: #0044A6;
+  background: #0044a6;
 }
 
-.primaryButton:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-}
-
-/* Footer */
 .footerText {
-  margin-top: 16px;
   text-align: center;
   font-size: 13px;
-  color: #64748B;
+  color: #64748b;
 }
 
 .link {
-  color: #0056D2;
+  color: #0056d2;
   font-weight: 600;
   text-decoration: none;
 }
 
-.link:hover {
-  text-decoration: underline;
+/* Info screen */
+.infoTitle {
+  font-size: 22px;
+  color: #1e293b;
+  text-align: center;
+}
+
+.infoText {
+  margin: 16px 0 24px;
+  text-align: center;
+  color: #64748b;
 }
