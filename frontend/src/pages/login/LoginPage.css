@@ -217,3 +217,8 @@ label {
   gap: 10px;
   align-items: center;
 }
+
+/* Alert text: black */
+.alert {
+  color: #000000; /* ✅ siyah */
+}

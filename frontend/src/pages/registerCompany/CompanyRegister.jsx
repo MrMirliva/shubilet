@@ -25,6 +25,10 @@ export default function CompanyRegister() {
   const [errors, setErrors] = useState({});
   const [submitted, setSubmitted] = useState(false);
 
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [serverError, setServerError] = useState("");
+  const [serverSuccess, setServerSuccess] = useState("");
+
   function validate() {
     const e = {};
 
@@ -38,20 +42,61 @@ export default function CompanyRegister() {
 
     if (!form.password) e.password = "Password is required.";
     else if (!isValidPassword(form.password))
-      e.password = "Password must be at least 8 characters and include letters and numbers.";
+      e.password =
+        "Password must be at least 8 characters and include letters and numbers.";
 
     setErrors(e);
     return Object.keys(e).length === 0;
   }
 
-  function onSubmit(e) {
+  async function safeReadMessageDTO(response) {
+    try {
+      const data = await response.json();
+      return data ?? null;
+    } catch {
+      return null;
+    }
+  }
+
+  async function onSubmit(e) {
     e.preventDefault();
     if (!validate()) return;
 
-    // TODO: Backend integration
-    // Company account -> Pending Approval
+    setIsSubmitting(true);
+    setServerError("");
+    setServerSuccess("");
 
-    setSubmitted(true);
+    try {
+      const response = await fetch("/api/auth/register/company", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({
+          // ✅ CompanyRegistrationDTO fields
+          title: form.companyName.trim(),
+          email: form.email.trim(),
+          password: form.password,
+        }),
+      });
+
+      const data = await safeReadMessageDTO(response);
+      const backendMessage = data?.message;
+
+      if (!response.ok) {
+        // ✅ Always show backend error message
+        setServerError(backendMessage || "");
+        return;
+      }
+
+      // ✅ Success message also comes from backend
+      setServerSuccess(backendMessage || "");
+      setSubmitted(true);
+    } catch {
+      // Network/CORS/etc: backend not reachable
+      setServerError("Unable to reach the server.");
+    } finally {
+      setIsSubmitting(false);
+    }
   }
 
   if (submitted) {
@@ -59,8 +104,16 @@ export default function CompanyRegister() {
       <div className="companyRegPage withBusBg">
         <div className="companyRegCard">
           <h2 className="infoTitle">Application Received</h2>
+
+          {serverSuccess && (
+            <div className="alert alertOk" role="status" aria-live="polite">
+              {serverSuccess}
+            </div>
+          )}
+
           <p className="infoText">
-            Your company account is currently in <strong>Pending Approval</strong> status.
+            Your company account is currently in <strong>Pending Approval</strong>{" "}
+            status.
             <br />
             We will contact you once the review is completed.
           </p>
@@ -82,6 +135,12 @@ export default function CompanyRegister() {
           </h1>
           <p className="subtitle">Enter your company details</p>
         </header>
+
+        {serverError && (
+          <div className="alert alertError" role="alert" aria-live="polite">
+            {serverError}
+          </div>
+        )}
 
         <form className="form" onSubmit={onSubmit} noValidate>
           <div className="field">
@@ -126,8 +185,8 @@ export default function CompanyRegister() {
             )}
           </div>
 
-          <button className="primaryButton" type="submit">
-            Create Company Account
+          <button className="primaryButton" type="submit" disabled={isSubmitting}>
+            {isSubmitting ? "Submitting..." : "Create Company Account"}
           </button>
 
           <p className="footerText">

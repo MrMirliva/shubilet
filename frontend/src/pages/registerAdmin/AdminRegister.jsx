@@ -28,6 +28,10 @@ export default function AdminRegister() {
   const [errors, setErrors] = useState({});
   const [submitted, setSubmitted] = useState(false);
 
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [serverError, setServerError] = useState("");
+  const [serverSuccess, setServerSuccess] = useState("");
+
   function validate() {
     const e = {};
 
@@ -52,13 +56,55 @@ export default function AdminRegister() {
     return Object.keys(e).length === 0;
   }
 
-  function onSubmit(e) {
+  async function safeReadMessageDTO(response) {
+    try {
+      const data = await response.json();
+      return data ?? null;
+    } catch {
+      return null;
+    }
+  }
+
+  async function onSubmit(e) {
     e.preventDefault();
     if (!validate()) return;
 
-    // TODO: Backend integration
-    // Admin account -> Pending Approval
-    setSubmitted(true);
+    setIsSubmitting(true);
+    setServerError("");
+    setServerSuccess("");
+
+    try {
+      const response = await fetch("/api/auth/register/admin", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({
+          // ✅ AdminRegistrationDTO fields
+          name: form.firstName.trim(),
+          surname: form.lastName.trim(),
+          email: form.email.trim(),
+          password: form.password,
+        }),
+      });
+
+      const data = await safeReadMessageDTO(response);
+      const backendMessage = data?.message;
+
+      if (!response.ok) {
+        // ✅ Always show backend error message
+        setServerError(backendMessage || "");
+        return;
+      }
+
+      // ✅ Success message also comes from backend
+      setServerSuccess(backendMessage || "");
+      setSubmitted(true);
+    } catch {
+      // Network/CORS/etc: backend not reachable
+      setServerError("Unable to reach the server.");
+    } finally {
+      setIsSubmitting(false);
+    }
   }
 
   if (submitted) {
@@ -66,6 +112,13 @@ export default function AdminRegister() {
       <div className="adminRegPage withBusBg">
         <div className="adminRegCard">
           <h2 className="infoTitle">Application Received</h2>
+
+          {serverSuccess && (
+            <div className="alert alertOk" role="status" aria-live="polite">
+              {serverSuccess}
+            </div>
+          )}
+
           <p className="infoText">
             Your admin application is currently in{" "}
             <strong>Pending Approval</strong> status.
@@ -90,6 +143,12 @@ export default function AdminRegister() {
           </h1>
           <p className="subtitle">Enter your admin details</p>
         </header>
+
+        {serverError && (
+          <div className="alert alertError" role="alert" aria-live="polite">
+            {serverError}
+          </div>
+        )}
 
         <form className="form" onSubmit={onSubmit} noValidate>
           <div className="grid">
@@ -151,8 +210,8 @@ export default function AdminRegister() {
             )}
           </div>
 
-          <button className="primaryButton" type="submit">
-            Submit Admin Application
+          <button className="primaryButton" type="submit" disabled={isSubmitting}>
+            {isSubmitting ? "Submitting..." : "Submit Admin Application"}
           </button>
 
           <p className="footerText">
