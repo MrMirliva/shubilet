@@ -8,7 +8,7 @@ import RegisterPage from "./pages/register/RegisterPage.jsx";
 import CustomerRegister from "./pages/registerCustomer/CustomerRegister.jsx";
 import CompanyRegister from "./pages/registerCompany/CompanyRegister.jsx";
 import AdminRegister from "./pages/registerAdmin/AdminRegister.jsx";
-
+import Travel from "./pages/travel/Travel.jsx";
 
 // İleride başka sayfalar da ekleyeceğiz (Register, Home vb.)
 // Şimdilik sadece Login var.
@@ -21,9 +21,10 @@ function App() {
       <Routes>
         {/* Ana sayfaya girince direkt Login açılsın diye path="/" verdim */}
         <Route path="/" element={<LoginPage />} />
-        
+
         {/* "/login" yazınca da açılsın */}
         <Route path="/login" element={<LoginPage />} />
+        <Route path="/travel" element={<Travel />} />
 
         <Route path="/register" element={<RegisterPage />} />
         <Route path="/register/customer" element={<CustomerRegister />} />

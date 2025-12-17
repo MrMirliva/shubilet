@@ -1,0 +1,290 @@
+/* Travel.css */
+
+.travel-page-container {
+    width: 100%;
+    min-height: 100vh;
+    background-color: #f8f9fa;
+    /* Light grey background */
+    padding-top: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    padding-bottom: 50px;
+}
+
+/* Search Section Container */
+.search-section {
+    background-color: #ffffff;
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    width: 90%;
+    max-width: 1100px;
+    margin-bottom: 30px;
+}
+
+/* Input Groups */
+.input-group {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+}
+
+.input-group label {
+    font-size: 12px;
+    color: #888;
+    margin-bottom: 5px;
+    font-weight: 500;
+}
+
+.input-wrapper {
+    position: relative;
+    background-color: #f1f3f5;
+    border-radius: 8px;
+    padding: 10px 15px;
+    display: flex;
+    align-items: center;
+}
+
+.input-wrapper input {
+    border: none;
+    background: transparent;
+    width: 100%;
+    font-size: 16px;
+    color: #333;
+    font-weight: 600;
+    outline: none;
+}
+
+.swap-icon {
+    font-size: 18px;
+    color: #888;
+    cursor: pointer;
+    margin: 0 10px;
+}
+
+/* Date Selection */
+.date-options {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 5px;
+    margin-right: 15px;
+}
+
+.radio-option {
+    font-size: 12px;
+    color: #555;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+/* Search Button */
+.search-btn {
+    background-color: #27ae60;
+    /* Obilet Green */
+    color: white;
+    border: none;
+    padding: 15px 30px;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.search-btn:hover {
+    background-color: #219150;
+}
+
+/* Expeditions Container */
+.expeditions-container {
+    width: 90%;
+    max-width: 1100px;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+/* Expedition Card */
+.expedition-card {
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    overflow: hidden;
+    transition: box-shadow 0.2s;
+    border: 1px solid #eee;
+}
+
+.expedition-card:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px;
+    cursor: pointer;
+}
+
+.company-info h3 {
+    margin: 0;
+    color: #333;
+    font-size: 18px;
+}
+
+.time-info {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 16px;
+}
+
+.time-info .time {
+    font-weight: bold;
+    color: #333;
+}
+
+.time-info .duration {
+    font-size: 14px;
+    color: #888;
+}
+
+.price-info {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.price-info .price {
+    font-size: 20px;
+    font-weight: bold;
+    color: #333;
+}
+
+.select-btn {
+    background-color: #d92938;
+    /* Red Button */
+    color: white;
+    border: none;
+    padding: 8px 20px;
+    border-radius: 20px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.select-btn:hover {
+    background-color: #c02330;
+}
+
+/* Seat Selection Area */
+.seat-selection-area {
+    background-color: #f8f9fa;
+    padding: 20px;
+    border-top: 1px solid #eee;
+    animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+.bus-layout {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    /* 2x2 seats */
+    gap: 10px;
+    max-width: 300px;
+    margin: 20px 0;
+}
+
+/* SEAT STYLES */
+.seat {
+    width: 40px;
+    height: 40px;
+    background-color: #e0e0e0;
+    /* Default/Available */
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    cursor: pointer;
+    font-size: 14px;
+    transition: all 0.2s;
+    border: 2px solid transparent;
+}
+
+.seat.available {
+    background-color: #fff;
+    border: 2px solid #ccc;
+    color: #333;
+}
+
+.seat.available:hover {
+    background-color: #e3f2fd;
+    border-color: #2196f3;
+}
+
+.seat.reserved {
+    background-color: #ccc;
+    color: #888;
+    cursor: not-allowed;
+    text-decoration: line-through;
+}
+
+.seat.selected {
+    background-color: #2196f3;
+    color: white;
+    border-color: #1976d2;
+}
+
+/* Purchase Action */
+.purchase-action {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 20px;
+    border-top: 1px solid #eee;
+    padding-top: 15px;
+}
+
+.purchase-btn {
+    background-color: #27ae60;
+    color: white;
+    padding: 10px 25px;
+    border: none;
+    border-radius: 6px;
+    font-size: 16px;
+    cursor: pointer;
+}
+
+.purchase-btn:disabled {
+    background-color: #95a5a6;
+    cursor: not-allowed;
+}
+
+/* Success Message */
+.success-message {
+    background-color: #d4edda;
+    border: 1px solid #c3e6cb;
+    color: #155724;
+    padding: 15px;
+    border-radius: 8px;
+    width: 90%;
+    max-width: 1100px;
+    margin-bottom: 20px;
+}
