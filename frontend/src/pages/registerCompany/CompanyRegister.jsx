@@ -27,17 +27,18 @@ export default function CompanyRegister() {
 
   function validate() {
     const e = {};
-    if (!form.companyName) e.companyName = "Company Name zorunlu.";
-    else if (!isValidCompanyName(form.companyName))
-      e.companyName = "Geçerli bir şirket adı giriniz.";
 
-    if (!form.email) e.email = "E-mail zorunlu.";
+    if (!form.companyName) e.companyName = "Company name is required.";
+    else if (!isValidCompanyName(form.companyName))
+      e.companyName = "Please enter a valid company name.";
+
+    if (!form.email) e.email = "E-mail is required.";
     else if (!isValidEmail(form.email))
       e.email = "Please enter a valid e-mail address.";
 
-    if (!form.password) e.password = "Password zorunlu.";
+    if (!form.password) e.password = "Password is required.";
     else if (!isValidPassword(form.password))
-      e.password = "Password en az 8 karakter, harf + rakam içermeli.";
+      e.password = "Password must be at least 8 characters and include letters and numbers.";
 
     setErrors(e);
     return Object.keys(e).length === 0;
@@ -47,7 +48,7 @@ export default function CompanyRegister() {
     e.preventDefault();
     if (!validate()) return;
 
-    // TODO: Backend entegrasyonu
+    // TODO: Backend integration
     // Company account -> Pending Approval
 
     setSubmitted(true);
@@ -57,15 +58,15 @@ export default function CompanyRegister() {
     return (
       <div className="companyRegPage withBusBg">
         <div className="companyRegCard">
-          <h2 className="infoTitle">Başvurun Alındı</h2>
+          <h2 className="infoTitle">Application Received</h2>
           <p className="infoText">
-            Şirket hesabın <strong>Pending Approval</strong> durumunda.
+            Your company account is currently in <strong>Pending Approval</strong> status.
             <br />
-            İnceleme tamamlandığında seninle iletişime geçilecektir.
+            We will contact you once the review is completed.
           </p>
 
           <Link to="/login" className="primaryButton">
-            Login Sayfasına Dön
+            Back to Login
           </Link>
         </div>
       </div>
@@ -79,7 +80,7 @@ export default function CompanyRegister() {
           <h1 className="title">
             Company <span>Sign Up</span>
           </h1>
-          <p className="subtitle">Şirket bilgilerini gir</p>
+          <p className="subtitle">Enter your company details</p>
         </header>
 
         <form className="form" onSubmit={onSubmit} noValidate>
@@ -91,6 +92,7 @@ export default function CompanyRegister() {
               onChange={(e) =>
                 setForm({ ...form, companyName: e.target.value })
               }
+              placeholder="e.g. ShuBilet Ltd."
             />
             {errors.companyName && (
               <div className="error">{errors.companyName}</div>
@@ -103,6 +105,7 @@ export default function CompanyRegister() {
               className="input"
               value={form.email}
               onChange={(e) => setForm({ ...form, email: e.target.value })}
+              placeholder="example@company.com"
             />
             {errors.email && <div className="error">{errors.email}</div>}
           </div>
@@ -116,6 +119,7 @@ export default function CompanyRegister() {
               onChange={(e) =>
                 setForm({ ...form, password: e.target.value })
               }
+              placeholder="At least 8 characters (letters and numbers)"
             />
             {errors.password && (
               <div className="error">{errors.password}</div>
@@ -127,9 +131,9 @@ export default function CompanyRegister() {
           </button>
 
           <p className="footerText">
-            Vazgeçmek ister misin?{" "}
+            Want to cancel?{" "}
             <Link className="link" to="/register">
-              Geri dön
+              Go back
             </Link>
           </p>
         </form>

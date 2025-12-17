@@ -183,3 +183,37 @@ label {
 .link:hover {
   text-decoration: underline;
 }
+
+/* Error text: black */
+.errorText {
+  font-size: 12px;
+  color: #000000; /* ✅ black */
+}
+
+/* Hide/Show button styling (same as Sign In) */
+.togglePassword {
+  background: #0056D2;  /* same as .primaryButton */
+  color: #FFFFFF;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 10px 12px;
+  height: 40px;         /* input ile hizalı dursun */
+  display: inline-flex;
+  align-items: center;
+}
+
+.togglePassword:hover {
+  background: #0044A6;  /* same hover as .primaryButton */
+}
+
+.togglePassword:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+.passwordInput {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}

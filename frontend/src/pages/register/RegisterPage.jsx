@@ -12,7 +12,7 @@ export default function RegisterPage() {
 
     if (selected === "customer") navigate("/register/customer");
     if (selected === "company") navigate("/register/company");
-    if (selected === "admin") navigate("/register/admin"); // admin ayrı ekran use-case
+    if (selected === "admin") navigate("/register/admin"); // admin has a separate flow
   }
 
   function onCancel() {
@@ -26,10 +26,14 @@ export default function RegisterPage() {
           <h1 className="title">
             Shu<span>Bilet</span>
           </h1>
-          <p className="subtitle">Kayıt türünü seç</p>
+          <p className="subtitle">Choose your registration type</p>
         </header>
 
-        <div className="options" role="radiogroup" aria-label="Kullanıcı türü seçimi">
+        <div
+          className="options"
+          role="radiogroup"
+          aria-label="User type selection"
+        >
           <button
             type="button"
             className={`option ${selected === "customer" ? "active" : ""}`}
@@ -39,10 +43,11 @@ export default function RegisterPage() {
           >
             <div className="optionTop">
               <span className="badge">Customer</span>
-              <span className="pill">Bilet satın al</span>
+              <span className="pill">Buy tickets</span>
             </div>
             <p className="optionDesc">
-              Sefer ara, koltuk seç, bilet satın al ve rezervasyonlarını yönet.
+              Search for trips, choose seats, purchase tickets, and manage your
+              reservations.
             </p>
           </button>
 
@@ -55,10 +60,10 @@ export default function RegisterPage() {
           >
             <div className="optionTop">
               <span className="badge">Company</span>
-              <span className="pill">Sefer yayınla</span>
+              <span className="pill">Publish trips</span>
             </div>
             <p className="optionDesc">
-              Sefer oluştur, fiyatlandır, satışları takip et ve raporları görüntüle.
+              Create trips, manage pricing, track sales, and view reports.
             </p>
           </button>
 
@@ -71,17 +76,22 @@ export default function RegisterPage() {
           >
             <div className="optionTop">
               <span className="badge">Admin</span>
-              <span className="pill">Sistem yönetimi</span>
+              <span className="pill">System management</span>
             </div>
             <p className="optionDesc">
-              Kullanıcıları/şirketleri yönet, sistem ayarlarını kontrol et.
+              Manage users and companies, and control system settings.
             </p>
           </button>
         </div>
 
         <div className="actions">
-          <button className="primaryButton" type="button" disabled={!selected} onClick={onContinue}>
-            Devam Et
+          <button
+            className="primaryButton"
+            type="button"
+            disabled={!selected}
+            onClick={onContinue}
+          >
+            Continue
           </button>
 
           <button className="ghostButton" type="button" onClick={onCancel}>
@@ -89,9 +99,9 @@ export default function RegisterPage() {
           </button>
 
           <p className="footerText">
-            Zaten hesabın var mı?{" "}
+            Already have an account?{" "}
             <Link className="link" to="/login">
-              Login
+              Log In
             </Link>
           </p>
         </div>

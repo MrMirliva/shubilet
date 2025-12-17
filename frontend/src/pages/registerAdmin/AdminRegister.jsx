@@ -30,21 +30,23 @@ export default function AdminRegister() {
 
   function validate() {
     const e = {};
-    if (!form.firstName) e.firstName = "First Name zorunlu.";
+
+    if (!form.firstName) e.firstName = "First name is required.";
     else if (!isValidName(form.firstName))
-      e.firstName = "En az 2 karakter, sadece harf.";
+      e.firstName = "At least 2 characters, letters only.";
 
-    if (!form.lastName) e.lastName = "Last Name zorunlu.";
+    if (!form.lastName) e.lastName = "Last name is required.";
     else if (!isValidName(form.lastName))
-      e.lastName = "En az 2 karakter, sadece harf.";
+      e.lastName = "At least 2 characters, letters only.";
 
-    if (!form.email) e.email = "E-mail zorunlu.";
+    if (!form.email) e.email = "E-mail is required.";
     else if (!isValidEmail(form.email))
       e.email = "Please enter a valid e-mail address.";
 
-    if (!form.password) e.password = "Password zorunlu.";
+    if (!form.password) e.password = "Password is required.";
     else if (!isValidPassword(form.password))
-      e.password = "Min 8 karakter, harf + rakam içermeli.";
+      e.password =
+        "Password must be at least 8 characters and include letters and numbers.";
 
     setErrors(e);
     return Object.keys(e).length === 0;
@@ -54,7 +56,7 @@ export default function AdminRegister() {
     e.preventDefault();
     if (!validate()) return;
 
-    // TODO: Backend entegrasyonu
+    // TODO: Backend integration
     // Admin account -> Pending Approval
     setSubmitted(true);
   }
@@ -63,15 +65,16 @@ export default function AdminRegister() {
     return (
       <div className="adminRegPage withBusBg">
         <div className="adminRegCard">
-          <h2 className="infoTitle">Başvurun Alındı</h2>
+          <h2 className="infoTitle">Application Received</h2>
           <p className="infoText">
-            Admin başvurun <strong>Pending Approval</strong> durumunda.
+            Your admin application is currently in{" "}
+            <strong>Pending Approval</strong> status.
             <br />
-            İnceleme sonrası bilgilendirileceksin.
+            You will be notified after the review is completed.
           </p>
 
           <Link to="/login" className="primaryButton">
-            Login Sayfasına Dön
+            Back to Login
           </Link>
         </div>
       </div>
@@ -85,7 +88,7 @@ export default function AdminRegister() {
           <h1 className="title">
             Admin <span>Sign Up</span>
           </h1>
-          <p className="subtitle">Yönetici bilgilerini gir</p>
+          <p className="subtitle">Enter your admin details</p>
         </header>
 
         <form className="form" onSubmit={onSubmit} noValidate>
@@ -98,6 +101,7 @@ export default function AdminRegister() {
                 onChange={(e) =>
                   setForm({ ...form, firstName: e.target.value })
                 }
+                placeholder="e.g. John"
               />
               {errors.firstName && (
                 <div className="error">{errors.firstName}</div>
@@ -112,6 +116,7 @@ export default function AdminRegister() {
                 onChange={(e) =>
                   setForm({ ...form, lastName: e.target.value })
                 }
+                placeholder="e.g. Smith"
               />
               {errors.lastName && (
                 <div className="error">{errors.lastName}</div>
@@ -125,6 +130,7 @@ export default function AdminRegister() {
               className="input"
               value={form.email}
               onChange={(e) => setForm({ ...form, email: e.target.value })}
+              placeholder="example@email.com"
             />
             {errors.email && <div className="error">{errors.email}</div>}
           </div>
@@ -138,6 +144,7 @@ export default function AdminRegister() {
               onChange={(e) =>
                 setForm({ ...form, password: e.target.value })
               }
+              placeholder="At least 8 characters (letters and numbers)"
             />
             {errors.password && (
               <div className="error">{errors.password}</div>
@@ -149,9 +156,9 @@ export default function AdminRegister() {
           </button>
 
           <p className="footerText">
-            Vazgeçmek ister misin?{" "}
+            Want to cancel?{" "}
             <Link className="link" to="/register">
-              Geri dön
+              Go back
             </Link>
           </p>
         </form>
