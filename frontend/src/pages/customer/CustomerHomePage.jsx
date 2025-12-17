@@ -21,29 +21,6 @@ export default function CustomerHomePage() {
 
   return (
     <div className="customerHome withBusBg">
-      <header className="topBar">
-        <NavLink to="/customer/home" className="brandLink" aria-label="ShuBilet Ana Sayfa">
-          <div className="brand">
-            Shu<span>Bilet</span>
-          </div>
-        </NavLink>
-
-        <nav className="nav">
-          <NavLink to="/travel" className={linkClass}>
-            Travel
-          </NavLink>
-          <NavLink to="/my-tickets" className={linkClass}>
-            My Tickets
-          </NavLink>
-          <NavLink to="/profile" className={linkClass}>
-            Profile
-          </NavLink>
-
-          <button type="button" className="logoutBtn" onClick={handleLogout}>
-            Logout
-          </button>
-        </nav>
-      </header>
 
       <main className="content">
         <div className="card">
