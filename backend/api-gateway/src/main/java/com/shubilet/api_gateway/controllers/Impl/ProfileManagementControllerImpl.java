@@ -644,6 +644,4 @@ public class ProfileManagementControllerImpl implements ProfileManagementControl
         }
         return ResponseEntity.status(HttpStatus.OK).body(memberServiceCardCreationResponse.getBody());
     }
-
-
 }

@@ -1,4 +1,4 @@
-package com.shubilet.api_gateway.dataTransferObjects.internal.requests.expeditionOperations;
+package com.shubilet.api_gateway.dataTransferObjects.internal.requests;
 
 public class CompanyIdDTO {
     private int companyId;

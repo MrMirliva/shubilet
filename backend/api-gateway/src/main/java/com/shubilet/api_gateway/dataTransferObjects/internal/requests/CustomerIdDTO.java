@@ -1,4 +1,4 @@
-package com.shubilet.api_gateway.dataTransferObjects.internal.requests.ticket;
+package com.shubilet.api_gateway.dataTransferObjects.internal.requests;
 
 public class CustomerIdDTO {
     private Integer customerId;
