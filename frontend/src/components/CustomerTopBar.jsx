@@ -5,11 +5,27 @@ import "./CustomerTopBar.css";
 export default function CustomerTopBar() {
   const navigate = useNavigate();
 
-  const handleLogout = () => {
-    // TODO: Backend logout varsa buraya bağlanır
+const handleLogout = async () => {
+  try {
+    const response = await fetch("/api/auth/logout", {
+      method: "POST",
+      credentials: "include", // 🔥 şart
+    });
+
+    const data = await response.json().catch(() => null);
+
+    if (!response.ok) {
+      console.error("Logout failed:", data?.message || response.statusText);
+      return;
+    }
+
     localStorage.clear();
     navigate("/login", { replace: true });
-  };
+  } catch (e) {
+    console.error("Logout error:", e);
+  }
+};
+
 
   const linkClass = ({ isActive }) =>
     `navLink ${isActive ? "active" : ""}`;
