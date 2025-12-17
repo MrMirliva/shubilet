@@ -1,5 +1,4 @@
-// LoginPage.jsx
-import { useMemo, useState } from "react";
+﻿import { useMemo, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import "./LoginPage.css";
 
@@ -17,13 +16,13 @@ export default function LoginPage() {
     const email = form.email.trim();
     const password = form.password;
 
-    if (!email) e.email = "E-posta zorunlu.";
+    if (!email) e.email = "Email is required.";
     else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))
-      e.email = "Geçerli bir e-posta gir.";
+      e.email = "Please enter a valid email address.";
 
-    if (!password) e.password = "Şifre zorunlu.";
+    if (!password) e.password = "Password is required.";
     else if (password.length < 6)
-      e.password = "Şifre en az 6 karakter olmalı.";
+      e.password = "Password must be at least 6 characters.";
 
     return e;
   }, [form]);
@@ -41,6 +40,15 @@ export default function LoginPage() {
     setTouched((p) => ({ ...p, [name]: true }));
   }
 
+  async function safeReadMessageDTO(response) {
+    try {
+      const data = await response.json();
+      return data ?? null;
+    } catch {
+      return null;
+    }
+  }
+
   async function onSubmit(e) {
     e.preventDefault();
     setTouched({ email: true, password: true });
@@ -52,9 +60,7 @@ export default function LoginPage() {
     try {
       const response = await fetch("/api/auth/login", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         credentials: "include",
         body: JSON.stringify({
           email: form.email.trim(),
@@ -62,39 +68,23 @@ export default function LoginPage() {
         }),
       });
 
-      // 🔹 Önce raw text alıyoruz (gateway / backend fark etmez)
-      const rawText = await response.text();
+      const data = await safeReadMessageDTO(response);
+      const backendMessage = data?.message;
 
-      let data = null;
-      try {
-        data = rawText ? JSON.parse(rawText) : null;
-      } catch {
-        data = null;
-      }
-
-      // 🔹 HTTP status kontrolü
       if (!response.ok) {
-        const message =
-          data?.message ||
-          `Login failed (HTTP ${response.status})`;
-        throw new Error(message);
+        setServerError(backendMessage || "");
+        return;
       }
 
-      // 🔹 Backend MessageDTO dönüyor → ister logla, ister göster
-      console.log("LOGIN SUCCESS:", data?.message);
+      if (backendMessage) console.log("LOGIN SUCCESS:", backendMessage);
 
-      // 🔹 Başarılı login → yönlendir
       navigate("/", { replace: true });
-
-    } catch (err) {
-      setServerError(
-        err?.message || "Giriş yapılamadı. Bilgilerini kontrol et."
-      );
+    } catch {
+      setServerError("Unable to reach the server.");
     } finally {
       setIsSubmitting(false);
     }
   }
-
 
   return (
     <div className="loginPage">
@@ -104,7 +94,7 @@ export default function LoginPage() {
             Shu<span>Bilet</span>
           </h1>
           <p className="subtitle">
-            Yolculuğunuza başlamak için giriş yapın
+            Sign in to start your journey
           </p>
         </header>
 
@@ -112,11 +102,11 @@ export default function LoginPage() {
 
         <form className="form" onSubmit={onSubmit} noValidate>
           <div className="field">
-            <label>E-posta Adresi</label>
+            <label>Email Address</label>
             <input
               name="email"
               type="email"
-              placeholder="ornek@email.com"
+              placeholder="example@email.com"
               value={form.email}
               onChange={onChange}
               onBlur={onBlur}
@@ -127,32 +117,42 @@ export default function LoginPage() {
             )}
           </div>
 
-          <div className="field">
-            <label>Şifre</label>
-            <input
-              name="password"
-              type={showPassword ? "text" : "password"}
-              placeholder="••••••••"
-              value={form.password}
-              onChange={onChange}
-              onBlur={onBlur}
-              className={
-                touched.password && errors.password ? "input error" : "input"
-              }
-            />
+          <div className="field passwordField">
+            <label>Password</label>
+            <div className="passwordInput">
+              <input
+                name="password"
+                type={showPassword ? "text" : "password"}
+                placeholder="********"
+                value={form.password}
+                onChange={onChange}
+                onBlur={onBlur}
+                className={
+                  touched.password && errors.password ? "input error" : "input"
+                }
+              />
+              <button
+                type="button"
+                className="togglePassword"
+                onClick={() => setShowPassword((p) => !p)}
+                aria-label={showPassword ? "Hide password" : "Show password"}
+              >
+                {showPassword ? "Hide" : "Show"}
+              </button>
+            </div>
             {touched.password && errors.password && (
               <span className="errorText">{errors.password}</span>
             )}
           </div>
 
           <button className="primaryButton" disabled={!canSubmit}>
-            {isSubmitting ? "Giriş yapılıyor..." : "Giriş Yap"}
+            {isSubmitting ? "Signing in..." : "Sign In"}
           </button>
 
           <p className="footerText">
-            Hesabın yok mu?{" "}
+            Don’t have an account?{" "}
             <Link to="/register" className="link">
-              Hemen Kayıt Ol
+              Sign Up Now
             </Link>
           </p>
         </form>
