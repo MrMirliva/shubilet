@@ -62,7 +62,7 @@ public class ErrorUtils {
 
     public <T> ResponseEntity<T> notFound(String fieldName) {
         String message = fieldName + ErrorMessages.NOT_FOUND;
-        return caster(message, 404);
+        return caster(message, 400);
     }
 
     public <T> ResponseEntity<T> unauthorized() {
