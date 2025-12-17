@@ -9,6 +9,7 @@ import CustomerRegister from "./pages/registerCustomer/CustomerRegister.jsx";
 import CompanyRegister from "./pages/registerCompany/CompanyRegister.jsx";
 import AdminRegister from "./pages/registerAdmin/AdminRegister.jsx";
 import Travel from "./pages/travel/Travel.jsx";
+import CustomerHomePage from './pages/customer/CustomerHomePage.jsx';
 
 // İleride başka sayfalar da ekleyeceğiz (Register, Home vb.)
 // Şimdilik sadece Login var.
@@ -30,6 +31,7 @@ function App() {
         <Route path="/register/customer" element={<CustomerRegister />} />
         <Route path="/register/company" element={<CompanyRegister />} />
         <Route path="/register/admin" element={<AdminRegister />} />
+        <Route path="/customer/home" element={<CustomerHomePage />} />
       </Routes>
     </Router>
   );
