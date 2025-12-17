@@ -5,8 +5,8 @@ import "./CustomerRegister.css";
 
 const GENDERS = [
   { value: "", label: "Select" },
-  { value: "MALE", label: "Male" },
-  { value: "FEMALE", label: "Female" },
+  { value: "Male", label: "Male" },
+  { value: "Female", label: "Female" },
 ];
 
 function isValidEmail(email) {
@@ -53,31 +53,26 @@ export default function CustomerRegister() {
   const errors = useMemo(() => {
     const e = {};
 
-    if (!form.firstName.trim())
-      e.firstName = "First name is required.";
+    if (!form.firstName.trim()) e.firstName = "First name is required.";
     else if (!isValidName(form.firstName))
       e.firstName =
         "Please enter a valid first name (at least 2 letters, letters only).";
 
-    if (!form.lastName.trim())
-      e.lastName = "Last name is required.";
+    if (!form.lastName.trim()) e.lastName = "Last name is required.";
     else if (!isValidName(form.lastName))
       e.lastName =
         "Please enter a valid last name (at least 2 letters, letters only).";
 
-    if (!form.email.trim())
-      e.email = "E-mail is required.";
+    if (!form.email.trim()) e.email = "E-mail is required.";
     else if (!isValidEmail(form.email.trim()))
       e.email = "Please enter a valid e-mail address.";
 
-    if (!form.password)
-      e.password = "Password is required.";
+    if (!form.password) e.password = "Password is required.";
     else if (!isValidPassword(form.password))
       e.password =
         "Invalid password format (minimum 8 characters, letters and numbers).";
 
-    if (!form.gender)
-      e.gender = "Gender is required.";
+    if (!form.gender) e.gender = "Gender is required.";
 
     return e;
   }, [form]);
@@ -106,6 +101,16 @@ export default function CustomerRegister() {
     });
   }
 
+  async function safeReadMessageDTO(response) {
+    // Backend always returns MessageDTO, but be safe for empty/invalid bodies
+    try {
+      const data = await response.json();
+      return data ?? null;
+    } catch {
+      return null;
+    }
+  }
+
   async function onSubmit(e) {
     e.preventDefault();
     markAllTouched();
@@ -116,16 +121,35 @@ export default function CustomerRegister() {
     setServerSuccess("");
 
     try {
-      // TODO: Backend integration
-      // - Check email uniqueness
-      // - On success: auto login + redirect (Use Case Exit Condition)
+      const response = await fetch("/api/auth/register/customer", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({
+          name: form.firstName.trim(),
+          surname: form.lastName.trim(),
+          gender: form.gender,
+          email: form.email.trim(),
+          password: form.password,
+        }),
+      });
 
-      await new Promise((r) => setTimeout(r, 650)); // demo delay
+      const data = await safeReadMessageDTO(response);
+      const backendMessage = data?.message;
 
-      setServerSuccess("Your account has been created. Signing you in...");
-      setTimeout(() => navigate("/"), 500);
-    } catch (err) {
-      setServerError("An account with this e-mail already exists.");
+      if (!response.ok) {
+        // ✅ Always show backend error message
+        setServerError(backendMessage || "");
+        return;
+      }
+
+      // ✅ Success message also comes from backend
+      setServerSuccess(backendMessage || ""); // if empty, show nothing
+      // Redirect after success (optional delay)
+      setTimeout(() => navigate("/login", { replace: true }), 500);
+    } catch {
+      // Network/CORS/etc: backend not reachable, no backend message possible
+      setServerError("Unable to reach the server.");
     } finally {
       setIsSubmitting(false);
     }
@@ -142,9 +166,7 @@ export default function CustomerRegister() {
           <h1 className="title">
             Customer <span>Sign Up</span>
           </h1>
-          <p className="subtitle">
-            Create your account by entering your details.
-          </p>
+          <p className="subtitle">Create your account by entering your details.</p>
         </header>
 
         {serverError && (
@@ -168,9 +190,7 @@ export default function CustomerRegister() {
               <input
                 id="firstName"
                 name="firstName"
-                className={`input ${
-                  touched.firstName && errors.firstName ? "inputError" : ""
-                }`}
+                className={`input ${touched.firstName && errors.firstName ? "inputError" : ""}`}
                 value={form.firstName}
                 onChange={onChange}
                 onBlur={onBlur}
@@ -189,9 +209,7 @@ export default function CustomerRegister() {
               <input
                 id="lastName"
                 name="lastName"
-                className={`input ${
-                  touched.lastName && errors.lastName ? "inputError" : ""
-                }`}
+                className={`input ${touched.lastName && errors.lastName ? "inputError" : ""}`}
                 value={form.lastName}
                 onChange={onChange}
                 onBlur={onBlur}
@@ -212,9 +230,7 @@ export default function CustomerRegister() {
               id="email"
               name="email"
               type="email"
-              className={`input ${
-                touched.email && errors.email ? "inputError" : ""
-              }`}
+              className={`input ${touched.email && errors.email ? "inputError" : ""}`}
               value={form.email}
               onChange={onChange}
               onBlur={onBlur}
@@ -234,9 +250,7 @@ export default function CustomerRegister() {
               id="password"
               name="password"
               type="password"
-              className={`input ${
-                touched.password && errors.password ? "inputError" : ""
-              }`}
+              className={`input ${touched.password && errors.password ? "inputError" : ""}`}
               value={form.password}
               onChange={onChange}
               onBlur={onBlur}
@@ -255,9 +269,7 @@ export default function CustomerRegister() {
             <select
               id="gender"
               name="gender"
-              className={`select ${
-                touched.gender && errors.gender ? "inputError" : ""
-              }`}
+              className={`select ${touched.gender && errors.gender ? "inputError" : ""}`}
               value={form.gender}
               onChange={onChange}
               onBlur={onBlur}
