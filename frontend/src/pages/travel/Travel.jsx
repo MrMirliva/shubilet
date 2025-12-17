@@ -1,13 +1,78 @@
 import React, { useState } from 'react';
 import './Travel.css';
 
+const CustomDatePicker = ({ selectedDate, onChange }) => {
+    const [isOpen, setIsOpen] = useState(false);
+    const dateObj = selectedDate ? new Date(selectedDate) : new Date();
+    const [currentMonth, setCurrentMonth] = useState(dateObj);
+
+    const daysInMonth = new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1, 0).getDate();
+    const firstDay = new Date(currentMonth.getFullYear(), currentMonth.getMonth(), 1).getDay();
+
+    const handlePrevMonth = (e) => {
+        e.stopPropagation();
+        setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() - 1, 1));
+    };
+
+    const handleNextMonth = (e) => {
+        e.stopPropagation();
+        setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1, 1));
+    };
+
+    const handleDayClick = (day) => {
+        const year = currentMonth.getFullYear();
+        const month = (currentMonth.getMonth() + 1).toString().padStart(2, '0');
+        const dayStr = day.toString().padStart(2, '0');
+        onChange(`${year}-${month}-${dayStr}`);
+        setIsOpen(false);
+    };
+
+    // Close on click outside could be handled by a backdrop or ref, but for simplicity relying on toggle
+    return (
+        <div className="custom-date-picker">
+            <div className="date-trigger" onClick={() => setIsOpen(!isOpen)}>
+                {selectedDate || "Select Date"}
+                <span>📅</span>
+            </div>
+            {isOpen && (
+                <div className="calendar-popup">
+                    <div className="calendar-header">
+                        <button onClick={handlePrevMonth}>&lt;</button>
+                        <span>{currentMonth.toLocaleString('default', { month: 'long', year: 'numeric' })}</span>
+                        <button onClick={handleNextMonth}>&gt;</button>
+                    </div>
+                    <div className="calendar-grid">
+                        {['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'].map(d => (
+                            <div key={d} className="calendar-day-label">{d}</div>
+                        ))}
+                        {Array(firstDay).fill(null).map((_, i) => (
+                            <div key={`empty-${i}`} className="calendar-day empty"></div>
+                        ))}
+                        {Array(daysInMonth).fill(null).map((_, i) => {
+                            const day = i + 1;
+                            const isSelected = selectedDate === `${currentMonth.getFullYear()}-${(currentMonth.getMonth() + 1).toString().padStart(2, '0')}-${day.toString().padStart(2, '0')}`;
+
+                            return (
+                                <div key={day}
+                                    className={`calendar-day ${isSelected ? 'selected' : ''}`}
+                                    onClick={() => handleDayClick(day)}>
+                                    {day}
+                                </div>
+                            );
+                        })}
+                    </div>
+                </div>
+            )}
+        </div>
+    );
+};
+
 const Travel = () => {
     // --- State ---
     const [searchParams, setSearchParams] = useState({
         from: 'Istanbul Europe',
         to: 'Ankara',
-        date: '2025-12-18',
-        isTomorrow: true
+        date: '2025-12-18'
     });
 
     const [expeditions, setExpeditions] = useState([]);
@@ -138,8 +203,6 @@ const Travel = () => {
             price: expedition.price
         };
         setPurchasedTicket(ticket);
-
-        // Alert/Console for now, can be a modal too
         console.log("Ticket Purchased!", ticket);
     };
 
@@ -173,49 +236,42 @@ const Travel = () => {
                     </div>
                 </div>
 
+                {/* Date Input Replaced with CustomDatePicker */}
                 <div className="input-group" style={{ flex: 0.5 }}>
                     <label>Departure</label>
-                    <div className="input-wrapper">
-                        <input
-                            type="date"
-                            value={searchParams.date}
-                            onChange={(e) => setSearchParams({ ...searchParams, date: e.target.value })}
+                    <div className="input-wrapper" style={{ padding: 0, backgroundColor: 'transparent' }}>
+                        <CustomDatePicker
+                            selectedDate={searchParams.date}
+                            onChange={(newDate) => setSearchParams({ ...searchParams, date: newDate })}
                         />
                     </div>
                 </div>
 
-                <div className="date-options">
-                    <label className="radio-option">
-                        <input
-                            type="radio"
-                            name="datePreset"
-                            checked={!searchParams.isTomorrow}
-                            onChange={() => setSearchParams(prev => ({ ...prev, isTomorrow: false }))}
-                        /> Today
-                    </label>
-                    <label className="radio-option">
-                        <input
-                            type="radio"
-                            name="datePreset"
-                            checked={searchParams.isTomorrow}
-                            onChange={() => setSearchParams(prev => ({ ...prev, isTomorrow: true }))}
-                        /> Tomorrow
-                    </label>
-                </div>
+
 
                 <button className="search-btn" onClick={handleSearch}>
                     Search
                 </button>
             </div>
 
-            {/* Ticket Info Message */}
+            {/* Ticket Info Modal */}
             {purchasedTicket && (
-                <div className="success-message">
-                    <h3>Ticket Purchased Successfully!</h3>
-                    <p><strong>PNR:</strong> {purchasedTicket.pnr}</p>
-                    <p><strong>Seat:</strong> {purchasedTicket.seatNo}</p>
-                    <p><strong>Route:</strong> {purchasedTicket.from} - {purchasedTicket.to}</p>
-                    <p><strong>Time:</strong> {purchasedTicket.time}</p>
+                <div className="modal-overlay" onClick={() => setPurchasedTicket(null)}>
+                    <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+                        <button className="modal-close-btn" onClick={() => setPurchasedTicket(null)}>
+                            &times;
+                        </button>
+                        <div className="success-icon">✓</div>
+                        <h3>Ticket Purchased Successfully!</h3>
+
+                        <div className="ticket-details">
+                            <p><strong>PNR:</strong> {purchasedTicket.pnr}</p>
+                            <p><strong>Seat:</strong> {purchasedTicket.seatNo}</p>
+                            <p><strong>Route:</strong> {purchasedTicket.from} - {purchasedTicket.to}</p>
+                            <p><strong>Time:</strong> {purchasedTicket.time}</p>
+                            <p><strong>Price:</strong> {purchasedTicket.price} TL</p>
+                        </div>
+                    </div>
                 </div>
             )}
 

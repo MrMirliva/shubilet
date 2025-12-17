@@ -67,28 +67,13 @@
     margin: 0 10px;
 }
 
-/* Date Selection */
-.date-options {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    gap: 5px;
-    margin-right: 15px;
-}
 
-.radio-option {
-    font-size: 12px;
-    color: #555;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    gap: 5px;
-}
 
 /* Search Button */
+/* Search Button */
 .search-btn {
-    background-color: #27ae60;
-    /* Obilet Green */
+    background-color: #007bff;
+    /* Blue */
     color: white;
     border: none;
     padding: 15px 30px;
@@ -100,8 +85,10 @@
 }
 
 .search-btn:hover {
-    background-color: #219150;
+    background-color: #0056b3;
 }
+
+
 
 /* Expeditions Container */
 .expeditions-container {
@@ -203,12 +190,14 @@
 }
 
 .bus-layout {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    /* 2x2 seats */
+    display: flex;
+    /* Horizontal alignment */
+    flex-wrap: wrap;
+    /* Wrap if too many seats */
     gap: 10px;
-    max-width: 300px;
+    max-width: 100%;
     margin: 20px 0;
+    justify-content: flex-start;
 }
 
 /* SEAT STYLES */
@@ -263,7 +252,8 @@
 }
 
 .purchase-btn {
-    background-color: #27ae60;
+    background-color: #007bff;
+    /* Blue */
     color: white;
     padding: 10px 25px;
     border: none;
@@ -277,14 +267,156 @@
     cursor: not-allowed;
 }
 
-/* Success Message */
-.success-message {
-    background-color: #d4edda;
-    border: 1px solid #c3e6cb;
-    color: #155724;
+/* Modal / Popup Styles */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.modal-content {
+    background-color: white;
+    padding: 30px;
+    border-radius: 12px;
+    width: 90%;
+    max-width: 500px;
+    position: relative;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    text-align: center;
+}
+
+.modal-close-btn {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    background: none;
+    border: none;
+    font-size: 20px;
+    cursor: pointer;
+    color: #666;
+}
+
+.success-icon {
+    font-size: 40px;
+    color: #28a745;
+    margin-bottom: 15px;
+}
+
+.ticket-details {
+    text-align: left;
+    margin-top: 20px;
+    background-color: #f8f9fa;
     padding: 15px;
     border-radius: 8px;
-    width: 90%;
-    max-width: 1100px;
-    margin-bottom: 20px;
+    color: #333;
+    /* Explicitly set text color to fix visibility bug */
+}
+
+.ticket-details p {
+    margin: 8px 0;
+    line-height: 1.4;
+}
+
+/* Custom Date Picker Styles */
+.custom-date-picker {
+    position: relative;
+    width: 100%;
+}
+
+.date-trigger {
+    background-color: #f1f3f5;
+    padding: 10px 15px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+    color: #333;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    user-select: none;
+}
+
+.calendar-popup {
+    position: absolute;
+    top: 110%;
+    left: 0;
+    background: white;
+    border: 1px solid #ddd;
+    border-radius: 12px;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+    z-index: 1000;
+    padding: 15px;
+    width: 280px;
+    animation: fadeIn 0.2s ease;
+}
+
+.calendar-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+.calendar-header span {
+    font-weight: bold;
+    color: #333;
+}
+
+.calendar-header button {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 18px;
+    color: #007bff;
+    padding: 5px 10px;
+    border-radius: 4px;
+}
+
+.calendar-header button:hover {
+    background-color: #f1f3f5;
+}
+
+.calendar-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 5px;
+    text-align: center;
+}
+
+.calendar-day-label {
+    font-size: 12px;
+    color: #888;
+    margin-bottom: 5px;
+    font-weight: 600;
+}
+
+.calendar-day {
+    padding: 8px 0;
+    font-size: 14px;
+    cursor: pointer;
+    border-radius: 6px;
+    color: #333;
+    transition: background 0.2s;
+}
+
+.calendar-day:hover {
+    background-color: #e3f2fd;
+    color: #007bff;
+}
+
+.calendar-day.selected {
+    background-color: #007bff;
+    color: white;
+}
+
+.calendar-day.empty {
+    cursor: default;
+    pointer-events: none;
 }
