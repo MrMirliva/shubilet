@@ -1,6 +1,7 @@
 import { Outlet } from "react-router-dom";
-import CustomerTopBar from "../components/Customer/CustomerTopBar/CustomerTopBar.jsx";
-import "./CustomerLayout.css";
+import CustomerTopBar from "../components/CustomerTopBar.jsx";
+
+
 
 export default function CustomerLayout() {
   return (
