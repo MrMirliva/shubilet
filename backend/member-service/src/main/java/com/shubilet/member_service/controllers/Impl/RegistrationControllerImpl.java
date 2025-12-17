@@ -61,57 +61,58 @@ public class RegistrationControllerImpl implements RegistrationController {
      */
     @PostMapping("/customer")
     public ResponseEntity<MessageDTO> registerCustomer(@RequestBody CustomerRegistrationDTO customerRegistrationDTO) {
+        ErrorUtils errorUtils = new ErrorUtils(ErrorUtils.ConversionType.MessageDTO);
 
         // DTO Existence Check
         if (customerRegistrationDTO == null) {
             logger.warn("customerRegistrationDTO is null.");
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ErrorUtils.isNull("Creation Data"));
+            return errorUtils.criticalError();
         }
 
         // Attributes Null or Blank Check
         if (StringUtils.isNullOrBlank(customerRegistrationDTO.getName())) {
             logger.warn("Given name is null or blank");
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ErrorUtils.isNull("Name"));
+            return errorUtils.isNull("Name");
         }
         if (StringUtils.isNullOrBlank(customerRegistrationDTO.getSurname())) {
             logger.warn("Given surname is null or blank");
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ErrorUtils.isNull("Surname"));
+            return errorUtils.isNull("Surname");
         }
 
         if (StringUtils.isNullOrBlank(customerRegistrationDTO.getGender())) {
             logger.warn("Given gender is null or blank");
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ErrorUtils.isNull("Gender"));
+            return errorUtils.isNull("Gender");
         }
 
         if (StringUtils.isNullOrBlank(customerRegistrationDTO.getEmail())) {
             logger.warn("Given email is null or blank");
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ErrorUtils.isNull("Email"));
+            return errorUtils.isNull("Email");
         }
 
         if (StringUtils.isNullOrBlank(customerRegistrationDTO.getPassword())) {
             logger.warn("Given password is null or blank");
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ErrorUtils.isNull("Password"));
+            return errorUtils.isNull("Password");
         }
 
         // Validation Check
         if (!ValidationUtils.isValidGender(customerRegistrationDTO.getGender())) {
             logger.warn("Given gender is not valid. Choices are 'Male|Female'. Given Gender is '{}'.", customerRegistrationDTO.getGender());
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ErrorUtils.isInvalidFormat("Gender"));
+            return errorUtils.isInvalidFormat("Gender");
         }
 
         if (!ValidationUtils.isValidEmail(customerRegistrationDTO.getEmail())) {
             logger.warn("Given email is not in valid format. Given email is {}", customerRegistrationDTO.getEmail());
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ErrorUtils.isInvalidFormat("Email"));
+            return errorUtils.isInvalidFormat("Email");
         }
         if (!ValidationUtils.isValidPassword(customerRegistrationDTO.getPassword())) {
             logger.warn("Given password is not in valid format. Given password is {}", customerRegistrationDTO.getPassword());
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ErrorUtils.isInvalidFormat("Password"));
+            return errorUtils.isInvalidFormat("Password");
         }
 
         // Uniqueness Check
         if (registrationService.isUserExistsByEmail(customerRegistrationDTO.getEmail())) {
             logger.warn("Email already exists in DB. Given Email is {}", customerRegistrationDTO.getEmail());
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ErrorUtils.alreadyExists("User Email"));
+            return errorUtils.alreadyExists("User Email");
         }
 
         Customer customer = new Customer(
@@ -123,9 +124,8 @@ public class RegistrationControllerImpl implements RegistrationController {
         );
 
         if (!registrationService.registerCustomer(customer)) {
-            /// TODO: Discuss with Apo
             logger.warn("A serious problem occurred in service level while creating a customer account with email{}", customerRegistrationDTO.getEmail());
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(ErrorUtils.criticalError());
+            return errorUtils.criticalError();
         }
         logger.info("Customer registered successfully with email {}", customerRegistrationDTO.getEmail());
         return ResponseEntity.status(HttpStatus.CREATED).body(new MessageDTO("Customer Creation Successful."));
@@ -156,41 +156,42 @@ public class RegistrationControllerImpl implements RegistrationController {
      */
     @PostMapping("/company")
     public ResponseEntity<MessageDTO> registerCompany(@RequestBody CompanyRegistrationDTO companyRegistrationDTO) {
+        ErrorUtils errorUtils = new ErrorUtils(ErrorUtils.ConversionType.MessageDTO);
         // DTO Existence Check
         if (companyRegistrationDTO == null) {
             logger.warn("companyRegistrationDTO is null.");
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ErrorUtils.isNull("Creation Data"));
+            return errorUtils.isNull("Creation Data");
         }
 
         // Attributes Null or Blank Check
         if (StringUtils.isNullOrBlank(companyRegistrationDTO.getTitle())) {
             logger.warn("Given Title is null or blank");
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ErrorUtils.isNull("Title"));
+            return errorUtils.isNull("Title");
         }
         if (StringUtils.isNullOrBlank(companyRegistrationDTO.getEmail())) {
             logger.warn("Given Email is null or blank");
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ErrorUtils.isNull("Email"));
+            return errorUtils.isNull("Email");
         }
 
         if (StringUtils.isNullOrBlank(companyRegistrationDTO.getPassword())) {
             logger.warn("Given Password is null or blank");
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ErrorUtils.isNull("Password"));
+            return errorUtils.isNull("Password");
         }
 
         // Validation Check
         if (!ValidationUtils.isValidEmail(companyRegistrationDTO.getEmail())) {
             logger.warn("Given email is not in valid format. Given email is {}", companyRegistrationDTO.getEmail());
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ErrorUtils.isInvalidFormat("Email"));
+            return errorUtils.isInvalidFormat("Email");
         }
         if (!ValidationUtils.isValidPassword(companyRegistrationDTO.getPassword())) {
             logger.warn("Given password is not in valid format. Given password is {}", companyRegistrationDTO.getPassword());
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ErrorUtils.isInvalidFormat("Password"));
+            return errorUtils.isInvalidFormat("Password");
         }
 
         // Uniqueness Check
         if (registrationService.isUserExistsByEmail(companyRegistrationDTO.getEmail())) {
             logger.warn("Email already exists in DB. Given Email is {}", companyRegistrationDTO.getEmail());
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ErrorUtils.alreadyExists("User Email"));
+            return errorUtils.alreadyExists("User Email");
         }
 
         Company company = new Company(
@@ -201,8 +202,9 @@ public class RegistrationControllerImpl implements RegistrationController {
 
         if (!registrationService.registerCompany(company)) {
             logger.warn("A serious problem occurred in service level while creating a company account with email{}", companyRegistrationDTO.getEmail());
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(ErrorUtils.criticalError());
+            return errorUtils.criticalError();
         }
+        
         logger.info("Customer registered successfully with email {}", companyRegistrationDTO.getEmail());
         return ResponseEntity.status(HttpStatus.CREATED).body(new MessageDTO("Company Registration Successful."));
     }
@@ -233,47 +235,48 @@ public class RegistrationControllerImpl implements RegistrationController {
      */
     @PostMapping("/admin")
     public ResponseEntity<MessageDTO> registerAdmin(@RequestBody AdminRegistrationDTO adminRegistrationDTO) {
+        ErrorUtils errorUtils = new ErrorUtils(ErrorUtils.ConversionType.MessageDTO);
 
         // DTO Existence Check
         if (adminRegistrationDTO == null) {
             logger.warn("adminRegistrationDTO is null.");
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ErrorUtils.isNull("Creation Data"));
+            return errorUtils.criticalError();
         }
 
         // Attributes Null or Blank Check
         if (StringUtils.isNullOrBlank(adminRegistrationDTO.getName())) {
             logger.warn("Given name is null or blank");
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ErrorUtils.isNull("Name"));
+            return errorUtils.isNull("Name");
         }
         if (StringUtils.isNullOrBlank(adminRegistrationDTO.getSurname())) {
             logger.warn("Given surname is null or blank");
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ErrorUtils.isNull("Surname"));
+            return errorUtils.isNull("Surname");
         }
 
         if (StringUtils.isNullOrBlank(adminRegistrationDTO.getEmail())) {
             logger.warn("Given email is null or blank");
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ErrorUtils.isNull("Email"));
+            return errorUtils.isNull("Email");
         }
 
         if (StringUtils.isNullOrBlank(adminRegistrationDTO.getPassword())) {
             logger.warn("Given password is null or blank");
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ErrorUtils.isNull("Password"));
+            return errorUtils.isNull("Password");
         }
 
         // Validation Check
         if (!ValidationUtils.isValidEmail(adminRegistrationDTO.getEmail())) {
             logger.warn("Given email is not in valid format. Given email is {}", adminRegistrationDTO.getEmail());
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ErrorUtils.isInvalidFormat("Email"));
+            return errorUtils.isInvalidFormat("Email");
         }
         if (!ValidationUtils.isValidPassword(adminRegistrationDTO.getPassword())) {
             logger.warn("Given password is not in valid format. Given password is {}", adminRegistrationDTO.getPassword());
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ErrorUtils.isInvalidFormat("Password"));
+            return errorUtils.isInvalidFormat("Password");
         }
 
         // Uniqueness Check
         if (registrationService.isUserExistsByEmail(adminRegistrationDTO.getEmail())) {
             logger.warn("Email already exists in DB. Given Email is {}", adminRegistrationDTO.getEmail());
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ErrorUtils.alreadyExists("User Email"));
+            return errorUtils.alreadyExists("User Email");
         }
 
         Admin admin = new Admin(
@@ -285,7 +288,7 @@ public class RegistrationControllerImpl implements RegistrationController {
 
         if (!registrationService.registerAdmin(admin)) {
             logger.warn("A serious problem occurred in service level while creating a company account with email {}", adminRegistrationDTO.getEmail());
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(ErrorUtils.criticalError());
+            return errorUtils.criticalError();
         }
         logger.info("Admin registered successfully with email {}", adminRegistrationDTO.getEmail());
         return ResponseEntity.status(HttpStatus.CREATED).body(new MessageDTO("Admin Registration Successful."));

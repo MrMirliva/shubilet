@@ -1,6 +1,7 @@
 package com.shubilet.member_service.controllers.Impl;
 
 
+import com.shubilet.member_service.common.util.ErrorUtils;
 import com.shubilet.member_service.dataTransferObjects.requests.resourceDTOs.CompanyIdDTO;
 import com.shubilet.member_service.dataTransferObjects.responses.CompanyIdNameMapDTO;
 import com.shubilet.member_service.services.ResourceService;
@@ -25,23 +26,26 @@ public class ResourceControllerImpl {
 
     @PostMapping("/company/name")
     public ResponseEntity<CompanyIdNameMapDTO> sendCompanyNames(@RequestBody List<CompanyIdDTO> companyIDsDTO) {
+        ErrorUtils errorUtils = new ErrorUtils(ErrorUtils.ConversionType.CompanyIdNameMapDTO);
         // DTO Existence Check
         if (companyIDsDTO == null) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new CompanyIdNameMapDTO("DTO Can't be Null"));
+            logger.warn("Company IDs DTO is null");
+            return errorUtils.criticalError();
         }
 
         // Attributes Null or Blank Check
         if (companyIDsDTO.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new CompanyIdNameMapDTO("Company IDs Can't be Empty"));
+            logger.info("Company IDs list is empty");
+            return errorUtils.isNull("Company IDs List");
         }
-        logger.info("Retrieving Company Names for IDs: {}", companyIDsDTO.getFirst().getCompanyId());
-
         HashMap<Integer, String> companyNamesMap = resourceService.sendCompanyNames(companyIDsDTO);
-        logger.info("Retrieved Company Names: {}", companyNamesMap);
+
         if (companyNamesMap == null || companyNamesMap.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new CompanyIdNameMapDTO("No Matching Company has been Found"));
+            logger.warn("No Matching Company has been Found for the given IDs");
+            return errorUtils.notFound("Company Names for given IDs");
         }
 
+        logger.info("Company Names have been successfully retrieved for the given IDs");
         return ResponseEntity.ok(new CompanyIdNameMapDTO(companyNamesMap, "Successfully Retrieved Company Names"));
     }
 }

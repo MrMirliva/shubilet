@@ -1,6 +1,7 @@
 package com.shubilet.member_service.controllers.Impl;
 
 import com.shubilet.member_service.common.enums.Gender;
+import com.shubilet.member_service.common.util.ErrorUtils;
 import com.shubilet.member_service.common.util.StringUtils;
 import com.shubilet.member_service.common.util.ValidationUtils;
 import com.shubilet.member_service.dataTransferObjects.requests.FavoriteCompanyDeletionDTO;
@@ -13,6 +14,7 @@ import com.shubilet.member_service.models.FavoriteCompany;
 import com.shubilet.member_service.services.ProfileService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.boot.autoconfigure.integration.IntegrationProperties.Error;
 import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
@@ -33,154 +35,193 @@ public class ProfileControllerImpl {
 
     @PostMapping("/name")
     public ResponseEntity<MessageDTO> editCustomerProfileName(@RequestBody MemberAttributeChangeDTO memberAttributeChangeDTO) {
+
+        ErrorUtils errorUtils = new ErrorUtils(ErrorUtils.ConversionType.MessageDTO);
         // DTO Existence Check
         if (memberAttributeChangeDTO == null) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new MessageDTO("Body can't be null"));
+            logger.warn("Given MemberAttributeChangeDTO is null");
+            return errorUtils.criticalError();
         }
 
         // Attributes Null or Blank Check
         if (StringUtils.isNullOrBlank(memberAttributeChangeDTO.getAttribute())) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new MessageDTO("Attribute can't be empty"));
-
+            logger.warn("Given attribute is null or blank");
+            return errorUtils.isNull("Attribute");
         }
 
         // Validation Check
         if (memberAttributeChangeDTO.getMemberId() <= 0) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new MessageDTO("Invalid Customer Id"));
+            logger.warn("Given MemberId is invalid: {}", memberAttributeChangeDTO.getMemberId());
+            return errorUtils.isInvalidFormat("MemberId");
         }
 
         if (!profileService.isCustomerExists(memberAttributeChangeDTO.getMemberId())) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new MessageDTO("Customer not Found"));
+            logger.warn("Customer not found with given MemberId: {}", memberAttributeChangeDTO.getMemberId());
+            return errorUtils.notFound("Customer");
         }
 
         if (!profileService.editName(memberAttributeChangeDTO.getMemberId(), memberAttributeChangeDTO.getAttribute())) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new MessageDTO("Critical Error"));
+            logger.error("Critical error occurred while editing name for MemberId: {}", memberAttributeChangeDTO.getMemberId());
+            return errorUtils.criticalError();
         }
 
+        logger.info("Successfully edited name for MemberId: {}", memberAttributeChangeDTO.getMemberId());
         return ResponseEntity.status(HttpStatus.CREATED).body(new MessageDTO("Success"));
     }
 
     @PostMapping("/surname")
     public ResponseEntity<MessageDTO> editCustomerProfileSurname(@RequestBody MemberAttributeChangeDTO memberAttributeChangeDTO) {
+        ErrorUtils errorUtils = new ErrorUtils(ErrorUtils.ConversionType.MessageDTO);
+
         // DTO Existence Check
         if (memberAttributeChangeDTO == null) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new MessageDTO("Body can't be null"));
+            logger.warn("Given MemberAttributeChangeDTO is null");
+            return errorUtils.criticalError();
         }
 
         // Attributes Null or Blank Check
         if (StringUtils.isNullOrBlank(memberAttributeChangeDTO.getAttribute())) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new MessageDTO("Attribute can't be empty"));
+            logger.warn("Given attribute is null or blank");
+            return errorUtils.isNull("Attribute");
         }
 
         // Validation Check
         if (memberAttributeChangeDTO.getMemberId() <= 0) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new MessageDTO("Invalid Customer Id"));
+            logger.warn("Given MemberId is invalid: {}", memberAttributeChangeDTO.getMemberId());
+            return errorUtils.isInvalidFormat("MemberId");
         }
 
         if (!profileService.isCustomerExists(memberAttributeChangeDTO.getMemberId())) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new MessageDTO("Customer not Found"));
+            logger.warn("Customer not found with given MemberId: {}", memberAttributeChangeDTO.getMemberId());
+            return errorUtils.notFound("Customer");
         }
 
         if (!profileService.editSurname(memberAttributeChangeDTO.getMemberId(), memberAttributeChangeDTO.getAttribute())) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new MessageDTO("Critical Error"));
+            logger.error("Critical error occurred while editing surname for MemberId: {}", memberAttributeChangeDTO.getMemberId());
+            return errorUtils.criticalError();
         }
 
+        logger.info("Successfully edited surname for MemberId: {}", memberAttributeChangeDTO.getMemberId());
         return ResponseEntity.status(HttpStatus.CREATED).body(new MessageDTO("Success"));
     }
 
     @PostMapping("/gender")
     public ResponseEntity<MessageDTO> editCustomerProfileGender(@RequestBody MemberAttributeChangeDTO memberAttributeChangeDTO) {
+        ErrorUtils errorUtils = new ErrorUtils(ErrorUtils.ConversionType.MessageDTO);   
         // DTO Existence Check
         if (memberAttributeChangeDTO == null) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new MessageDTO("Body can't be null"));
+            logger.warn("Given MemberAttributeChangeDTO is null");
+            return errorUtils.criticalError();
         }
 
         // Attributes Null or Blank Check
         if (StringUtils.isNullOrBlank(memberAttributeChangeDTO.getAttribute())) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new MessageDTO("Attribute can't be empty"));
+            logger.warn("Given attribute is null or blank");
+            return errorUtils.isNull("Attribute");
 
         }
 
         // Validation Check
         if (memberAttributeChangeDTO.getMemberId() <= 0) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new MessageDTO("Invalid Customer Id"));
+            logger.warn("Given MemberId is invalid: {}", memberAttributeChangeDTO.getMemberId());
+            return errorUtils.isInvalidFormat("MemberId");
         }
         if (!ValidationUtils.isValidGender(memberAttributeChangeDTO.getAttribute())) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new MessageDTO("Invalid Gender Type"));
+            logger.warn("Given gender is not valid: {}", memberAttributeChangeDTO.getAttribute());
+            return errorUtils.isInvalidFormat("Gender");
         }
 
         if (!profileService.isCustomerExists(memberAttributeChangeDTO.getMemberId())) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new MessageDTO("Customer not Found"));
+            logger.warn("Customer not found with given MemberId: {}", memberAttributeChangeDTO.getMemberId()); 
+            return errorUtils.notFound("Customer");
         }
 
         if (!profileService.editGender(memberAttributeChangeDTO.getMemberId(), Gender.fromValue(memberAttributeChangeDTO.getAttribute()))) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new MessageDTO("Critical Error"));
+            logger.error("Critical error occurred while editing gender for MemberId: {}", memberAttributeChangeDTO.getMemberId());
+            return errorUtils.criticalError();
         }
-
+        
+        logger.info("Successfully edited gender for MemberId: {}", memberAttributeChangeDTO.getMemberId());
         return ResponseEntity.status(HttpStatus.CREATED).body(new MessageDTO("Success"));
     }
 
     @PostMapping("/email")
     public ResponseEntity<MessageDTO> editCustomerProfileEmail(@RequestBody MemberAttributeChangeDTO memberAttributeChangeDTO) {
+        ErrorUtils errorUtils = new ErrorUtils(ErrorUtils.ConversionType.MessageDTO);
         // DTO Existence Check
         if (memberAttributeChangeDTO == null) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new MessageDTO("Body can't be null"));
+            logger.warn("Given MemberAttributeChangeDTO is null");
+            return errorUtils.criticalError();
         }
 
         // Attributes Null or Blank Check
         if (StringUtils.isNullOrBlank(memberAttributeChangeDTO.getAttribute())) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new MessageDTO("Attribute can't be empty"));
+            logger.warn("Given attribute is null or blank");
+            return errorUtils.isNull("Attribute");
 
         }
 
         // Validation Check
         if (memberAttributeChangeDTO.getMemberId() <= 0) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new MessageDTO("Invalid Customer Id"));
+            logger.warn("Given MemberId is invalid: {}", memberAttributeChangeDTO.getMemberId());
+            return errorUtils.isInvalidFormat("MemberId");
         }
         if (!ValidationUtils.isValidEmail(memberAttributeChangeDTO.getAttribute())) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new MessageDTO("Invalid Email Address"));
+            logger.warn("Given email is not in valid format: {}", memberAttributeChangeDTO.getAttribute());
+            return errorUtils.isInvalidFormat("Email");
         }
 
         if (!profileService.isCustomerExists(memberAttributeChangeDTO.getMemberId())) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new MessageDTO("Customer not Found"));
+            logger.warn("Customer not found with given MemberId: {}", memberAttributeChangeDTO.getMemberId());
+            return errorUtils.notFound("Customer");
         }
 
         if (!profileService.editEmail(memberAttributeChangeDTO.getMemberId(), memberAttributeChangeDTO.getAttribute())) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new MessageDTO("Critical Error"));
+            logger.error("Critical error occurred while editing email for MemberId: {}", memberAttributeChangeDTO.getMemberId());
+            return errorUtils.criticalError();
         }
 
+        logger.info("Successfully edited email for MemberId: {}", memberAttributeChangeDTO.getMemberId());
         return ResponseEntity.status(HttpStatus.CREATED).body(new MessageDTO("Success"));
     }
 
     @PostMapping("/password")
     public ResponseEntity<MessageDTO> editCustomerProfilePassword(@RequestBody MemberAttributeChangeDTO memberAttributeChangeDTO) {
+        ErrorUtils errorUtils = new ErrorUtils(ErrorUtils.ConversionType.MessageDTO);
         // DTO Existence Check
         if (memberAttributeChangeDTO == null) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new MessageDTO("Body can't be null"));
+            logger.warn("Given MemberAttributeChangeDTO is null");
+            return errorUtils.criticalError();
         }
 
         // Attributes Null or Blank Check
         if (StringUtils.isNullOrBlank(memberAttributeChangeDTO.getAttribute())) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new MessageDTO("Attribute can't be empty"));
+            logger.warn("Given attribute is null or blank");
+            return errorUtils.isNull("Attribute");
 
         }
 
         // Validation Check
         if (memberAttributeChangeDTO.getMemberId() <= 0) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new MessageDTO("Invalid Customer Id"));
+            logger.warn("Given MemberId is invalid: {}", memberAttributeChangeDTO.getMemberId());
+            return errorUtils.isInvalidFormat("MemberId");
         }
         if (!ValidationUtils.isValidPassword(memberAttributeChangeDTO.getAttribute())) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new MessageDTO("Invalid Password"));
+            logger.warn("Given password is not in valid format: {}", memberAttributeChangeDTO.getAttribute());
+            return errorUtils.isInvalidFormat("Password");
         }
 
         if (!profileService.isCustomerExists(memberAttributeChangeDTO.getMemberId())) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new MessageDTO("Customer not Found"));
+            logger.warn("Customer not found with given MemberId: {}", memberAttributeChangeDTO.getMemberId());
+            return errorUtils.notFound("Customer");
         }
 
         if (!profileService.editPassword(memberAttributeChangeDTO.getMemberId(), memberAttributeChangeDTO.getAttribute())) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new MessageDTO("Critical Error"));
+            logger.error("Critical error occurred while editing password for MemberId: {}", memberAttributeChangeDTO.getMemberId());
+            return errorUtils.criticalError();
         }
 
+        logger.info("Successfully edited password for MemberId: {}", memberAttributeChangeDTO.getMemberId());
         return ResponseEntity.status(HttpStatus.CREATED).body(new MessageDTO("Success"));
     }
 
@@ -241,35 +282,43 @@ public class ProfileControllerImpl {
 
     @PostMapping("/card/add")
     public ResponseEntity<MessageDTO> customerProfileAddCard(@RequestBody CardCreationDTO cardCreationDTO) {
+        ErrorUtils errorUtils = new ErrorUtils(ErrorUtils.ConversionType.MessageDTO);
         // DTO Existence Check
         if (cardCreationDTO == null) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new MessageDTO("Body can't be null"));
+            logger.error("Given CardCreationDTO is null");
+            return errorUtils.criticalError();
         }
 
         // Attributes Null or Blank Check
         if (StringUtils.isNullOrBlank(cardCreationDTO.getCardHolderName())) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new MessageDTO("Card Holder Name can't be empty"));
+            logger.warn("Given Card Holder Name is null or blank");
+            return errorUtils.isNull("Card Holder Name");
         }
 
         if (StringUtils.isNullOrBlank(cardCreationDTO.getCardNumber())) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new MessageDTO("Card No Can't be empty"));
+            logger.warn("Given Card Number is null or blank");
+            return errorUtils.isNull("Card Number");
         }
 
         if (StringUtils.isNullOrBlank(cardCreationDTO.getExpirationYear())) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new MessageDTO("Card Expiration Year can't be empty"));
+            logger.warn("Given Card Expiration Year is null or blank");
+            return errorUtils.isNull("Card Expiration Year");
         }
         if (StringUtils.isNullOrBlank(cardCreationDTO.getExpirationMonth())) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new MessageDTO("Card Expiration Month can't be empty"));
+            logger.warn("Given Card Expiration Month is null or blank");
+            return errorUtils.isNull("Card Expiration Month");
         }
 
 
         if (StringUtils.isNullOrBlank(cardCreationDTO.getCvc())) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new MessageDTO("Card CVC can't be empty"));
+            logger.warn("Given Card CVC is null or blank");
+            return errorUtils.isNull("Card CVC");
         }
 
         // Validation Check
         if (cardCreationDTO.getCustomerId() <= 0) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new MessageDTO("Invalid Customer Id"));
+            logger.warn("Given Customer Id is invalid: {}", cardCreationDTO.getCustomerId());
+            return errorUtils.isInvalidFormat("Customer Id");
         }
 
         String requestId = UUID.randomUUID().toString();
@@ -294,36 +343,44 @@ public class ProfileControllerImpl {
         // Bad Request
         if (paymentServiceResponse.getStatusCode().is4xxClientError()) {
             logger.warn("End Card Addition Failed (requestId={})", requestId);
-            return ResponseEntity.status(paymentServiceResponse.getStatusCode()).body(paymentServiceResponse.getBody());
+            return errorUtils.customError(paymentServiceResponse, paymentServiceResponse.getBody().getMessage());
         }
 
         // Internal Server Error
         if (paymentServiceResponse.getStatusCode().is5xxServerError()) {
             logger.warn("End Card Addition Failed (requestId={})", requestId);
-            return ResponseEntity.status(paymentServiceResponse.getStatusCode()).body(paymentServiceResponse.getBody());
+            return errorUtils.customError(paymentServiceResponse, paymentServiceResponse.getBody().getMessage());
         }
+
+        logger.info("End Card Addition Successfully (requestId={})", requestId);
         return ResponseEntity.status(HttpStatus.CREATED).body(new MessageDTO("Success"));
     }
 
     @PostMapping("/card/delete")
     public ResponseEntity<MessageDTO> customerProfileDeleteCard(@RequestBody CardDeletionDTO cardDeletionDTO) {
+        ErrorUtils errorUtils = new ErrorUtils(ErrorUtils.ConversionType.MessageDTO);
+
         // DTO Existence Check
         if (cardDeletionDTO == null) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new MessageDTO("Body can't be null"));
+            logger.warn("Given Card Deletion DTO is null");
+            return errorUtils.criticalError();
         }
 
 
         // Validation Check
         if (cardDeletionDTO.getCustomerId() <= 0) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new MessageDTO("Invalid Customer Id"));
+            logger.warn("Given Customer Id is invalid: {}", cardDeletionDTO.getCustomerId());
+            return errorUtils.isInvalidFormat("Customer Id");
         }
 
         if (cardDeletionDTO.getCardId() <= 0) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new MessageDTO("Invalid Card Id"));
+            logger.warn("Given Card Id is invalid: {}", cardDeletionDTO.getCardId());
+            return errorUtils.isInvalidFormat("Card Id");
         }
 
         if (!profileService.isCustomerExists(cardDeletionDTO.getCustomerId())) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new MessageDTO("Customer not Found"));
+            logger.warn("Customer not found with given CustomerId: {}", cardDeletionDTO.getCustomerId());
+            return errorUtils.notFound("Customer");
         }
         String requestId = UUID.randomUUID().toString();
 
@@ -347,15 +404,16 @@ public class ProfileControllerImpl {
         // Bad Request
         if (paymentServiceResponse.getStatusCode().is4xxClientError()) {
             logger.warn("End Card Deletion Failed (requestId={})", requestId);
-            return ResponseEntity.status(paymentServiceResponse.getStatusCode()).body(paymentServiceResponse.getBody());
+            return errorUtils.customError(paymentServiceResponse, paymentServiceResponse.getBody().getMessage());
         }
 
         // Internal Server Error
         if (paymentServiceResponse.getStatusCode().is5xxServerError()) {
             logger.warn("End Card Deletion Failed (requestId={})", requestId);
-            return ResponseEntity.status(paymentServiceResponse.getStatusCode()).body(paymentServiceResponse.getBody());
+            return errorUtils.customError(paymentServiceResponse, paymentServiceResponse.getBody().getMessage());
         }
 
+        logger.info("End Card Deletion Successfully (requestId={})", requestId);
         return ResponseEntity.status(HttpStatus.CREATED).body(new MessageDTO("Success"));
     }
 }
