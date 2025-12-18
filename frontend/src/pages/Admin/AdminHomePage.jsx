@@ -45,14 +45,6 @@ export default function AdminHomePage() {
               </div>
             </button>
           </div>
-
-          <div className="hintBox">
-            <div className="hintTitle">Tip</div>
-            <div className="hintText">
-              We’ll connect these pages to the API later. For now, we are focusing on
-              the UI flow and layout.
-            </div>
-          </div>
         </div>
       </main>
     </div>
