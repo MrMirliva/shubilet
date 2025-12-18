@@ -12,6 +12,8 @@ import Travel from "./pages/travel/Travel.jsx";
 import CustomerHomePage from './pages/customer/CustomerHomePage.jsx';
 import AuthLayout from './layouts/AuthLayout.jsx';
 import CustomerLayout from './layouts/CustomerLayout.jsx';
+import AdminLayout from './layouts/AdminLayout.jsx';
+import AdminHomePage from './pages/Admin/AdminHomePage.jsx';
 
 // İleride başka sayfalar da ekleyeceğiz (Register, Home vb.)
 // Şimdilik sadece Login var.
@@ -35,6 +37,13 @@ function App() {
           <Route path="/customer/home" element={<CustomerHomePage />} />
           <Route path="/travel" element={<Travel />} />
         </Route>
+
+        <Route element={<AdminLayout />}>
+          {/* Admin ile ilgili sayfalar buraya */}
+          <Route path="/admin/home" element={<AdminHomePage />} />
+          {/* Diğer admin sayfaları da buraya eklenecek */}
+        </Route>
+
         {/* Ana sayfaya girince direkt Login açılsın diye path="/" verdim */}
         <Route path="/" element={<CustomerHomePage />} />
 
