@@ -14,6 +14,10 @@ import AuthLayout from './layouts/AuthLayout.jsx';
 import CustomerLayout from './layouts/CustomerLayout.jsx';
 import AdminLayout from './layouts/AdminLayout.jsx';
 import AdminHomePage from './pages/Admin/AdminHomePage.jsx';
+import CompanyExpeditionDetail from './pages/companyExpeditionDetail/CompanyExpeditionDetail.jsx';
+import CompanyExpeditionList from './pages/companyExpeditionList/CompanyExpeditionList.jsx';
+import CompanyHome from './pages/companyHome/CompanyHome.jsx';
+import CompanyExpeditionCreate from './pages/expeditionCreate/CompanyExpeditionCreate.jsx';
 
 // İleride başka sayfalar da ekleyeceğiz (Register, Home vb.)
 // Şimdilik sadece Login var.
@@ -51,7 +55,11 @@ function App() {
 
         <Route path="/travel" element={<Travel />} />
 
-
+        {/* Şirket ile ilgili sayfalar buraya */}
+        <Route path="/company" element={<CompanyHome />} />
+        <Route path="/company/expeditions/create" element={<CompanyExpeditionCreate />} />
+        <Route path="/company/expeditions" element={<CompanyExpeditionList />} />
+        <Route path="/company/expeditions/:id" element={<CompanyExpeditionDetail />} />
       </Routes>
     </Router>
   );
