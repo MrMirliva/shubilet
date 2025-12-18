@@ -4,16 +4,30 @@ import "./AdminTopBar.css";
 export default function AdminTopBar() {
   const navigate = useNavigate();
 
-  const handleLogout = async () => {
-    try {
-      await fetch("/api/auth/logout", {
-        method: "POST",
-        credentials: "include",
-      });
-    } catch (_) {}
+const handleLogout = async () => {
+  try {
+    const response = await fetch("/api/auth/logout", {
+      method: "POST",
+      credentials: "include", // 🔥 session cookie gider
+    });
 
+    const data = await response.json().catch(() => null);
+
+    if (!response.ok) {
+      console.error("Logout failed:", data?.message || response.statusText);
+      return;
+    }
+
+    console.log("LOGOUT SUCCESS:", data?.message || "Logged out");
+  } catch (err) {
+    console.error("Unable to reach the server.", err);
+  } finally {
+    // frontend temizliği (opsiyonel)
+    localStorage.clear();
     navigate("/login", { replace: true });
-  };
+  }
+};
+
 
   const linkClass = ({ isActive }) =>
     `navLink ${isActive ? "active" : ""}`;
