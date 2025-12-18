@@ -13,13 +13,17 @@
 }
 
 .companyListPage {
-  min-height: calc(100vh - 64px);
+  min-height: 100vh;
   width: 100vw;
   background: #F0F4F8;
+
   display: grid;
   place-items: center;
-  padding: 24px;
+
+  /* ✅ HEADER (64px) + sayfa padding */
+  padding: calc(64px + 24px) 24px 24px 24px;
   box-sizing: border-box;
+
   position: relative;
   overflow-x: hidden;
 }
@@ -49,6 +53,7 @@
   box-shadow: 0 20px 40px rgba(30, 41, 59, 0.18);
 }
 
+/* Header */
 .header {
   text-align: center;
   margin-bottom: 18px;
@@ -70,6 +75,7 @@
   color: #64748B;
 }
 
+/* Segments */
 .segmentRow {
   display: flex;
   gap: 10px;
@@ -83,7 +89,7 @@
   background: #FFFFFF;
   border: 1px solid #CBD5E1;
   border-radius: 10px;
-  padding: 12px 12px;
+  padding: 12px;
   cursor: pointer;
   font-weight: 700;
   color: #1E293B;
@@ -114,6 +120,7 @@
   color: #0056D2;
 }
 
+/* Alert */
 .alert {
   color: #000000;
   background: rgba(220, 38, 38, 0.10);
@@ -123,6 +130,7 @@
   margin-bottom: 12px;
 }
 
+/* List */
 .listHeader {
   display: flex;
   justify-content: space-between;
@@ -157,6 +165,7 @@
   text-align: center;
 }
 
+/* Rows */
 .rowCard {
   width: 100%;
   text-align: left;
@@ -269,6 +278,7 @@
   text-align: right;
 }
 
+/* Footer */
 .footerText {
   margin-top: 16px;
   text-align: center;

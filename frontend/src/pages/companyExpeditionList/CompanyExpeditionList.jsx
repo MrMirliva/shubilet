@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import CompanyHeader from "../../components/Header/CompanyHeader";
 import "./CompanyExpeditionList.css";
 
 const MODE = {
@@ -46,8 +47,8 @@ export default function CompanyExpeditionList() {
       const response = await fetch("/api/expedition/company/get/all", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        credentials: "include", // ✅ session cookie
-        body: JSON.stringify({}), // backend request body istemiyor ama bazı gateway'ler POST'ta body bekleyebiliyor
+        credentials: "include",
+        body: JSON.stringify({}),
       });
 
       const data = await safeReadJson(response);
@@ -60,14 +61,8 @@ export default function CompanyExpeditionList() {
         return;
       }
 
-      // Başarılı durumda: listeyi bas
       setItems(list);
-
-      // Not: Başarılı response'ta message varsa gösterelim mi?
-      // Sen "hata mesajını backend'den al" dediğin için success message göstermiyorum.
-      // İstersen burada ayrıca successMessage state'i açarız.
     } catch {
-      // backend'den mesaj gelmediği için boş bırakıyoruz
       setServerError("");
       setItems([]);
     } finally {
@@ -86,132 +81,159 @@ export default function CompanyExpeditionList() {
   }, [mode]);
 
   return (
-    <div className="companyListPage">
-      <div className="companyListCard">
-        <header className="header">
-          <h1 className="title">
-            Expeditions <span>List</span>
-          </h1>
-          <p className="subtitle">Choose a list type and browse your expeditions</p>
-        </header>
+    <>
+      {/* COMPANY HEADER */}
+      <CompanyHeader />
 
-        <div className="segmentRow">
-          <button
-            type="button"
-            className={mode === MODE.AVAILABLE ? "segment active" : "segment"}
-            onClick={() => setMode(MODE.AVAILABLE)}
-            title="Coming soon (API is not connected yet)"
-          >
-            Available Expeditions
-            <span className="pill">Soon</span>
-          </button>
+      <div className="companyListPage">
+        <div className="companyListCard">
+          <header className="header">
+            <h1 className="title">
+              Expeditions <span>List</span>
+            </h1>
+            <p className="subtitle">
+              Choose a list type and browse your expeditions
+            </p>
+          </header>
 
-          <button
-            type="button"
-            className={mode === MODE.ALL ? "segment active" : "segment"}
-            onClick={() => setMode(MODE.ALL)}
-          >
-            All Expeditions
-          </button>
-        </div>
+          <div className="segmentRow">
+            <button
+              type="button"
+              className={mode === MODE.AVAILABLE ? "segment active" : "segment"}
+              onClick={() => setMode(MODE.AVAILABLE)}
+              title="Coming soon (API is not connected yet)"
+            >
+              Available Expeditions
+              <span className="pill">Soon</span>
+            </button>
 
-        {serverError && <div className="alert">{serverError}</div>}
-
-        <div className="listHeader">
-          <div className="listTitle">{titleText}</div>
-          <div className="listHint">
-            {isLoading ? "Loading..." : `${items.length} expedition(s)`}
+            <button
+              type="button"
+              className={mode === MODE.ALL ? "segment active" : "segment"}
+              onClick={() => setMode(MODE.ALL)}
+            >
+              All Expeditions
+            </button>
           </div>
-        </div>
 
-        <div className="listWrap">
-          {isLoading ? (
-            <div className="emptyBox">Loading expeditions...</div>
-          ) : items.length === 0 ? (
-            <div className="emptyBox">No expeditions found for this list.</div>
-          ) : (
-            items.map((x) => {
-              const remaining = Math.max(0, x.capacity - x.numberOfBookedSeats);
-              const occupancy =
-                x.capacity > 0 ? Math.round((x.numberOfBookedSeats / x.capacity) * 100) : 0;
+          {serverError && <div className="alert">{serverError}</div>}
 
-              return (
-                <button
-                  key={x.expeditionId}
-                  type="button"
-                  className="rowCard"
-                  onClick={() => navigate(`/company/expeditions/${x.expeditionId}`)}
-                >
-                  <div className="rowTop">
-                    <div className="rowRoute">
-                      <span className="routeCity">{x.departureCity}</span>
-                      <span className="routeArrow">→</span>
-                      <span className="routeCity">{x.arrivalCity}</span>
-                    </div>
+          <div className="listHeader">
+            <div className="listTitle">{titleText}</div>
+            <div className="listHint">
+              {isLoading ? "Loading..." : `${items.length} expedition(s)`}
+            </div>
+          </div>
 
-                    <div className="rightTop">
-                      <div className="idBadge">ID #{x.expeditionId}</div>
-                    </div>
-                  </div>
+          <div className="listWrap">
+            {isLoading ? (
+              <div className="emptyBox">Loading expeditions...</div>
+            ) : items.length === 0 ? (
+              <div className="emptyBox">
+                No expeditions found for this list.
+              </div>
+            ) : (
+              items.map((x) => {
+                const remaining = Math.max(
+                  0,
+                  x.capacity - x.numberOfBookedSeats
+                );
+                const occupancy =
+                  x.capacity > 0
+                    ? Math.round(
+                        (x.numberOfBookedSeats / x.capacity) * 100
+                      )
+                    : 0;
 
-                  <div className="rowMetaWide">
-                    <div className="metaItem">
-                      <div className="metaLabel">Date</div>
-                      <div className="metaValue">{x.date}</div>
-                    </div>
+                return (
+                  <button
+                    key={x.expeditionId}
+                    type="button"
+                    className="rowCard"
+                    onClick={() =>
+                      navigate(`/company/expeditions/${x.expeditionId}`)
+                    }
+                  >
+                    <div className="rowTop">
+                      <div className="rowRoute">
+                        <span className="routeCity">{x.departureCity}</span>
+                        <span className="routeArrow">→</span>
+                        <span className="routeCity">{x.arrivalCity}</span>
+                      </div>
 
-                    <div className="metaItem">
-                      <div className="metaLabel">Time</div>
-                      <div className="metaValue">{x.time}</div>
-                    </div>
-
-                    <div className="metaItem">
-                      <div className="metaLabel">Duration</div>
-                      <div className="metaValue">{x.duration} min</div>
-                    </div>
-
-                    <div className="metaItem">
-                      <div className="metaLabel">Capacity</div>
-                      <div className="metaValue">{x.capacity}</div>
-                    </div>
-
-                    <div className="metaItem">
-                      <div className="metaLabel">Booked</div>
-                      <div className="metaValue">
-                        {x.numberOfBookedSeats} <span className="muted">({occupancy}%)</span>
+                      <div className="rightTop">
+                        <div className="idBadge">
+                          ID #{x.expeditionId}
+                        </div>
                       </div>
                     </div>
 
-                    <div className="metaItem">
-                      <div className="metaLabel">Remaining</div>
-                      <div className="metaValue">{remaining}</div>
+                    <div className="rowMetaWide">
+                      <div className="metaItem">
+                        <div className="metaLabel">Date</div>
+                        <div className="metaValue">{x.date}</div>
+                      </div>
+
+                      <div className="metaItem">
+                        <div className="metaLabel">Time</div>
+                        <div className="metaValue">{x.time}</div>
+                      </div>
+
+                      <div className="metaItem">
+                        <div className="metaLabel">Duration</div>
+                        <div className="metaValue">{x.duration} min</div>
+                      </div>
+
+                      <div className="metaItem">
+                        <div className="metaLabel">Capacity</div>
+                        <div className="metaValue">{x.capacity}</div>
+                      </div>
+
+                      <div className="metaItem">
+                        <div className="metaLabel">Booked</div>
+                        <div className="metaValue">
+                          {x.numberOfBookedSeats}{" "}
+                          <span className="muted">
+                            ({occupancy}%)
+                          </span>
+                        </div>
+                      </div>
+
+                      <div className="metaItem">
+                        <div className="metaLabel">Remaining</div>
+                        <div className="metaValue">{remaining}</div>
+                      </div>
+
+                      <div className="metaItem">
+                        <div className="metaLabel">Price</div>
+                        <div className="metaValue">
+                          {fmtMoney(x.price)}
+                        </div>
+                      </div>
+
+                      <div className="metaItem profitItem">
+                        <div className="metaLabel">Profit</div>
+                        <div className="metaValue profitValue">
+                          {fmtMoney(x.profit)}
+                        </div>
+                      </div>
                     </div>
 
-                    <div className="metaItem">
-                      <div className="metaLabel">Price</div>
-                      <div className="metaValue">{fmtMoney(x.price)}</div>
-                    </div>
+                    <div className="rowCta">Open details</div>
+                  </button>
+                );
+              })
+            )}
+          </div>
 
-                    <div className="metaItem profitItem">
-                      <div className="metaLabel">Profit</div>
-                      <div className="metaValue profitValue">{fmtMoney(x.profit)}</div>
-                    </div>
-                  </div>
-
-                  <div className="rowCta">Open details</div>
-                </button>
-              );
-            })
-          )}
+          <p className="footerText">
+            Back to{" "}
+            <Link to="/company" className="link">
+              Company Home
+            </Link>
+          </p>
         </div>
-
-        <p className="footerText">
-          Back to{" "}
-          <Link to="/company" className="link">
-            Company Home
-          </Link>
-        </p>
       </div>
-    </div>
+    </>
   );
 }
