@@ -1,0 +1,74 @@
+/* src/pages/admin/CompanyConfirmPage.css */
+
+.companyConfirmPage {
+  min-height: calc(100vh - 64px);
+  width: 100vw;
+  background: #F0F4F8;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+}
+
+.companyConfirmCard {
+  width: 100%;
+  max-width: 900px;
+  background: #ffffff;
+  border-radius: 12px;
+  padding: 28px;
+  box-shadow: 0 20px 40px rgba(30, 41, 59, 0.12);
+}
+
+.title {
+  margin: 0;
+  font-size: 26px;
+  color: #1E293B;
+}
+
+.subtitle {
+  margin: 6px 0 20px;
+  font-size: 14px;
+  color: #64748B;
+}
+
+.info {
+  font-size: 14px;
+  color: #64748B;
+}
+
+.error {
+  font-size: 14px;
+  color: #DC2626;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 12px;
+}
+
+.table th,
+.table td {
+  padding: 12px;
+  text-align: left;
+  border-bottom: 1px solid #E2E8F0;
+  font-size: 14px;
+}
+
+.table th {
+  color: #1E293B;
+  font-weight: 600;
+}
+
+.approveBtn {
+  padding: 8px 14px;
+  background: #0056D2;
+  color: #ffffff;
+  border: none;
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.approveBtn:hover {
+  background: #0044A6;
+}
