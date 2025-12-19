@@ -1,186 +1,591 @@
-/* Travel.css */
+.travelPage::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background-image: url("/bus-bg.jpg");
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    opacity: 0.9;
+    transform: scale(1.0);
+    z-index: 0;
+    pointer-events: none;
+}
 
-.travel-page-container {
-    width: 100%;
+.travelPage {
     min-height: 100vh;
-    background-color: #f8f9fa;
-    /* Light grey background */
-    padding-top: 20px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    padding-bottom: 50px;
-}
-
-/* Search Section Container */
-.search-section {
-    background-color: #ffffff;
-    padding: 20px;
-    border-radius: 12px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-    display: flex;
-    align-items: center;
-    gap: 15px;
-    width: 90%;
-    max-width: 1100px;
-    margin-bottom: 30px;
-}
-
-/* Input Groups */
-.input-group {
-    display: flex;
-    flex-direction: column;
-    flex: 1;
-}
-
-.input-group label {
-    font-size: 12px;
-    color: #888;
-    margin-bottom: 5px;
-    font-weight: 500;
-}
-
-.input-wrapper {
+    width: 100vw;
+    background: #F0F4F8;
+    display: grid;
+    place-items: center;
+    /* Header + padding */
+    padding: calc(64px + 24px) 24px 24px 24px;
+    box-sizing: border-box;
     position: relative;
-    background-color: #f1f3f5;
-    border-radius: 8px;
-    padding: 10px 15px;
+    overflow-x: hidden;
+}
+
+.travelPage::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg,
+            rgba(0, 86, 210, 0.08),
+            rgba(240, 244, 248, 0.55));
+    z-index: 1;
+    pointer-events: none;
+}
+
+.travelCard {
+    position: relative;
+    z-index: 2;
+    width: 100%;
+    max-width: 980px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+/* Header - Copied/Adapted from ProfilePage.css */
+.travelHeader {
     display: flex;
     align-items: center;
-    height: 50px;
-    /* Enforce consistent height */
+    /* Changed from flex-start to center for better alignment */
+    justify-content: space-between;
+    gap: 12px;
+
+    background: rgba(255, 255, 255, 0.65);
+    border: 1px solid rgba(100, 116, 139, 0.18);
+    border-radius: 12px;
+    padding: 18px;
+    box-shadow: 0 12px 28px rgba(30, 41, 59, 0.08);
+    backdrop-filter: blur(8px);
+}
+
+/* Main Content Card - previously .travelCard but now wrapped or separated */
+.travelContent {
+    background: #FFFFFF;
+    border-radius: 12px;
+    padding: 28px;
+    box-sizing: border-box;
+    box-shadow: 0 20px 40px rgba(30, 41, 59, 0.18);
+    border: 1px solid rgba(100, 116, 139, 0.18);
+}
+
+.title {
+    margin: 0;
+    font-size: 22px;
+    /* Adopted Profile Page size */
+    color: #1E293B;
+}
+
+.title span {
+    color: #0056D2;
+}
+
+.subtitle {
+    margin: 6px 0 0 0;
+    font-size: 13px;
+    color: #64748B;
+}
+
+/* Search Form */
+.searchForm {
+    background: #F8FAFC;
+    border: 1px solid #E2E8F0;
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 24px;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr) auto;
+    gap: 16px;
+    align-items: end;
+}
+
+@media (max-width: 768px) {
+    .searchForm {
+        grid-template-columns: 1fr;
+    }
+}
+
+.formGroup {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.formLabel {
+    font-size: 12px;
+    font-weight: 700;
+    color: #64748B;
+    text-transform: uppercase;
+}
+
+/* Shared Input & Select Styles */
+.formInput {
+    padding: 10px 12px;
+    border: 1px solid #CBD5E1;
+    border-radius: 8px;
+    font-size: 14px;
+    color: #1E293B;
+    outline: none;
+    transition: all 0.2s;
+    background-color: #FFFFFF;
+    height: 42px;
+    /* specific height to align inputs and selects */
     box-sizing: border-box;
 }
 
-.input-wrapper input {
-    border: none;
-    background: transparent;
-    width: 100%;
-    font-size: 16px;
-    color: #333;
-    font-weight: 600;
-    outline: none;
-    height: 100%;
+.formInput:focus {
+    border-color: #0056D2;
+    box-shadow: 0 0 0 3px rgba(0, 86, 210, 0.1);
+    background-color: #FFFFFF;
 }
 
-.swap-icon {
-    font-size: 18px;
-    color: #888;
+/* Custom styling for select dropdowns to match inputs */
+select.formInput {
+    appearance: none;
+    background-image: linear-gradient(45deg, transparent 50%, #64748B 50%),
+        linear-gradient(135deg, #64748B 50%, transparent 50%);
+    background-position: calc(100% - 20px) calc(50%),
+        calc(100% - 15px) calc(50%);
+    background-size: 5px 5px,
+        5px 5px;
+    background-repeat: no-repeat;
     cursor: pointer;
-    margin: 0 10px;
+}
+
+/* Enhanced Date Input Styling */
+.dateInput {
+    background-color: transparent;
+    border: 1px solid transparent;
+    border-bottom: 2px solid #CBD5E1;
+    /* Only bottom border for "blended" feel */
+    border-radius: 0;
+    color: #1E293B;
+    font-weight: 700;
+    padding: 10px 4px;
+    cursor: pointer;
+    /* Use app color scheme for calendar popup */
+    color-scheme: light;
+}
+
+.dateInput:hover {
+    border-bottom-color: #0056D2;
+    background-color: rgba(255, 255, 255, 0.5);
+}
+
+.dateInput:focus {
+    outline: none;
+    border-bottom-color: #0056D2;
+    box-shadow: none;
+    background-color: #FFFFFF;
+}
+
+/* Customize the calendar icon (webkit only) */
+.dateInput::-webkit-calendar-picker-indicator {
+    cursor: pointer;
+    opacity: 0.6;
+    transition: opacity 0.2s;
+    padding: 4px;
+}
+
+.dateInput::-webkit-calendar-picker-indicator:hover {
+    opacity: 1;
+    background-color: rgba(0, 86, 210, 0.1);
+    border-radius: 4px;
 }
 
 
-
-/* Search Button */
-/* Search Button */
-.search-btn {
-    background-color: #007bff;
-    /* Blue */
+.searchBtn {
+    background: #0056D2;
     color: white;
     border: none;
-    padding: 15px 30px;
     border-radius: 8px;
-    font-size: 16px;
-    font-weight: bold;
+    padding: 10px 24px;
+    font-weight: 700;
+    font-size: 14px;
     cursor: pointer;
-    transition: background-color 0.2s;
+    transition: background 0.2s;
+    height: 42px;
 }
 
-.search-btn:hover {
-    background-color: #0056b3;
+.searchBtn:hover {
+    background: #0044A4;
 }
 
-
-
-/* Expeditions Container */
-.expeditions-container {
-    width: 90%;
-    max-width: 1100px;
+/* List Styles */
+.listWrap {
     display: flex;
     flex-direction: column;
-    gap: 15px;
+    gap: 12px;
+}
+
+.emptyBox {
+    border: 1px dashed rgba(203, 213, 225, 1);
+    border-radius: 12px;
+    padding: 24px;
+    color: #64748B;
+    background: #FFFFFF;
+    text-align: center;
+    font-size: 14px;
 }
 
 /* Expedition Card */
-.expedition-card {
-    background-color: white;
-    border-radius: 8px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+.expeditionCard {
+    background: #FFFFFF;
+    border: 1px solid #CBD5E1;
+    border-radius: 12px;
+    transition: all 0.2s ease;
+    display: flex;
+    flex-direction: column;
     overflow: hidden;
-    transition: box-shadow 0.2s;
-    border: 1px solid #eee;
 }
 
-.expedition-card:hover {
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+/* New: Card Main Area (always visible) */
+.cardMain {
+    padding: 16px;
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 16px;
+    align-items: center;
 }
 
-.card-header {
+.expeditionCard:hover {
+    border-color: rgba(0, 86, 210, 0.35);
+    box-shadow: 0 12px 24px rgba(30, 41, 59, 0.1);
+}
+
+.cardLeft {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.routeInfo {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.companyName {
+    font-size: 12px;
+    font-weight: 800;
+    color: #64748B;
+    background: #F1F5F9;
+    padding: 4px 8px;
+    border-radius: 4px;
+}
+
+.routeText {
+    font-size: 16px;
+    font-weight: 800;
+    color: #1E293B;
+}
+
+.routeArrow {
+    color: #0056D2;
+    margin: 0 4px;
+}
+
+.detailsGrid {
+    display: flex;
+    gap: 24px;
+    flex-wrap: wrap;
+}
+
+.detailItem {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.detailLabel {
+    font-size: 11px;
+    font-weight: 700;
+    color: #94A3B8;
+    text-transform: uppercase;
+}
+
+.detailValue {
+    font-size: 14px;
+    font-weight: 600;
+    color: #334155;
+}
+
+.cardRight {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 8px;
+    border-left: 1px solid #E2E8F0;
+    padding-left: 16px;
+    min-width: 120px;
+}
+
+.priceTag {
+    font-size: 20px;
+    font-weight: 800;
+    color: #0056D2;
+}
+
+.buyBtn {
+    background: #0056D2;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    padding: 8px 20px;
+    font-weight: 700;
+    font-size: 13px;
+    cursor: pointer;
+    transition: background 0.2s;
+    width: 100%;
+}
+
+.buyBtn:hover {
+    background: #0044A4;
+    box-shadow: 0 4px 6px -1px rgba(0, 86, 210, 0.2);
+}
+
+/* SEAT SELECTION AREA */
+.seatSelectionArea {
+    border-top: 1px solid #E2E8F0;
+    background: #F8FAFC;
+    padding: 20px;
+    animation: slideDown 0.3s ease-out;
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.seatAreaHeader {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 20px;
-    cursor: pointer;
+    margin-bottom: 20px;
 }
 
-.company-info h3 {
+.seatAreaHeader h3 {
     margin: 0;
-    color: #333;
-    font-size: 18px;
-}
-
-.time-info {
-    display: flex;
-    align-items: center;
-    gap: 10px;
     font-size: 16px;
+    color: #1E293B;
 }
 
-.time-info .time {
-    font-weight: bold;
-    color: #333;
+.seatLegend {
+    display: flex;
+    gap: 16px;
 }
 
-.time-info .duration {
-    font-size: 14px;
-    color: #888;
-}
-
-.price-info {
+.legendItem {
+    font-size: 12px;
     display: flex;
     align-items: center;
-    gap: 15px;
+    gap: 6px;
+    color: #64748B;
+    font-weight: 600;
 }
 
-.price-info .price {
-    font-size: 20px;
-    font-weight: bold;
-    color: #333;
+.dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 4px;
+    display: inline-block;
 }
 
-.select-btn {
-    background-color: #d92938;
-    /* Red Button */
+.dot.available {
+    background: #FFFFFF;
+    border: 1px solid #CBD5E1;
+}
+
+.dot.booked {
+    background: #CBD5E1;
+    opacity: 0.5;
+}
+
+.dot.selected {
+    background: #0056D2;
+}
+
+.seatsLoading {
+    text-align: center;
+    padding: 40px;
+    color: #64748B;
+    font-size: 14px;
+}
+
+.seatGridContainer {
+    display: flex;
+    flex-direction: row;
+    align-items: flex-start;
+    gap: 24px;
+    overflow-x: auto;
+    padding-bottom: 12px;
+}
+
+.driverArea {
+    width: 60px;
+    min-height: 200px;
+    /* span height of seats */
+    display: flex;
+    align-items: flex-end;
+    /* Driver at bottom-left */
+    justify-content: center;
+    border-bottom: none;
+    border-right: 2px solid #E2E8F0;
+    margin-bottom: 0;
+    margin-right: 0;
+    padding-right: 16px;
+}
+
+.driverSeat {
+    writing-mode: vertical-rl;
+    /* Rotate text */
+    text-orientation: mixed;
+    transform: rotate(180deg);
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    color: #94A3B8;
+    background: #F1F5F9;
+    padding: 10px 6px;
+    border-radius: 6px;
+    border: 1px dashed #CBD5E1;
+}
+
+.busLayout {
+    display: grid;
+    /* 5 rows: 2 seats, 1 gap, 2 seats */
+    grid-template-rows: 40px 40px 40px 40px 40px;
+    grid-auto-flow: column;
+    gap: 12px 14px;
+    /* row-gap(vertical) col-gap(horizontal) */
+}
+
+/* Force seats into specific rows to skip the middle "aisle" row (row 3) */
+.seat:nth-child(4n+1) {
+    grid-row: 1;
+}
+
+.seat:nth-child(4n+2) {
+    grid-row: 2;
+}
+
+.seat:nth-child(4n+3) {
+    grid-row: 4;
+}
+
+.seat:nth-child(4n+4) {
+    grid-row: 5;
+}
+
+/* Make "aisle" by adding margin to every 2nd child? Or simpler: simple grid for now */
+
+.seat {
+    width: 40px;
+    height: 40px;
+    border-radius: 8px;
+    border: 1px solid #CBD5E1;
+    background: #FFFFFF;
+    font-size: 12px;
+    font-weight: 700;
+    color: #1E293B;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: grid;
+    place-items: center;
+}
+
+.seat:hover:not(:disabled) {
+    border-color: #0056D2;
+    transform: translateY(-2px);
+}
+
+.seat.booked {
+    background: #E2E8F0;
+    color: #94A3B8;
+    border-color: transparent;
+    cursor: not-allowed;
+}
+
+.seat.selected {
+    background: #0056D2;
+    color: #FFFFFF;
+    border-color: #0056D2;
+    box-shadow: 0 4px 10px rgba(0, 86, 210, 0.3);
+}
+
+.seatFooter {
+    margin-top: 24px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-top: 1px solid #E2E8F0;
+    padding-top: 16px;
+}
+
+.selectionSummary {
+    font-weight: 700;
+    color: #1E293B;
+}
+
+.confirmBtn {
+    background: #10B981;
     color: white;
     border: none;
-    padding: 8px 20px;
-    border-radius: 20px;
-    font-weight: 600;
+    border-radius: 8px;
+    padding: 10px 24px;
+    font-weight: 700;
+    font-size: 14px;
     cursor: pointer;
+    transition: background 0.2s;
 }
 
-.select-btn:hover {
-    background-color: #c02330;
+.confirmBtn:hover {
+    background: #059669;
 }
 
-/* Seat Selection Area */
-.seat-selection-area {
-    background-color: #f8f9fa;
-    padding: 20px;
-    border-top: 1px solid #eee;
-    animation: fadeIn 0.3s ease;
+.confirmBtn:disabled {
+    background: #E2E8F0;
+    color: #94A3B8;
+    cursor: not-allowed;
+}
+
+.footerText {
+    margin-top: 16px;
+    text-align: center;
+    font-size: 13px;
+    color: #64748B;
+}
+
+.link {
+    color: #0056D2;
+    font-weight: 600;
+    text-decoration: none;
+}
+
+.link:hover {
+    text-decoration: underline;
+}
+
+/* MODAL STYLES */
+.modalOverlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(15, 23, 42, 0.6);
+    backdrop-filter: blur(4px);
+    display: grid;
+    place-items: center;
+    z-index: 1000;
+    animation: fadeIn 0.2s ease-out;
 }
 
 @keyframes fadeIn {
@@ -193,287 +598,129 @@
     }
 }
 
-.bus-layout {
-    display: flex;
-    /* Horizontal alignment */
-    flex-wrap: wrap;
-    /* Wrap if too many seats */
-    gap: 10px;
-    max-width: 100%;
-    margin: 20px 0;
-    justify-content: flex-start;
-}
-
-/* SEAT STYLES */
-.seat {
-    width: 40px;
-    height: 40px;
-    background-color: #e0e0e0;
-    /* Default/Available */
-    border-radius: 8px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-weight: bold;
-    cursor: pointer;
-    font-size: 14px;
-    transition: all 0.2s;
-    border: 2px solid transparent;
-}
-
-.seat.available {
-    background-color: #fff;
-    border: 2px solid #ccc;
-    color: #333;
-}
-
-.seat.available:hover {
-    background-color: #e3f2fd;
-    border-color: #2196f3;
-}
-
-.seat.reserved {
-    background-color: #ccc;
-    color: #888;
-    cursor: not-allowed;
-    text-decoration: line-through;
-}
-
-.seat.selected {
-    background-color: #2196f3;
-    color: white;
-    border-color: #1976d2;
-}
-
-/* Purchase Action */
-.purchase-action {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-top: 20px;
-    border-top: 1px solid #eee;
-    padding-top: 15px;
-}
-
-.purchase-btn {
-    background-color: #007bff;
-    /* Blue */
-    color: white;
-    padding: 10px 25px;
-    border: none;
-    border-radius: 6px;
-    font-size: 16px;
-    cursor: pointer;
-}
-
-.purchase-btn:disabled {
-    background-color: #95a5a6;
-    cursor: not-allowed;
-}
-
-/* Modal / Popup Styles */
-.modal-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.5);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    z-index: 1000;
-}
-
-.modal-content {
-    background-color: white;
-    padding: 30px;
-    border-radius: 12px;
+.modalCard {
+    background: #FFFFFF;
+    border-radius: 16px;
     width: 90%;
-    max-width: 500px;
-    position: relative;
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
-    text-align: center;
+    max-width: 480px;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+    overflow: hidden;
+    animation: scaleIn 0.2s ease-out;
 }
 
-.modal-close-btn {
-    position: absolute;
-    top: 15px;
-    right: 15px;
-    background: none;
+@keyframes scaleIn {
+    from {
+        transform: scale(0.95);
+        opacity: 0;
+    }
+
+    to {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+.modalHeader {
+    padding: 20px 24px;
+    border-bottom: 1px solid #E2E8F0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.modalHeader h3 {
+    margin: 0;
+    font-size: 18px;
+    color: #1E293B;
+}
+
+.closeModalBtn {
+    background: transparent;
     border: none;
     font-size: 20px;
+    color: #64748B;
     cursor: pointer;
-    color: #666;
 }
 
-.success-icon {
-    font-size: 40px;
-    color: #28a745;
-    margin-bottom: 15px;
+.modalBody {
+    padding: 24px;
 }
 
-.ticket-details {
-    text-align: left;
-    margin-top: 20px;
-    background-color: #f8f9fa;
-    padding: 15px;
-    border-radius: 8px;
-    color: #333;
-    /* Explicitly set text color to fix visibility bug */
-}
-
-.ticket-details p {
-    margin: 8px 0;
-    line-height: 1.4;
-}
-
-/* City Autocomplete Styles */
-.city-autocomplete-wrapper {
-    position: relative;
-    width: 100%;
-    height: 100%;
-    display: flex;
-    align-items: center;
-}
-
-.suggestions-list {
-    position: absolute;
-    top: 100%;
-    left: 0;
-    width: 100%;
-    background-color: white;
-    border: 1px solid #e0e0e0;
-    border-radius: 0 0 8px 8px;
-    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
-    /* Improved shadow */
-    max-height: 250px;
-    overflow-y: auto;
-    z-index: 1001;
-    margin-top: 5px;
-    padding: 5px 0;
-}
-
-.suggestion-item {
-    padding: 12px 20px;
-    cursor: pointer;
-    border-bottom: 1px solid #f9f9f9;
-    font-size: 15px;
-    color: #444;
-    transition: background-color 0.2s, color 0.2s;
-}
-
-.suggestion-item:last-child {
-    border-bottom: none;
-}
-
-.suggestion-item:hover,
-.suggestion-item.active {
-    background-color: #e3f2fd;
-    /* Light blue highlight */
-    color: #007bff;
-    font-weight: 600;
-}
-
-/* Custom Date Picker Styles */
-.custom-date-picker {
-    position: relative;
-    width: 100%;
-    height: 100%;
-    /* Fill wrapper */
-}
-
-.date-trigger {
-    background-color: transparent;
-    /* Wrapper handles bg */
-    padding: 0;
-    /* Wrapper handles padding */
-    height: 100%;
-    width: 100%;
-    border-radius: 8px;
-    cursor: pointer;
-    font-weight: 600;
-    color: #333;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    user-select: none;
-}
-
-.calendar-popup {
-    position: absolute;
-    top: 110%;
-    left: 0;
-    background: white;
-    border: 1px solid #ddd;
-    border-radius: 12px;
-    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
-    z-index: 1000;
-    padding: 15px;
-    width: 280px;
-    animation: fadeIn 0.2s ease;
-}
-
-.calendar-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 15px;
-}
-
-.calendar-header span {
-    font-weight: bold;
-    color: #333;
-}
-
-.calendar-header button {
-    background: none;
-    border: none;
-    cursor: pointer;
-    font-size: 18px;
-    color: #007bff;
-    padding: 5px 10px;
-    border-radius: 4px;
-}
-
-.calendar-header button:hover {
-    background-color: #f1f3f5;
-}
-
-.calendar-grid {
-    display: grid;
-    grid-template-columns: repeat(7, 1fr);
-    gap: 5px;
-    text-align: center;
-}
-
-.calendar-day-label {
-    font-size: 12px;
-    color: #888;
-    margin-bottom: 5px;
-    font-weight: 600;
-}
-
-.calendar-day {
-    padding: 8px 0;
+.modalSubtitle {
+    margin: 0 0 20px 0;
     font-size: 14px;
+    color: #64748B;
+}
+
+.savedCardsList {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.savedCardItem {
+    border: 1px solid #E2E8F0;
+    border-radius: 12px;
+    padding: 16px;
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    gap: 16px;
+    align-items: center;
     cursor: pointer;
+    transition: all 0.2s;
+}
+
+.savedCardItem:hover {
+    border-color: #0056D2;
+    background: #F8FAFC;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+}
+
+.cardIcon {
+    font-size: 24px;
+    background: #F1F5F9;
+    width: 40px;
+    height: 40px;
+    display: grid;
+    place-items: center;
+    border-radius: 8px;
+}
+
+.cardDetails {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.cardNumber {
+    font-size: 14px;
+    font-weight: 700;
+    color: #1E293B;
+}
+
+.cardExpiry {
+    font-size: 12px;
+    color: #64748B;
+}
+
+.payNowBtn {
+    background: #0056D2;
+    color: white;
+    border: none;
     border-radius: 6px;
-    color: #333;
+    padding: 8px 16px;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
     transition: background 0.2s;
 }
 
-.calendar-day:hover {
-    background-color: #e3f2fd;
-    color: #007bff;
+.payNowBtn:hover {
+    background: #0044A4;
 }
 
-.calendar-day.selected {
-    background-color: #007bff;
-    color: white;
-}
-
-.calendar-day.empty {
-    cursor: default;
-    pointer-events: none;
+.payNowBtn:disabled {
+    background: #94A3B8;
+    cursor: not-allowed;
 }

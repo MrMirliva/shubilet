@@ -1,554 +1,462 @@
-import React, { useState } from 'react';
-import './Travel.css';
+
+import React, { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import "./Travel.css";
+
+// Simple top bar if needed, or we rely on the in-page header
+function TravelHeader() {
+    return (
+        <div style={{ position: "absolute", top: 20, left: 20, zIndex: 10 }}>
+            <Link to="/" style={{ textDecoration: "none", fontWeight: "bold", color: "#0056D2" }}>
+                ← Home
+            </Link>
+        </div>
+    );
+}
 
 const CITIES = [
-    "Adana", 
-    "Adıyaman", 
-    "Afyonkarahisar", 
-    "Ağrı", 
-    "Aksaray", 
-    "Amasya", 
-    "Ankara", 
-    "Antalya", 
-    "Ardahan", 
-    "Artvin", 
-    "Aydın", 
-    "Balıkesir", 
-    "Bartın", 
-    "Batman", 
-    "Bayburt", 
-    "Bilecik", 
-    "Bingöl", 
-    "Bitlis", 
-    "Bolu", 
-    "Burdur", 
-    "Bursa", 
-    "Çanakkale", 
-    "Çankırı", 
-    "Çorum", 
-    "Denizli", 
-    "Diyarbakır", 
-    "Düzce", 
-    "Edirne", 
-    "Elazığ", 
-    "Erzincan", 
-    "Erzurum", 
-    "Eskişehir", 
-    "Gaziantep", 
-    "Giresun", 
-    "Gümüşhane", 
-    "Hakkari", 
-    "Hatay", 
-    "Iğdır", 
-    "Isparta", 
-    "İstanbul", 
-    "İzmir", 
-    "Kahramanmaras", 
-    "Karabük", 
-    "Karaman", 
-    "Kars", 
-    "Kastamonu", 
-    "Kayseri", 
-    "Kırıkkale", 
-    "Kırklareli", 
-    "Kırşehir", 
-    "Kilis", 
-    "Kocaeli", 
-    "Konya", 
-    "Kütahya", 
-    "Malatya", 
-    "Manisa", 
-    "Mardin", 
-    "Mersin", 
-    "Muğla", 
-    "Muş", 
-    "Nevşehir", 
-    "Niğde", 
-    "Ordu", 
-    "Osmaniye", 
-    "Rize", 
-    "Sakarya", 
-    "Samsun", 
-    "Siirt", 
-    "Sinop", 
-    "Sivas", 
-    "Şanlıurfa", 
-    "Şırnak", 
-    "Tekirdağ", 
-    "Tokat", 
-    "Trabzon", 
-    "Tunceli", 
-    "Uşak", 
-    "Van", 
-    "Yalova", 
-    "Yozgat", 
+    "Adana",
+    "Adıyaman",
+    "Afyonkarahisar",
+    "Ağrı",
+    "Aksaray",
+    "Amasya",
+    "Ankara",
+    "Antalya",
+    "Ardahan",
+    "Artvin",
+    "Aydın",
+    "Balıkesir",
+    "Bartın",
+    "Batman",
+    "Bayburt",
+    "Bilecik",
+    "Bingöl",
+    "Bitlis",
+    "Bolu",
+    "Burdur",
+    "Bursa",
+    "Çanakkale",
+    "Çankırı",
+    "Çorum",
+    "Denizli",
+    "Diyarbakır",
+    "Düzce",
+    "Edirne",
+    "Elazığ",
+    "Erzincan",
+    "Erzurum",
+    "Eskişehir",
+    "Gaziantep",
+    "Giresun",
+    "Gümüşhane",
+    "Hakkari",
+    "Hatay",
+    "Iğdır",
+    "Isparta",
+    "İstanbul",
+    "İzmir",
+    "Kahramanmaras",
+    "Karabük",
+    "Karaman",
+    "Kars",
+    "Kastamonu",
+    "Kayseri",
+    "Kırıkkale",
+    "Kırklareli",
+    "Kırşehir",
+    "Kilis",
+    "Kocaeli",
+    "Konya",
+    "Kütahya",
+    "Malatya",
+    "Manisa",
+    "Mardin",
+    "Mersin",
+    "Muğla",
+    "Muş",
+    "Nevşehir",
+    "Niğde",
+    "Ordu",
+    "Osmaniye",
+    "Rize",
+    "Sakarya",
+    "Samsun",
+    "Siirt",
+    "Sinop",
+    "Sivas",
+    "Şanlıurfa",
+    "Şırnak",
+    "Tekirdağ",
+    "Tokat",
+    "Trabzon",
+    "Tunceli",
+    "Uşak",
+    "Van",
+    "Yalova",
+    "Yozgat",
     "Zonguldak"
 ];
 
-const CitySearchInput = ({ value, onChange, placeholder }) => {
-    const [suggestions, setSuggestions] = useState([]);
-    const [isFocused, setIsFocused] = useState(false);
+const MOCK_EXPEDITIONS = [
+    {
+        expeditionId: 101,
+        departureCity: "İstanbul",
+        arrivalCity: "Ankara",
+        date: "2023-12-25",
+        time: "14:30",
+        price: 450.0,
+        duration: 360, // minutes
+        companyName: "Metro Turizm",
+    },
+    {
+        expeditionId: 102,
+        departureCity: "İzmir",
+        arrivalCity: "İstanbul",
+        date: "2023-12-26",
+        time: "09:00",
+        price: 600.0,
+        duration: 480,
+        companyName: "Kamil Koç",
+    },
+    {
+        expeditionId: 103,
+        departureCity: "İstanbul",
+        arrivalCity: "Antalya",
+        date: "2023-12-27",
+        time: "22:00",
+        price: 750.5,
+        duration: 540,
+        companyName: "Pamukkale",
+    },
+    {
+        expeditionId: 104,
+        departureCity: "Ankara",
+        arrivalCity: "İstanbul",
+        date: "2023-12-25",
+        time: "10:00",
+        price: 500.0,
+        duration: 300,
+        companyName: "Varan",
+    }
+];
 
-    const handleInputChange = (e) => {
-        const inputVal = e.target.value;
-        onChange(inputVal);
+// Mock Saved Cards
+const MOCK_SAVED_CARDS = [
+    { cardId: "card_1", last4Digits: "4242", expirationMonth: "12", expirationYear: "25" },
+    { cardId: "card_2", last4Digits: "8888", expirationMonth: "08", expirationYear: "28" },
+    { cardId: "card_3", last4Digits: "1111", expirationMonth: "01", expirationYear: "30" },
+];
 
-        if (inputVal.length > 0) {
-            const filtered = CITIES.filter(city =>
-                city.toLocaleLowerCase('tr-TR').startsWith(inputVal.toLocaleLowerCase('tr-TR'))
-            );
-            setSuggestions(filtered);
-        } else {
-            setSuggestions([]);
-        }
-    };
+export default function Travel() {
+    const navigate = useNavigate();
 
-    const handleSelectCity = (city) => {
-        onChange(city);
-        setSuggestions([]);
-        setIsFocused(false);
-    };
+    // Search filter states
+    const [fromCity, setFromCity] = useState("");
+    const [toCity, setToCity] = useState("");
+    const [date, setDate] = useState("");
 
-    const handleKeyDown = (e) => {
-        if (e.key === 'Enter') {
-            if (suggestions.length > 0) {
-                // Select the first (top) suggestion
-                handleSelectCity(suggestions[0]);
-                e.preventDefault();
-            }
-        }
-    };
+    // Data states
+    const [expeditions, setExpeditions] = useState([]); // Start empty
+    const [isLoading, setIsLoading] = useState(false);
+    const [hasSearched, setHasSearched] = useState(false); // To distinguish initial load vs empty search result
 
-    // Close suggestions after short delay to allow click event to register
-    const handleBlur = () => {
-        setTimeout(() => setIsFocused(false), 200);
-    };
+    // Inline Seat Selection States
+    const [expandedExpeditionId, setExpandedExpeditionId] = useState(null);
+    const [seats, setSeats] = useState([]); // Array of {seatNo, status}
+    const [selectedSeat, setSelectedSeat] = useState(null); // Single selection
+    const [isSeatsLoading, setIsSeatsLoading] = useState(false);
 
-    return (
-        <div className="city-autocomplete-wrapper">
-            <input
-                type="text"
-                value={value}
-                onChange={handleInputChange}
-                onKeyDown={handleKeyDown}
-                onFocus={() => setIsFocused(true)}
-                onBlur={handleBlur}
-                placeholder={placeholder}
-            />
-            {isFocused && suggestions.length > 0 && (
-                <div className="suggestions-list">
-                    {suggestions.map((city, index) => (
-                        <div
-                            key={city}
-                            className={`suggestion-item ${index === 0 ? 'active' : ''}`}
-                            onClick={() => handleSelectCity(city)}
-                        >
-                            {city}
-                        </div>
-                    ))}
-                </div>
-            )}
-        </div>
-    );
-};
-
-const CustomDatePicker = ({ selectedDate, onChange }) => {
-    const [isOpen, setIsOpen] = useState(false);
-    const dateObj = selectedDate ? new Date(selectedDate) : new Date();
-    const [currentMonth, setCurrentMonth] = useState(dateObj);
-
-    const daysInMonth = new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1, 0).getDate();
-    const firstDay = new Date(currentMonth.getFullYear(), currentMonth.getMonth(), 1).getDay();
-
-    const handlePrevMonth = (e) => {
-        e.stopPropagation();
-        setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() - 1, 1));
-    };
-
-    const handleNextMonth = (e) => {
-        e.stopPropagation();
-        setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1, 1));
-    };
-
-    const handleDayClick = (day) => {
-        const year = currentMonth.getFullYear();
-        const month = (currentMonth.getMonth() + 1).toString().padStart(2, '0');
-        const dayStr = day.toString().padStart(2, '0');
-        onChange(`${year}-${month}-${dayStr}`);
-        setIsOpen(false);
-    };
-
-    // Close on click outside could be handled by a backdrop or ref, but for simplicity relying on toggle
-    return (
-        <div className="custom-date-picker">
-            <div className="date-trigger" onClick={() => setIsOpen(!isOpen)}>
-                {selectedDate || "Select Date"}
-                <span>📅</span>
-            </div>
-            {isOpen && (
-                <div className="calendar-popup">
-                    <div className="calendar-header">
-                        <button onClick={handlePrevMonth}>&lt;</button>
-                        <span>{currentMonth.toLocaleString('default', { month: 'long', year: 'numeric' })}</span>
-                        <button onClick={handleNextMonth}>&gt;</button>
-                    </div>
-                    <div className="calendar-grid">
-                        {['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'].map(d => (
-                            <div key={d} className="calendar-day-label">{d}</div>
-                        ))}
-                        {Array(firstDay).fill(null).map((_, i) => (
-                            <div key={`empty-${i}`} className="calendar-day empty"></div>
-                        ))}
-                        {Array(daysInMonth).fill(null).map((_, i) => {
-                            const day = i + 1;
-                            const isSelected = selectedDate === `${currentMonth.getFullYear()}-${(currentMonth.getMonth() + 1).toString().padStart(2, '0')}-${day.toString().padStart(2, '0')}`;
-
-                            return (
-                                <div key={day}
-                                    className={`calendar-day ${isSelected ? 'selected' : ''}`}
-                                    onClick={() => handleDayClick(day)}>
-                                    {day}
-                                </div>
-                            );
-                        })}
-                    </div>
-                </div>
-            )}
-        </div>
-    );
-};
-
-const Travel = () => {
-    // --- State ---
-    const [searchParams, setSearchParams] = useState({
-        from: 'İzmir',
-        to: 'Bursa',
-        date: '2026-02-15'
-    });
-
-    const [expeditions, setExpeditions] = useState([]);
-    const [hasSearched, setHasSearched] = useState(false);
-    const [searchError, setSearchError] = useState(null);
-
-    // Selection State
-    const [selectedExpeditionId, setSelectedExpeditionId] = useState(null);
-    const [selectedSeat, setSelectedSeat] = useState(null);
-
-    // Ticket State
-    const [purchasedTicket, setPurchasedTicket] = useState(null);
-
-    // --- Mock Data Generators ---
-    const generateSeats = () => {
-        const tickets = [];
-        for (let i = 1; i <= 40; i++) {
-            // Randomly assign reserved status (approx 30% reserved)
-            const isReserved = Math.random() < 0.3;
-            tickets.push({
-                id: i,
-                number: i,
-                status: isReserved ? 'reserved' : 'available'
-            });
-        }
-        return tickets;
-    };
+    // Payment Modal State
+    const [showPaymentModal, setShowPaymentModal] = useState(false);
+    const [isProcessingPayment, setIsProcessingPayment] = useState(false);
 
     const fetchExpeditions = async () => {
-        const body = {
-            departureCity: searchParams.from,
-            arrivalCity: searchParams.to,
-            date: searchParams.date
-        };
-        console.log("Fetching expeditions with:", body);
-        setSearchError(null);
-        try {
-            const response = await fetch('/api/expedition/customer/get/search/expeditions', {
-                method: 'POST',
-                credentials: "include",
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(body)
-            });
-
-            if (!response.ok) {
-                setSearchError("No expedition found or error occurred.");
-                return [];
-            }
-
-            const data = await response.json();
-            const rawList = data.expeditions || [];
-
-            if (rawList.length === 0) {
-                setSearchError("No expeditions found.");
-            }
-
-            return rawList.map(item => ({
-                id: item.expeditionId,
-                companyName: item.companyName,
-                departureTime: item.time ? item.time.substring(0, 5) : "00:00",
-                arrivalTime: calculateArrival(item.time, item.duration),
-                price: item.price,
-                duration: formatDuration(item.duration),
-                from: item.departureCity,
-                to: item.arrivalCity,
-                date: item.date,
-                tickets: null
-            }));
-
-        } catch (error) {
-            console.error("Error fetching expeditions:", error);
-            setSearchError("No expeditions found (Connection Error).");
-            return [];
-        }
-    };
-
-    const fetchSeats = async (expeditionId) => {
-        try {
-            const response = await fetch('/api/expedition/customer/get/search/seats', {
-                method: 'POST',
-                credentials: "include",
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ expeditionId })
-            });
-
-            if (!response.ok) {
-                console.error("Failed to fetch tickets");
-                return null;
-            }
-
-            const data = await response.json();
-            console.log("Fetched tickets:", data.message);
-            return data.tickets;
-        } catch (error) {
-            console.error("Error fetching tickets:", error);
-            return null;
-        }
-    };
-
-    // Helper to format duration (assuming int minutes from API)
-    const formatDuration = (minutes) => {
-        const h = Math.floor(minutes / 60);
-        const m = minutes % 60;
-        return `${h}h ${m}m`;
-    };
-
-    // Helper to calc arrival
-    const calculateArrival = (timeStr, durationMinutes) => {
-        if (!timeStr) return "00:00";
-        const [hours, mins] = timeStr.split(':').map(Number);
-        const totalMins = hours * 60 + mins + durationMinutes;
-        const newH = Math.floor(totalMins / 60) % 24;
-        const newM = totalMins % 60;
-        return `${newH.toString().padStart(2, '0')}:${newM.toString().padStart(2, '0')}`;
-    };
-
-    // --- Handlers ---
-    const handleSearch = async () => {
-        console.log("Searching for:", searchParams);
-        // const results = mockFetchExpeditions(); // OLD MOCK
-        const results = await fetchExpeditions();
-        setExpeditions(results);
+        setIsLoading(true);
+        setExpeditions([]);
         setHasSearched(true);
-        setSelectedExpeditionId(null);
-        setSelectedSeat(null);
-        setPurchasedTicket(null);
+        setExpandedExpeditionId(null); // Reset expansion
+
+        // Simulate API delay
+        await new Promise(resolve => setTimeout(resolve, 800));
+
+        // Filter logic (simulated backend)
+        const results = MOCK_EXPEDITIONS.filter(exp => {
+            const matchFrom = fromCity ? exp.departureCity.toLowerCase().includes(fromCity.toLowerCase()) : true;
+            const matchTo = toCity ? exp.arrivalCity.toLowerCase().includes(toCity.toLowerCase()) : true;
+            const matchDate = date ? exp.date === date : true;
+            return matchFrom && matchTo && matchDate;
+        });
+
+        setExpeditions(results);
+        setIsLoading(false);
     };
 
-    const handleSwap = () => {
-        setSearchParams(prev => ({
-            ...prev,
-            from: prev.to,
-            to: prev.from
-        }));
+    const handleSearch = (e) => {
+        e.preventDefault();
+        fetchExpeditions();
     };
 
-    const toggleExpedition = async (id) => {
-        if (selectedExpeditionId === id) {
-            setSelectedExpeditionId(null);
-        } else {
-            setSelectedExpeditionId(id);
+    const toggleExpedition = async (expeditionId) => {
+        if (expandedExpeditionId === expeditionId) {
+            setExpandedExpeditionId(null);
+            setSeats([]);
             setSelectedSeat(null);
-            const expIndex = expeditions.findIndex(e => e.id === id);
-            if (expIndex !== -1 && !expeditions[expIndex].tickets) {
-                const tickets = await fetchSeats(id);
+            return;
+        }
 
-                console.log("Fetched tickets:", tickets);
-                setExpeditions(prev => {
-                    const next = [...prev];
-                    if (next[expIndex]) {
-                        // Map raw tickets to internal structure
-                        next[expIndex].tickets = tickets.map(s => ({
-                            id: s.seatNo,
-                            number: s.seatNo,
-                            status: String(s.status).toLowerCase() === 'reserved' ? 'reserved' : 'available'
-                        }));
-                    }
-                    return next;
-                });
-            }
+        setExpandedExpeditionId(expeditionId);
+        setSelectedSeat(null);
+        setIsSeatsLoading(true);
+        setSeats([]);
+
+        // Mock Seat API Call
+        await new Promise(resolve => setTimeout(resolve, 600));
+
+        // Generate mock seats (e.g. 40 seats)
+        const mockSeats = [];
+        for (let i = 1; i <= 40; i++) {
+            // Randomly assign status
+            const isBooked = Math.random() < 0.3; // 30% chance booked
+            mockSeats.push({
+                expeditionId: expeditionId,
+                seatNo: i,
+                status: isBooked ? "BOOKED" : "AVAILABLE"
+            });
+        }
+
+        setSeats(mockSeats);
+        setIsSeatsLoading(false);
+    };
+
+    const onSelectSeat = (seatNo) => {
+        if (selectedSeat === seatNo) {
+            setSelectedSeat(null);
+        } else {
+            setSelectedSeat(seatNo);
         }
     };
 
-    const handleSeatClick = (seat) => {
-        if (seat.status === 'reserved') return;
-        setSelectedSeat(seat);
+    const handleProceedToCheckout = () => {
+        if (!selectedSeat || !expandedExpeditionId) return;
+        setShowPaymentModal(true);
     };
 
-    const handlePurchase = (expedition) => {
-        if (!selectedSeat) return;
-
-        const ticket = {
-            pnr: 'PNR' + Math.floor(Math.random() * 1000000),
-            seatNo: selectedSeat.number,
-            expeditionId: expedition.id,
-            companyName: expedition.companyName,
-            from: expedition.from,
-            to: expedition.to,
-            date: expedition.date,
-            time: expedition.departureTime,
-            price: expedition.price
-        };
-        setPurchasedTicket(ticket);
-        console.log("Ticket Purchased!", ticket);
+    const handlePayWithCard = async (cardId) => {
+        setIsProcessingPayment(true);
+        // Simulate payment delay
+        await new Promise(resolve => setTimeout(resolve, 1500));
+        setIsProcessingPayment(false);
+        setShowPaymentModal(false);
+        alert(`Payment Successful with card ${cardId}! Ticket for Seat ${selectedSeat} booked.`);
+        setExpandedExpeditionId(null); // Close expansion
     };
 
     return (
-        <div className="travel-page-container">
-            {/* Search Section */}
-            <div className="search-section">
-                <div className="input-group">
-                    <label>From</label>
-                    <div className="input-wrapper" style={{ padding: 0 }}>
-                        <CitySearchInput
-                            value={searchParams.from}
-                            onChange={(val) => setSearchParams({ ...searchParams, from: val })}
-                            placeholder="Select City"
-                        />
+        <>
+            <TravelHeader />
+
+            <div className="travelPage">
+                <div className="travelCard">
+
+                    {/* Header adapted from ProfilePage */}
+                    <header className="travelHeader">
+                        <div>
+                            <h1 className="title">Find Your <span>Expedition</span></h1>
+                            <p className="subtitle">Search for the best bus tickets across the country</p>
+                        </div>
+                    </header>
+
+                    <div className="travelContent">
+                        <form className="searchForm" onSubmit={handleSearch}>
+                            <div className="formGroup">
+                                <label className="formLabel">From</label>
+                                <select
+                                    className="formInput"
+                                    value={fromCity}
+                                    onChange={(e) => setFromCity(e.target.value)}
+                                >
+                                    <option value="">Select city</option>
+                                    {CITIES.map(c => (
+                                        <option key={c} value={c}>{c}</option>
+                                    ))}
+                                </select>
+                            </div>
+
+                            <div className="formGroup">
+                                <label className="formLabel">To</label>
+                                <select
+                                    className="formInput"
+                                    value={toCity}
+                                    onChange={(e) => setToCity(e.target.value)}
+                                >
+                                    <option value="">Select city</option>
+                                    {CITIES.map(c => (
+                                        <option key={c} value={c}>{c}</option>
+                                    ))}
+                                </select>
+                            </div>
+
+                            <div className="formGroup">
+                                <label className="formLabel">Date</label>
+                                <input
+                                    type="date"
+                                    className="formInput dateInput"
+                                    value={date}
+                                    onChange={(e) => setDate(e.target.value)}
+                                />
+                            </div>
+
+                            <button type="submit" className="searchBtn" disabled={isLoading}>
+                                {isLoading ? "Searching..." : "Search"}
+                            </button>
+                        </form>
+
+                        <div className="listWrap">
+                            {isLoading ? (
+                                <div className="emptyBox">Searching...</div>
+                            ) : !hasSearched ? (
+                                <div className="emptyBox">
+                                    Enter your travel details above to see available expeditions.
+                                </div>
+                            ) : expeditions.length === 0 ? (
+                                <div className="emptyBox">
+                                    No expeditions found matching your criteria.
+                                </div>
+                            ) : (
+                                expeditions.map((exp) => {
+                                    const isExpanded = expandedExpeditionId === exp.expeditionId;
+
+                                    return (
+                                        <div key={exp.expeditionId} className={`expeditionCard ${isExpanded ? "expanded" : ""}`}>
+                                            <div className="cardMain">
+                                                <div className="cardLeft">
+                                                    <div className="routeInfo">
+                                                        <span className="companyName">{exp.companyName}</span>
+                                                        <div className="routeText">
+                                                            {exp.departureCity}
+                                                            <span className="routeArrow">→</span>
+                                                            {exp.arrivalCity}
+                                                        </div>
+                                                    </div>
+
+                                                    <div className="detailsGrid">
+                                                        <div className="detailItem">
+                                                            <span className="detailLabel">Date</span>
+                                                            <span className="detailValue">{exp.date}</span>
+                                                        </div>
+                                                        <div className="detailItem">
+                                                            <span className="detailLabel">Time</span>
+                                                            <span className="detailValue">{exp.time}</span>
+                                                        </div>
+                                                        <div className="detailItem">
+                                                            <span className="detailLabel">Duration</span>
+                                                            <span className="detailValue">{Math.floor(exp.duration / 60)}h {exp.duration % 60}m</span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                <div className="cardRight">
+                                                    <span className="priceTag">${exp.price}</span>
+                                                    <button
+                                                        className="buyBtn"
+                                                        onClick={() => toggleExpedition(exp.expeditionId)}
+                                                    >
+                                                        {isExpanded ? "Close" : "Buy Ticket"}
+                                                    </button>
+                                                </div>
+                                            </div>
+
+                                            {isExpanded && (
+                                                <div className="seatSelectionArea">
+                                                    <div className="seatAreaHeader">
+                                                        <h3>Select your Seat</h3>
+                                                        <div className="seatLegend">
+                                                            <span className="legendItem"><span className="dot available"></span> Available</span>
+                                                            <span className="legendItem"><span className="dot booked"></span> Booked</span>
+                                                            <span className="legendItem"><span className="dot selected"></span> Selected</span>
+                                                        </div>
+                                                    </div>
+
+                                                    {isSeatsLoading ? (
+                                                        <div className="seatsLoading">Loading seats...</div>
+                                                    ) : (
+                                                        <div className="seatGridContainer">
+                                                            <div className="driverArea">
+                                                                <span className="driverSeat">Driver</span>
+                                                            </div>
+                                                            <div className="busLayout">
+                                                                {seats.map((seat) => (
+                                                                    <button
+                                                                        key={seat.seatNo}
+                                                                        type="button"
+                                                                        className={`seat ${seat.status.toLowerCase()} ${selectedSeat === seat.seatNo ? "selected" : ""}`}
+                                                                        disabled={seat.status === "BOOKED"}
+                                                                        onClick={() => onSelectSeat(seat.seatNo)}
+                                                                    >
+                                                                        {seat.seatNo}
+                                                                    </button>
+                                                                ))}
+                                                            </div>
+                                                        </div>
+                                                    )}
+
+                                                    <div className="seatFooter">
+                                                        <div className="selectionSummary">
+                                                            {selectedSeat ? `Seat #${selectedSeat} selected` : "No seat selected"}
+                                                        </div>
+                                                        <button
+                                                            className="confirmBtn"
+                                                            disabled={!selectedSeat}
+                                                            onClick={handleProceedToCheckout}
+                                                        >
+                                                            Proceed to Checkout
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            )}
+                                        </div>
+                                    );
+                                })
+                            )}
+                        </div>
                     </div>
-                </div>
 
-                <div className="swap-icon" onClick={handleSwap}>
-                    ↔
+                    <p className="footerText">
+                        <Link to="/company" className="link">Are you a company?</Link>
+                    </p>
                 </div>
-
-                <div className="input-group">
-                    <label>To</label>
-                    <div className="input-wrapper" style={{ padding: 0 }}>
-                        <CitySearchInput
-                            value={searchParams.to}
-                            onChange={(val) => setSearchParams({ ...searchParams, to: val })}
-                            placeholder="Select City"
-                        />
-                    </div>
-                </div>
-
-                {/* Date Input Replaced with CustomDatePicker */}
-                <div className="input-group" style={{ flex: 0.5 }}>
-                    <label>Departure</label>
-                    <div className="input-wrapper" style={{ padding: 0, backgroundColor: 'transparent' }}>
-                        <CustomDatePicker
-                            selectedDate={searchParams.date}
-                            onChange={(newDate) => setSearchParams({ ...searchParams, date: newDate })}
-                        />
-                    </div>
-                </div>
-
-                <button className="search-btn" onClick={handleSearch}>
-                    Search
-                </button>
             </div>
 
-            {/* Ticket Info Modal */}
-            {purchasedTicket && (
-                <div className="modal-overlay" onClick={() => setPurchasedTicket(null)}>
-                    <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-                        <button className="modal-close-btn" onClick={() => setPurchasedTicket(null)}>
-                            &times;
-                        </button>
-                        <div className="success-icon">✓</div>
-                        <h3>Ticket Purchased Successfully!</h3>
+            {/* PAYMENT MODAL */}
+            {showPaymentModal && (
+                <div className="modalOverlay">
+                    <div className="modalCard">
+                        <div className="modalHeader">
+                            <h3>Select Payment Method</h3>
+                            <button className="closeModalBtn" onClick={() => setShowPaymentModal(false)}>✕</button>
+                        </div>
+                        <div className="modalBody">
+                            <p className="modalSubtitle">Choose a saved card to complete your purchase for <span style={{ fontWeight: 'bold', color: '#0056D2' }}>Seat {selectedSeat}</span></p>
 
-                        <div className="ticket-details">
-                            <p><strong>PNR:</strong> {purchasedTicket.pnr}</p>
-                            <p><strong>Seat:</strong> {purchasedTicket.seatNo}</p>
-                            <p><strong>Route:</strong> {purchasedTicket.from} - {purchasedTicket.to}</p>
-                            <p><strong>Time:</strong> {purchasedTicket.time}</p>
-                            <p><strong>Price:</strong> {purchasedTicket.price} TL</p>
+                            <div className="savedCardsList">
+                                {MOCK_SAVED_CARDS.map(card => (
+                                    <div key={card.cardId} className="savedCardItem" onClick={() => handlePayWithCard(card.cardId)}>
+                                        <div className="cardIcon">💳</div>
+                                        <div className="cardDetails">
+                                            <div className="cardNumber">**** **** **** {card.last4Digits}</div>
+                                            <div className="cardExpiry">Expires {card.expirationMonth}/{card.expirationYear}</div>
+                                        </div>
+                                        <button className="payNowBtn" disabled={isProcessingPayment}>
+                                            {isProcessingPayment ? "Processing..." : "Pay"}
+                                        </button>
+                                    </div>
+                                ))}
+                            </div>
                         </div>
                     </div>
                 </div>
             )}
-
-            {/* Expeditions List */}
-            <div className="expeditions-container">
-                {searchError && (
-                    <div className="search-error-message" style={{ color: 'red', textAlign: 'center', padding: '20px' }}>
-                        {searchError}
-                    </div>
-                )}
-                {!searchError && hasSearched && expeditions.length === 0 && (
-                    <p>No expeditions found.</p>
-                )}
-
-                {expeditions.map(exp => (
-                    <div key={exp.id} className={`expedition-card ${selectedExpeditionId === exp.id ? 'expanded' : ''}`}>
-                        {/* Card Header (Visible Always) */}
-                        <div className="card-header" onClick={() => toggleExpedition(exp.id)}>
-                            <div className="company-info">
-                                <h3>{exp.companyName}</h3>
-                            </div>
-                            <div className="time-info">
-                                <span className="time">{exp.departureTime}</span>
-                                <span className="duration">({exp.duration})</span>
-                                <span className="time">{exp.arrivalTime}</span>
-                            </div>
-                            <div className="price-info">
-                                <span className="price">{exp.price} TL</span>
-                                <button className="select-btn">
-                                    {selectedExpeditionId === exp.id ? 'Close' : 'Select'}
-                                </button>
-                            </div>
-                        </div>
-
-                        {/* Expanded Content (Seats) */}
-                        {selectedExpeditionId === exp.id && (
-                            <div className="seat-selection-area">
-                                <h4>Select a Seat</h4>
-                                <div className="bus-layout">
-                                    {!exp.tickets ? (
-                                        <div className="loading-tickets">Loading tickets...</div>
-                                    ) : (
-                                        exp.tickets.map(seat => (
-                                            <div
-                                                key={seat.id}
-                                                className={`seat ${seat.status} ${selectedSeat?.id === seat.id ? 'selected' : ''}`}
-                                                onClick={() => handleSeatClick(seat)}
-                                            >
-                                                {seat.number}
-                                            </div>
-                                        ))
-                                    )}
-                                </div>
-                                <div className="purchase-action">
-                                    <p>Selected Seat: <strong>{selectedSeat ? selectedSeat.number : '-'}</strong></p>
-                                    <button
-                                        className="purchase-btn"
-                                        disabled={!selectedSeat}
-                                        onClick={() => handlePurchase(exp)}
-                                    >
-                                        Purchase Ticket
-                                    </button>
-                                </div>
-                            </div>
-                        )}
-                    </div>
-                ))}
-            </div>
-
-        </div>
+        </>
     );
-};
-
-export default Travel;
+}
