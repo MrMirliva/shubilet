@@ -3,6 +3,7 @@ package com.shubilet.api_gateway.controllers;
 import com.shubilet.api_gateway.dataTransferObjects.MessageDTO;
 import com.shubilet.api_gateway.dataTransferObjects.external.requests.profileManagement.*;
 import com.shubilet.api_gateway.dataTransferObjects.external.responses.profileManagement.AdminProfileDTO;
+import com.shubilet.api_gateway.dataTransferObjects.external.responses.profileManagement.CardsDTO;
 import com.shubilet.api_gateway.dataTransferObjects.external.responses.profileManagement.CompanyProfileDTO;
 import com.shubilet.api_gateway.dataTransferObjects.external.responses.profileManagement.CustomerProfileDTO;
 
@@ -45,6 +46,9 @@ public interface ProfileManagementController {
     @PostMapping("/company/get")
     ResponseEntity<CompanyProfileDTO> sendCompanyProfile(HttpSession httpSession);
 
-    @PostMapping
+    @PostMapping("admin/get")
     ResponseEntity<AdminProfileDTO> sendAdminProfile(HttpSession httpSession);
+
+    @PostMapping("/customer/get/cards")
+    ResponseEntity<CardsDTO> sendCustomerCards(HttpSession httpSession);
 }

@@ -42,6 +42,50 @@ public class AuthControllerImpl implements AuthController {
         this.httpSessionManager = new HttpSessionManager();
     }
 
+    @PostMapping("/session/check")
+    @Override
+    public ResponseEntity<MessageDTO> checkSession(HttpSession httpSession) {
+        String requestId = UUID.randomUUID().toString();
+        logger.info("Starting Customer Registration (requestId={})", requestId);
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("X-Request-Id", requestId);
+        headers.setContentType(MediaType.APPLICATION_JSON);
+
+        // Send Request to Security Service for Checking Existing Session
+        CookieDTO cookieDTO = httpSessionManager.fromSessionToCookieDTO(httpSession);
+        HttpEntity<CookieDTO> securityServiceCheckSessionRequest = new HttpEntity<>(cookieDTO, headers);
+        ResponseEntity<CookieInfoDTO> securityServiceCheckSessionResponse = restTemplate.exchange(
+                ServiceURLs.SECURITY_SERVICE_CHECK_SESSION_URL,
+                HttpMethod.POST,
+                securityServiceCheckSessionRequest,
+                CookieInfoDTO.class
+        );
+        cookieDTO = securityServiceCheckSessionResponse.getBody().getCookie();
+        httpSessionManager.updateSessionCookie(httpSession, cookieDTO);
+
+        // There is already an Existing Session
+        if (securityServiceCheckSessionResponse.getStatusCode().is2xxSuccessful()) {
+            logger.info("Session is valid (requestId={})", requestId);
+        }
+        // No User is Logged in Clarified by Security Service
+        if (securityServiceCheckSessionResponse.getStatusCode().is4xxClientError()) {
+            logger.info("No user is currently logged in verified (requestId={})", requestId);
+            return ResponseEntity
+                    .status(HttpStatus.UNAUTHORIZED)
+                    .body(new MessageDTO("No user is currently logged in."));
+        }
+
+        // Something Went Wrong on Security Service
+        if (securityServiceCheckSessionResponse.getStatusCode().is5xxServerError()) {
+            return ResponseEntity
+                    .status(securityServiceCheckSessionResponse.getStatusCode())
+                    .body(new MessageDTO(securityServiceCheckSessionResponse.getBody().getMessage()));
+        }
+
+        // Operation Completed Successfully
+        return ResponseEntity.status(HttpStatus.OK).body(new MessageDTO("Session Existence Check Completed."));
+    }
     @PostMapping("/register/customer")
     @Override
     public ResponseEntity<MessageDTO> registerCustomer(HttpSession httpSession, @RequestBody CustomerRegistrationDTO customerRegistrationDTO) {

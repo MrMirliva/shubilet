@@ -5,6 +5,7 @@ import com.shubilet.api_gateway.controllers.ProfileManagementController;
 import com.shubilet.api_gateway.dataTransferObjects.MessageDTO;
 import com.shubilet.api_gateway.dataTransferObjects.external.requests.profileManagement.*;
 import com.shubilet.api_gateway.dataTransferObjects.external.responses.profileManagement.AdminProfileDTO;
+import com.shubilet.api_gateway.dataTransferObjects.external.responses.profileManagement.CardsDTO;
 import com.shubilet.api_gateway.dataTransferObjects.external.responses.profileManagement.CompanyProfileDTO;
 import com.shubilet.api_gateway.dataTransferObjects.external.responses.profileManagement.CustomerProfileDTO;
 import com.shubilet.api_gateway.dataTransferObjects.internal.requests.AdminIdDTO;
@@ -19,7 +20,6 @@ import com.shubilet.api_gateway.mappers.profileManagement.*;
 import jakarta.servlet.http.HttpSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.boot.autoconfigure.kafka.KafkaProperties.Admin;
 import org.springframework.http.*;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -855,5 +855,72 @@ public class ProfileManagementControllerImpl implements ProfileManagementControl
                     .body(null);
         }
         return ResponseEntity.status(HttpStatus.OK).body(memberServiceGetAdminProfileResponse.getBody());
+    }
+
+    @PostMapping("/customer/get/cards")
+    @Override
+    public ResponseEntity<CardsDTO> sendCustomerCards(HttpSession httpSession) {
+        String requestId = UUID.randomUUID().toString();
+        logger.info("Start Getting Customer Cards (requestId={})", requestId);
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("X-Request-Id", requestId);
+        headers.setContentType(MediaType.APPLICATION_JSON);
+
+        // Send Request to Security Service for Checking Existing Session
+        CookieDTO cookieDTO = httpSessionManager.fromSessionToCookieDTO(httpSession);
+        HttpEntity<CookieDTO> securityServiceCheckSessionCustomerRequest = new HttpEntity<>(cookieDTO, headers);
+        ResponseEntity<MemberCheckMessageDTO> securityServiceCheckCustomerSessionResponse = restTemplate.exchange(
+                ServiceURLs.SECURITY_SERVICE_CHECK_CUSTOMER_SESSION_URL,
+                HttpMethod.POST,
+                securityServiceCheckSessionCustomerRequest,
+                MemberCheckMessageDTO.class
+        );
+
+        // There is already an Existing Session
+        if (securityServiceCheckCustomerSessionResponse.getStatusCode().is2xxSuccessful()) {
+            logger.info("Customer Session Exists (requestId={})", requestId);
+        }
+
+        // No User is Logged in Clarified by Security Service
+        if (securityServiceCheckCustomerSessionResponse.getStatusCode().is4xxClientError()) {
+            return ResponseEntity
+                    .status(securityServiceCheckCustomerSessionResponse.getStatusCode())
+                    .body(new CardsDTO(securityServiceCheckCustomerSessionResponse.getBody().getMessage()));
+        }
+
+        // Something Went Wrong on Security Service
+        if (securityServiceCheckCustomerSessionResponse.getStatusCode().is5xxServerError()) {
+            return ResponseEntity
+                    .status(securityServiceCheckCustomerSessionResponse.getStatusCode())
+                    .body(new CardsDTO(securityServiceCheckCustomerSessionResponse.getBody().getMessage()));
+        }
+
+        MemberCheckMessageDTO memberCheckMessageDTO = securityServiceCheckCustomerSessionResponse.getBody();
+        CustomerIdDTO customerIdDTO = cookieMapper.toCustomerIdDTO(memberCheckMessageDTO.getCookie());
+
+        HttpEntity<CustomerIdDTO> expeditionServiceGetCustomerCardsRequest = new HttpEntity<>(customerIdDTO, headers);
+        ResponseEntity<CardsDTO> expeditionServiceGetCustomerCardsResponse = restTemplate.exchange(
+                ServiceURLs.EXPEDITION_SERVICE_GET_CUSTOMER_CARDS_URL,
+                HttpMethod.POST,
+                expeditionServiceGetCustomerCardsRequest,
+                CardsDTO.class
+        );
+
+        // Customer Cards has been Successfully Retrieved from Expedition Service
+        if (expeditionServiceGetCustomerCardsResponse.getStatusCode().is2xxSuccessful()) {
+            logger.info("Customer Cards Retrieval Succeeded (requestId={})", requestId);
+        } else if (expeditionServiceGetCustomerCardsResponse.getStatusCode().is4xxClientError()) {
+            logger.info("Customer Cards Retrieval Failed (requestId={})", requestId);
+            return ResponseEntity
+                    .status(expeditionServiceGetCustomerCardsResponse.getStatusCode())
+                    .body(new CardsDTO(expeditionServiceGetCustomerCardsResponse.getBody().getMessage()));
+        } else if (expeditionServiceGetCustomerCardsResponse.getStatusCode().is5xxServerError()) {
+            logger.warn("Expedition service returned error (status={} requestId={})", expeditionServiceGetCustomerCardsResponse.getStatusCode(), requestId);
+            return ResponseEntity
+                    .status(expeditionServiceGetCustomerCardsResponse.getStatusCode())
+                    .body(new CardsDTO(expeditionServiceGetCustomerCardsResponse.getBody().getMessage()));
+        }
+        return ResponseEntity.status(HttpStatus.OK).body(expeditionServiceGetCustomerCardsResponse.getBody());
     }
 }

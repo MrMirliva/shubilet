@@ -12,6 +12,7 @@ public class ServiceURLs {
     public static final String EXPEDITION_SERVICE_GET_COMPANY_EXPEDITIONS_ALL_URL = "http://expedition-service/api/view/company/allExpeditions";
     public static final String EXPEDITION_SERVICE_GET_COMPANY_EXPEDITIONS_FUTURE_URL = "http://expedition-service/api/view/company/activeExpeditions";
     public static final String EXPEDITION_SERVICE_GET_COMPANY_EXPEDITION_DETAIL_URL = "http://expedition-service/api/view/company/expeditionDetails";
+    public static final String EXPEDITION_SERVICE_GET_CUSTOMER_CARDS_URL = "http://expedition-service/api/reservation/view_cards";
 
 
     // Member Service URLs
