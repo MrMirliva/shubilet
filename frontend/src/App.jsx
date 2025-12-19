@@ -3,6 +3,7 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 
+import AuthGuard from './routes/guards/AuthGuard.jsx';
 import AuthLayout from './layouts/AuthLayout.jsx';
 import LoginPage from './pages/login/LoginPage.jsx';
 import RegisterPage from "./pages/register/RegisterPage.jsx";
@@ -33,13 +34,15 @@ function App() {
 
     <Router>
       <Routes>
-        <Route element={<AuthLayout />}>
-          {/* Auth ile ilgili sayfalar buraya */}
-          <Route path="/login" element={<LoginPage />} />
-          <Route path="/register" element={<RegisterPage />} />
-          <Route path="/register/customer" element={<CustomerRegister />} />
-          <Route path="/register/company" element={<CompanyRegister />} />
-          <Route path="/register/admin" element={<AdminRegister />} />
+        <Route element={<AuthGuard />}>
+          <Route element={<AuthLayout />}>
+            {/* Auth ile ilgili sayfalar buraya */}
+            <Route path="/login" element={<LoginPage />} />
+            <Route path="/register" element={<RegisterPage />} />
+            <Route path="/register/customer" element={<CustomerRegister />} />
+            <Route path="/register/company" element={<CompanyRegister />} />
+            <Route path="/register/admin" element={<AdminRegister />} />
+          </Route>
         </Route>
 
         <Route element={<CustomerGuard />}>
