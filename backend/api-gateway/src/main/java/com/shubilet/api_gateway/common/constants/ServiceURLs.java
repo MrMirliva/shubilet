@@ -31,8 +31,11 @@ public class ServiceURLs {
 
     public static String MEMBER_SERVICE_GET_COMPANY_NAMES_URL = "http://member-service/api/get/company/name";
 
+    public static final String MEMBER_SERVICE_GET_UNVERIFIED_ADMINS_URL = "http://member-service/api/verification/get/unverified/admins";
+    public static final String MEMBER_SERVICE_GET_UNVERIFIED_COMPANIES_URL = "http://member-service/api/verification/get/unverified/companies";
     public static String MEMBER_SERVICE_VERIFY_COMPANY_URL = "http://member-service//api/verify/company";
     public static String MEMBER_SERVICE_VERIFY_ADMIN_URL = "http://member-service//api/verify/admin";
+
 
 
 

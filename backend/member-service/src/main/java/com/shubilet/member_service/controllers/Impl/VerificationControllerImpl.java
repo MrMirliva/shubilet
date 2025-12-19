@@ -4,7 +4,10 @@ import com.shubilet.member_service.common.util.ErrorUtils;
 import com.shubilet.member_service.controllers.VerificationController;
 import com.shubilet.member_service.dataTransferObjects.requests.AdminVerificationDTO;
 import com.shubilet.member_service.dataTransferObjects.requests.CompanyVerificationDTO;
+import com.shubilet.member_service.dataTransferObjects.requests.resourceDTOs.AdminIdDTO;
 import com.shubilet.member_service.dataTransferObjects.responses.MessageDTO;
+import com.shubilet.member_service.dataTransferObjects.responses.UnverifiedAdminsDTO;
+import com.shubilet.member_service.dataTransferObjects.responses.UnverifiedCompaniesDTO;
 import com.shubilet.member_service.services.VerificationService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,7 +19,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/api/verify")
+@RequestMapping("/api/verification")
 public class VerificationControllerImpl implements VerificationController {
     private final Logger logger = LoggerFactory.getLogger(VerificationControllerImpl.class);
     private final VerificationService verificationService;
@@ -25,7 +28,7 @@ public class VerificationControllerImpl implements VerificationController {
         this.verificationService = verificationService;
     }
 
-    @PostMapping("/company")
+    @PostMapping("/verify/company")
     public ResponseEntity<MessageDTO> verifyCompany(@RequestBody CompanyVerificationDTO companyVerificationDTO) {
 
         ErrorUtils errorUtils = new ErrorUtils(ErrorUtils.ConversionType.MessageDTO);
@@ -67,7 +70,7 @@ public class VerificationControllerImpl implements VerificationController {
         return ResponseEntity.status(HttpStatus.CREATED).body(new MessageDTO("Candidate Company Marked as Verified Successfully"));
     }
 
-    @PostMapping("/admin")
+    @PostMapping("/verify/admin")
     public ResponseEntity<MessageDTO> verifyAdmin(@RequestBody AdminVerificationDTO adminVerificationDTO)   {
         ErrorUtils errorUtils = new ErrorUtils(ErrorUtils.ConversionType.MessageDTO);
 
@@ -108,5 +111,63 @@ public class VerificationControllerImpl implements VerificationController {
         return ResponseEntity.status(HttpStatus.CREATED).body(new MessageDTO("Candidate Admin Marked as Verified Successfully"));
     }
 
+    @PostMapping("/get/unverified/admins")
+    public ResponseEntity<UnverifiedAdminsDTO> sendUnverifiedAdmins(@RequestBody AdminIdDTO adminIdDTO) {
+        ErrorUtils errorUtils = new ErrorUtils(ErrorUtils.ConversionType.UnVerifiedAdminsDTO);
 
+        // DTO Existence Check
+        if (adminIdDTO == null) {
+            logger.warn("Admin ID DTO is null");
+            return errorUtils.criticalError();
+        }
+
+        // Validation Check
+        if (adminIdDTO.getAdminId() < 0) {
+            logger.warn("Invalid Admin ID: {}", adminIdDTO.getAdminId());
+            return errorUtils.isInvalidFormat("Admin ID");
+        }
+
+        logger.info("Admin Verification Request Received. ID: {}", adminIdDTO.getAdminId());
+        if (!verificationService.isAdminExists(adminIdDTO.getAdminId())) {
+            return errorUtils.notFound("Admin with Given ID does not Exist");
+        }
+
+        if (!verificationService.hasClearance(adminIdDTO.getAdminId())) {
+            return errorUtils.unauthorized("Admin does not have the Necessary Clearance");
+        }
+
+        UnverifiedAdminsDTO unverifiedAdminDTO = verificationService.getUnverifiedAdmins();
+        logger.info("Unverified Admins sent to Admin ID {}", adminIdDTO.getAdminId());
+        return ResponseEntity.status(HttpStatus.OK).body(unverifiedAdminDTO);
+    }
+
+    @PostMapping("/get/unverified/companies")
+    public ResponseEntity<UnverifiedCompaniesDTO> sendUnverifiedCompanies(@RequestBody AdminIdDTO adminIdDTO) {
+        ErrorUtils errorUtils = new ErrorUtils(ErrorUtils.ConversionType.UnVerifiedCompaniesDTO);
+
+        // DTO Existence Check
+        if (adminIdDTO == null) {
+            logger.warn("Admin ID DTO is null");
+            return errorUtils.criticalError();
+        }
+
+        // Validation Check
+        if (adminIdDTO.getAdminId() < 0) {
+            logger.warn("Invalid Admin ID: {}", adminIdDTO.getAdminId());
+            return errorUtils.isInvalidFormat("Admin ID");
+        }
+
+        logger.info("Admin Verification Request Received. ID: {}", adminIdDTO.getAdminId());
+        if (!verificationService.isAdminExists(adminIdDTO.getAdminId())) {
+            return errorUtils.notFound("Admin with Given ID does not Exist");
+        }
+
+        if (!verificationService.hasClearance(adminIdDTO.getAdminId())) {
+            return errorUtils.unauthorized("Admin does not have the Necessary Clearance");
+        }
+
+        UnverifiedCompaniesDTO unverifiedCompaniesDTO = verificationService.getUnverifiedCompanies();
+        logger.info("Unverified Companies sent to Admin ID {}", adminIdDTO.getAdminId());
+        return ResponseEntity.status(HttpStatus.OK).body(unverifiedCompaniesDTO);
+    }
 }

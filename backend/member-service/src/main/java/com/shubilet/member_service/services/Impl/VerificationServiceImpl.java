@@ -1,5 +1,9 @@
 package com.shubilet.member_service.services.Impl;
 
+import com.shubilet.member_service.dataTransferObjects.responses.UnverifiedAdminDTO;
+import com.shubilet.member_service.dataTransferObjects.responses.UnverifiedAdminsDTO;
+import com.shubilet.member_service.dataTransferObjects.responses.UnverifiedCompaniesDTO;
+import com.shubilet.member_service.dataTransferObjects.responses.UnverifiedCompanyDTO;
 import com.shubilet.member_service.models.Admin;
 import com.shubilet.member_service.models.Company;
 import com.shubilet.member_service.repositories.AdminRepository;
@@ -7,6 +11,7 @@ import com.shubilet.member_service.repositories.CompanyRepository;
 import com.shubilet.member_service.services.VerificationService;
 import org.springframework.stereotype.Service;
 
+import java.util.LinkedList;
 import java.util.List;
 
 
@@ -20,9 +25,10 @@ public class VerificationServiceImpl implements VerificationService {
         this.adminRepository = adminRepository;
     }
 
-    public boolean isCompanyExists(int companyId){
+    public boolean isCompanyExists(int companyId) {
         return companyRepository.existsById(companyId);
     }
+
     public boolean isAdminExists(int adminId) {
         return adminRepository.existsById(adminId);
     }
@@ -59,5 +65,33 @@ public class VerificationServiceImpl implements VerificationService {
         admin.setRefAdminId(adminId);
         adminRepository.save(admin);
         return true;
+    }
+
+    public UnverifiedAdminsDTO getUnverifiedAdmins() {
+        List<Admin> admins = adminRepository.getAdminByRefAdminIdIsNull();
+        List<UnverifiedAdminDTO> unverifiedAdmins = new LinkedList<>();
+        for (Admin admin : admins) {
+            unverifiedAdmins.add(new UnverifiedAdminDTO(
+                    admin.getId(),
+                    admin.getName(),
+                    admin.getSurname(),
+                    admin.getEmail(),
+                    admin.getRefAdminId() != null));
+        }
+        return new UnverifiedAdminsDTO("Unverified Admins", unverifiedAdmins);
+    }
+
+    public UnverifiedCompaniesDTO getUnverifiedCompanies() {
+        List<Company> companies = companyRepository.getCompanyByIsVerified(false);
+        List<UnverifiedCompanyDTO> unverifiedCompanyDTOs = new LinkedList<>();
+        for (Company company : companies) {
+            unverifiedCompanyDTOs.add(new UnverifiedCompanyDTO(
+                    company.getId(),
+                    company.getName(),
+                    company.getEmail(),
+                    company.isVerified()));
+        }
+
+        return new UnverifiedCompaniesDTO("Unverified Companies", unverifiedCompanyDTOs);
     }
 }

@@ -5,7 +5,7 @@ import java.util.List;
 
 public class SeatsForCustomerDTO {
     private String message;
-    private List<SeatForCustomerDTO> seats;
+    private List<SeatForCustomerDTO> tickets;
 
     public SeatsForCustomerDTO() {
 
@@ -13,12 +13,12 @@ public class SeatsForCustomerDTO {
 
     public SeatsForCustomerDTO(String message) {
         this.message = message;
-        seats = new ArrayList<>();
+        tickets = new ArrayList<>();
     }
 
-    public SeatsForCustomerDTO(String message, List<SeatForCustomerDTO> seats) {
+    public SeatsForCustomerDTO(String message, List<SeatForCustomerDTO> tickets) {
         this.message = message;
-        this.seats = seats;
+        this.tickets = tickets;
     }
 
     public String getMessage() {
@@ -28,10 +28,10 @@ public class SeatsForCustomerDTO {
         this.message = message;
     }
 
-    public List<SeatForCustomerDTO> getSeats() {
-        return seats;
+    public List<SeatForCustomerDTO> getTickets() {
+        return tickets;
     }
-    public void setSeats(List<SeatForCustomerDTO> seats) {
-        this.seats = seats;
+    public void setTickets(List<SeatForCustomerDTO> tickets) {
+        this.tickets = tickets;
     }
 }

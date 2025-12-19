@@ -28,4 +28,6 @@ public interface AdminRepository extends JpaRepository<Admin, Integer> {
     Admin getAdminById(int id);
 
     boolean existsAdminById(int id);
+
+    List<Admin> getAdminByRefAdminIdIsNull();
 }
