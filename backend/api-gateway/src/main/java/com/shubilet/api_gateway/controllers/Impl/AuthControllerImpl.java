@@ -241,6 +241,136 @@ public class AuthControllerImpl implements AuthController {
         return ResponseEntity.status(HttpStatus.OK).body(new MessageDTO("Admin Registration Successful."));
     }
 
+    @PostMapping("/session/check/admin")
+    @Override
+    public ResponseEntity<MessageDTO> checkAdminSession(HttpSession httpSession) {
+        String requestId = UUID.randomUUID().toString();
+        logger.info("Start Admin Session Check (requestId={})", requestId);
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("X-Request-Id", requestId);
+        headers.setContentType(MediaType.APPLICATION_JSON);
+
+        // Send Request to Security Service for Checking Existing Session
+        CookieDTO cookieDTO = httpSessionManager.fromSessionToCookieDTO(httpSession);
+        HttpEntity<CookieDTO> securityServiceCheckSessionRequest = new HttpEntity<>(cookieDTO, headers);
+        ResponseEntity<MemberCheckMessageDTO> securityServiceCheckSessionResponse = restTemplate.exchange(
+                ServiceURLs.SECURITY_SERVICE_CHECK_ADMIN_SESSION_URL,
+                HttpMethod.POST,
+                securityServiceCheckSessionRequest,
+                MemberCheckMessageDTO.class
+        );
+
+        cookieDTO = securityServiceCheckSessionResponse.getBody().getCookie();
+        httpSessionManager.updateSessionCookie(httpSession, cookieDTO);
+
+        // Session is Valid and Admin is Logged in
+        if (securityServiceCheckSessionResponse.getStatusCode().is2xxSuccessful()) {
+            logger.info("Admin session is valid (requestId={})", requestId);
+            return ResponseEntity.status(HttpStatus.OK).body(new MessageDTO("Admin session is valid."));
+        }
+        // No Valid Session Found
+        else if (securityServiceCheckSessionResponse.getStatusCode().is4xxClientError()) {
+            return ResponseEntity
+                    .status(securityServiceCheckSessionResponse.getStatusCode())
+                    .body(new MessageDTO(securityServiceCheckSessionResponse.getBody().getMessage()));
+        }
+        // Something Went Wrong on Security Service
+        else if (securityServiceCheckSessionResponse.getStatusCode().is5xxServerError()) {
+            return ResponseEntity
+                    .status(securityServiceCheckSessionResponse.getStatusCode())
+                    .body(new MessageDTO(securityServiceCheckSessionResponse.getBody().getMessage()));
+        }
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new MessageDTO("Unknown error occurred while checking admin session."));
+
+    }
+
+    @PostMapping("/session/check/company")
+    @Override
+    public ResponseEntity<MessageDTO> checkCompanySession(HttpSession httpSession) {
+        String requestId = UUID.randomUUID().toString();
+        logger.info("Start Company Session Check (requestId={})", requestId);
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("X-Request-Id", requestId);
+        headers.setContentType(MediaType.APPLICATION_JSON);
+
+        // Send Request to Security Service for Checking Existing Session
+        CookieDTO cookieDTO = httpSessionManager.fromSessionToCookieDTO(httpSession);
+        HttpEntity<CookieDTO> securityServiceCheckSessionRequest = new HttpEntity<>(cookieDTO, headers);
+        ResponseEntity<MemberCheckMessageDTO> securityServiceCheckSessionResponse = restTemplate.exchange(
+                ServiceURLs.SECURITY_SERVICE_CHECK_COMPANY_SESSION_URL,
+                HttpMethod.POST,
+                securityServiceCheckSessionRequest,
+                MemberCheckMessageDTO.class
+        );
+
+        cookieDTO = securityServiceCheckSessionResponse.getBody().getCookie();
+        httpSessionManager.updateSessionCookie(httpSession, cookieDTO);
+
+        // Session is Valid and Company is Logged in
+        if (securityServiceCheckSessionResponse.getStatusCode().is2xxSuccessful()) {
+            logger.info("Company session is valid (requestId={})", requestId);
+            return ResponseEntity.status(HttpStatus.OK).body(new MessageDTO("Company session is valid."));
+        }
+        // No Valid Session Found
+        else if (securityServiceCheckSessionResponse.getStatusCode().is4xxClientError()) {
+            return ResponseEntity
+                    .status(securityServiceCheckSessionResponse.getStatusCode())
+                    .body(new MessageDTO(securityServiceCheckSessionResponse.getBody().getMessage()));
+        }
+        // Something Went Wrong on Security Service
+        else if (securityServiceCheckSessionResponse.getStatusCode().is5xxServerError()) {
+            return ResponseEntity
+                    .status(securityServiceCheckSessionResponse.getStatusCode())
+                    .body(new MessageDTO(securityServiceCheckSessionResponse.getBody().getMessage()));
+        }
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new MessageDTO("Unknown error occurred while checking company session."));
+    }
+
+    @PostMapping("/session/check/customer")
+    @Override
+    public ResponseEntity<MessageDTO> checkCustomerSession(HttpSession httpSession) {
+        String requestId = UUID.randomUUID().toString();
+        logger.info("Start Customer Session Check (requestId={})", requestId);
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("X-Request-Id", requestId);
+        headers.setContentType(MediaType.APPLICATION_JSON);
+
+        // Send Request to Security Service for Checking Existing Session
+        CookieDTO cookieDTO = httpSessionManager.fromSessionToCookieDTO(httpSession);
+        HttpEntity<CookieDTO> securityServiceCheckSessionRequest = new HttpEntity<>(cookieDTO, headers);
+        ResponseEntity<MemberCheckMessageDTO> securityServiceCheckSessionResponse = restTemplate.exchange(
+                ServiceURLs.SECURITY_SERVICE_CHECK_CUSTOMER_SESSION_URL,
+                HttpMethod.POST,
+                securityServiceCheckSessionRequest,
+                MemberCheckMessageDTO.class
+        );
+
+        cookieDTO = securityServiceCheckSessionResponse.getBody().getCookie();
+        httpSessionManager.updateSessionCookie(httpSession, cookieDTO);
+
+        // Session is Valid and Customer is Logged in
+        if (securityServiceCheckSessionResponse.getStatusCode().is2xxSuccessful()) {
+            logger.info("Customer session is valid (requestId={})", requestId);
+            return ResponseEntity.status(HttpStatus.OK).body(new MessageDTO("Customer session is valid."));
+        }
+        // No Valid Session Found
+        else if (securityServiceCheckSessionResponse.getStatusCode().is4xxClientError()) {
+            return ResponseEntity
+                    .status(securityServiceCheckSessionResponse.getStatusCode())
+                    .body(new MessageDTO(securityServiceCheckSessionResponse.getBody().getMessage()));
+        }
+        // Something Went Wrong on Security Service
+        else if (securityServiceCheckSessionResponse.getStatusCode().is5xxServerError()) {
+            return ResponseEntity
+                    .status(securityServiceCheckSessionResponse.getStatusCode())
+                    .body(new MessageDTO(securityServiceCheckSessionResponse.getBody().getMessage()));
+        }
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new MessageDTO("Unknown error occurred while checking customer session."));
+    }
+
     @PostMapping("/login")
     @Override
     public ResponseEntity<MessageDTO> login(HttpSession httpSession, @RequestBody MemberCredentialsDTO memberCredentialsDTO) {

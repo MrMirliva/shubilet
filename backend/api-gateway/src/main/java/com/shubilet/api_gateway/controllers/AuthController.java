@@ -20,8 +20,18 @@ public interface AuthController {
     @PostMapping("/register/admin")
     ResponseEntity<MessageDTO> registerAdmin(HttpSession httpSession, @RequestBody AdminRegistrationDTO adminRegistrationDTO);
 
+    @PostMapping("/session/check/admin")
+    ResponseEntity<MessageDTO> checkAdminSession(HttpSession httpSession);
+
+    @PostMapping("/session/check/company")
+    ResponseEntity<MessageDTO> checkCompanySession(HttpSession httpSession);
+
+    @PostMapping("/session/check/customer")
+    ResponseEntity<MessageDTO> checkCustomerSession(HttpSession httpSession);
+
     @PostMapping("/login")
     ResponseEntity<MessageDTO> login(HttpSession session, @RequestBody MemberCredentialsDTO memberCredentialsDTO);
+
 
     @PostMapping("/logout")
     public ResponseEntity<MessageDTO> logout(HttpSession httpSession);
