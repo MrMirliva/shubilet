@@ -12,6 +12,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 
 public interface AuthController {
     @PostMapping("/register/customer")
+    ResponseEntity<MessageDTO> checkSession(HttpSession httpSession);
+
+    @PostMapping("/register/customer")
     ResponseEntity<MessageDTO> registerCustomer(HttpSession httpSession, @RequestBody CustomerRegistrationDTO customerRegistrationDTO);
 
     @PostMapping("/register/company")
