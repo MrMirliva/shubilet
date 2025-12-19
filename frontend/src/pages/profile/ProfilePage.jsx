@@ -9,11 +9,6 @@ const mockProfile = {
   email: "mirliva@example.com",
 };
 
-const mockCards = [
-  { cardId: "1", last4Digits: "0037", expirationMonth: "11", expirationYear: "35" },
-  { cardId: "2", last4Digits: "4412", expirationMonth: "08", expirationYear: "29" },
-];
-
 const FIELD = {
   NAME: "name",
   SURNAME: "surname",
@@ -54,6 +49,30 @@ async function updateProfileAttribute(field, attributeValue) {
   return data; // MessageDTO
 }
 
+function maskCardNo(cardNo) {
+  const digits = String(cardNo ?? "").replace(/\D/g, "");
+  const last4 = digits.slice(-4);
+  if (!last4) return "****";
+  return `**** **** **** ${last4}`;
+}
+
+async function fetchCards() {
+  const res = await fetch("/api/profile/customer/get/cards", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    credentials: "include",
+    body: JSON.stringify({}), // request boş
+  });
+
+  const data = await safeReadJson(res);
+
+  if (!res.ok) {
+    throw new Error(data?.message || `Cards fetch failed (HTTP ${res.status}).`);
+  }
+
+  return data; // CardsDTO: { message, cards: [...] }
+}
+
 export default function ProfilePage() {
   // --- PROFILE STATE ---
   const [profile, setProfile] = useState(mockProfile);
@@ -77,17 +96,10 @@ export default function ProfilePage() {
   // --- FIELD SAVE LOADING ---
   const [isSaving, setIsSaving] = useState(false);
 
-  // --- CARD STATE (unchanged) ---
-  const [cards, setCards] = useState(mockCards);
-  const [cardModalOpen, setCardModalOpen] = useState(false);
-  const [cardForm, setCardForm] = useState({
-    cardHolderName: "",
-    cardNumber: "",
-    expirationMonth: "",
-    expirationYear: "",
-    cvc: "",
-  });
-  const [cardTouched, setCardTouched] = useState({});
+  // --- CARD STATE (API) ---
+  const [cards, setCards] = useState([]); // CardDTO[]
+  const [isCardsLoading, setIsCardsLoading] = useState(true);
+  const [cardsError, setCardsError] = useState("");
 
   // --- UI MESSAGE ---
   const [toast, setToast] = useState("");
@@ -141,6 +153,36 @@ export default function ProfilePage() {
     }
 
     loadProfile();
+    return () => {
+      alive = false;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // ---------------- LOAD CARDS (API) ----------------
+  useEffect(() => {
+    let alive = true;
+
+    async function loadCards() {
+      setIsCardsLoading(true);
+      setCardsError("");
+
+      try {
+        const data = await fetchCards();
+        const list = Array.isArray(data?.cards) ? data.cards : [];
+
+        if (alive) {
+          setCards(list);
+          if (data?.message) showToast(data.message);
+        }
+      } catch (err) {
+        if (alive) setCardsError(err?.message || "Cards fetch failed. Please try again.");
+      } finally {
+        if (alive) setIsCardsLoading(false);
+      }
+    }
+
+    loadCards();
     return () => {
       alive = false;
     };
@@ -269,7 +311,6 @@ export default function ProfilePage() {
 
     setIsSaving(true);
     try {
-      // password endpoint expects { attribute: <newPassword> }
       const data = await updateProfileAttribute(FIELD.PASSWORD, pwForm.next);
 
       setFieldModal({ open: false, field: null });
@@ -281,74 +322,12 @@ export default function ProfilePage() {
     }
   }
 
-  // ---------------- CARD HANDLERS (SAME / MOCK) ----------------
-  function onlyDigits(s) {
-    return (s ?? "").replace(/\D/g, "");
-  }
-
-  const cardErrors = useMemo(() => {
-    const e = {};
-    const holder = cardForm.cardHolderName.trim();
-    const num = onlyDigits(cardForm.cardNumber);
-    const mm = cardForm.expirationMonth.trim();
-    const yy = cardForm.expirationYear.trim();
-    const cvc = onlyDigits(cardForm.cvc);
-
-    if (!holder) e.cardHolderName = "Card holder name is required.";
-    if (!num) e.cardNumber = "Card number is required.";
-    else if (num.length !== 16) e.cardNumber = "Card number must be 16 digits.";
-
-    if (!mm) e.expirationMonth = "Month is required.";
-    else if (!/^(0[1-9]|1[0-2])$/.test(mm)) e.expirationMonth = "Month must be 01-12.";
-
-    if (!yy) e.expirationYear = "Year is required.";
-    else if (!/^\d{2}$/.test(yy)) e.expirationYear = "Year must be 2 digits (e.g. 29).";
-
-    if (!cvc) e.cvc = "CVC is required.";
-    else if (cvc.length !== 3) e.cvc = "CVC must be 3 digits.";
-
-    return e;
-  }, [cardForm]);
-
-  const cardHasError = Object.keys(cardErrors).length > 0;
-
-  function openCardModal() {
-    setCardForm({
-      cardHolderName: "",
-      cardNumber: "",
-      expirationMonth: "",
-      expirationYear: "",
-      cvc: "",
-    });
-    setCardTouched({});
-    setCardModalOpen(true);
-  }
-
-  function closeCardModal() {
-    setCardModalOpen(false);
-  }
-
-  function onAddCard() {
-    if (cardHasError) return;
-
-    const num = onlyDigits(cardForm.cardNumber);
-    const last4 = num.slice(-4);
-
-    const newCard = {
-      cardId: String(Date.now()),
-      last4Digits: last4,
-      expirationMonth: cardForm.expirationMonth,
-      expirationYear: cardForm.expirationYear,
-    };
-
-    setCards((prev) => [newCard, ...prev]);
-    setCardModalOpen(false);
-    showToast("Card added (mock).");
-  }
-
+  // ---------------- CARD ACTIONS ----------------
   function onRemoveCard(cardId) {
+    // Backend delete endpoint verilmediği için mock olarak listeden siliyoruz.
     const ok = window.confirm("Remove this card?");
     if (!ok) return;
+
     setCards((prev) => prev.filter((c) => c.cardId !== cardId));
     showToast("Card removed (mock).");
   }
@@ -442,18 +421,29 @@ export default function ProfilePage() {
               <h2 className="cardTitle">Saved Cards</h2>
               <span className="pill">Payment</span>
             </div>
-            <button className="primaryButton" type="button" onClick={openCardModal}>
+
+            {/* Backend add endpoint yok, şimdilik disable */}
+            <button className="primaryButton" type="button" disabled title="Add Card endpoint not connected yet">
               Add Card
             </button>
           </div>
 
-          {cards.length === 0 ? (
+          {cardsError ? (
+            <div className="errorBanner" role="alert">
+              <div>{cardsError}</div>
+              <button className="ghostButton" type="button" onClick={() => window.location.reload()}>
+                Retry
+              </button>
+            </div>
+          ) : isCardsLoading ? (
+            <div className="emptyState">
+              <p className="emptyTitle">Loading cards...</p>
+              <p className="emptyDesc">Please wait.</p>
+            </div>
+          ) : cards.length === 0 ? (
             <div className="emptyState">
               <p className="emptyTitle">No saved cards</p>
-              <p className="emptyDesc">Add a card to speed up your purchases.</p>
-              <button className="primaryButton" type="button" onClick={openCardModal}>
-                Add your first card
-              </button>
+              <p className="emptyDesc">You don't have any saved cards yet.</p>
             </div>
           ) : (
             <div className="cardsList">
@@ -463,10 +453,10 @@ export default function ProfilePage() {
                     <div className="cardBadge">CARD</div>
                     <div className="cardInfo">
                       <div className="cardLine">
-                        **** **** **** <b>{c.last4Digits}</b>
+                        <b>{maskCardNo(c.cardNo)}</b>
                       </div>
                       <div className="cardSub">
-                        Expires {c.expirationMonth}/{c.expirationYear}
+                        {c.name} {c.surname}
                       </div>
                     </div>
                   </div>
@@ -475,7 +465,7 @@ export default function ProfilePage() {
                     className="dangerButton"
                     type="button"
                     onClick={() => onRemoveCard(c.cardId)}
-                    aria-label={`Remove card ending with ${c.last4Digits}`}
+                    aria-label={`Remove card id ${c.cardId}`}
                   >
                     Remove
                   </button>
@@ -571,69 +561,6 @@ export default function ProfilePage() {
               </div>
             </>
           )}
-        </Modal>
-      ) : null}
-
-      {/* ADD CARD MODAL (unchanged) */}
-      {cardModalOpen ? (
-        <Modal title="Add Card" onClose={closeCardModal}>
-          <div className="modalBody">
-            <ModalField
-              label="Card Holder Name"
-              value={cardForm.cardHolderName}
-              error={cardTouched.cardHolderName ? cardErrors.cardHolderName : ""}
-              onBlur={() => setCardTouched((t) => ({ ...t, cardHolderName: true }))}
-              onChange={(v) => setCardForm((p) => ({ ...p, cardHolderName: v }))}
-            />
-
-            <ModalField
-              label="Card Number"
-              value={cardForm.cardNumber}
-              error={cardTouched.cardNumber ? cardErrors.cardNumber : ""}
-              onBlur={() => setCardTouched((t) => ({ ...t, cardNumber: true }))}
-              onChange={(v) => setCardForm((p) => ({ ...p, cardNumber: v }))}
-              placeholder="16 digits"
-            />
-
-            <div className="modalGrid">
-              <ModalField
-                label="Exp. Month"
-                value={cardForm.expirationMonth}
-                error={cardTouched.expirationMonth ? cardErrors.expirationMonth : ""}
-                onBlur={() => setCardTouched((t) => ({ ...t, expirationMonth: true }))}
-                onChange={(v) => setCardForm((p) => ({ ...p, expirationMonth: v }))}
-                placeholder="MM"
-              />
-              <ModalField
-                label="Exp. Year"
-                value={cardForm.expirationYear}
-                error={cardTouched.expirationYear ? cardErrors.expirationYear : ""}
-                onBlur={() => setCardTouched((t) => ({ ...t, expirationYear: true }))}
-                onChange={(v) => setCardForm((p) => ({ ...p, expirationYear: v }))}
-                placeholder="YY"
-              />
-            </div>
-
-            <ModalField
-              label="CVC"
-              value={cardForm.cvc}
-              error={cardTouched.cvc ? cardErrors.cvc : ""}
-              onBlur={() => setCardTouched((t) => ({ ...t, cvc: true }))}
-              onChange={(v) => setCardForm((p) => ({ ...p, cvc: v }))}
-              placeholder="3 digits"
-            />
-
-            <p className="hint">This is a mock form. In real flow, never store full card data on frontend.</p>
-          </div>
-
-          <div className="modalActions">
-            <button className="primaryButton" type="button" onClick={onAddCard} disabled={cardHasError}>
-              Save
-            </button>
-            <button className="ghostButton" type="button" onClick={closeCardModal}>
-              Cancel
-            </button>
-          </div>
         </Modal>
       ) : null}
     </div>
