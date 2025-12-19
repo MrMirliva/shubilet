@@ -42,7 +42,7 @@ public class CompanyIdNameMapper {
         List<TicketExternalDTO> matchedTickets = new LinkedList<>();
         HashMap<Integer, String> companyMap = companyIdNameMapDTO.getCompanies();
 
-        for (TicketInternalDTO ticket : ticketsInternalDTO.getTicketsDTO()) {
+        for (TicketInternalDTO ticket : ticketsInternalDTO.getTickets()) {
             matchedTickets.add(new TicketExternalDTO(
                             ticket.getPNR(),
                             ticket.getSeatNo(),

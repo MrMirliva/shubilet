@@ -117,7 +117,7 @@ public class TicketControllerImpl implements TicketController {
                     .body(new TicketsExternalDTO(expeditionServiceGetTicketsResponse.getBody().getMessage()));
         }
 
-        List<CompanyIdDTO> companyIdDTOs = ticketsInternalMapper.toCompanyIdDTOs(expeditionServiceGetTicketsResponse.getBody().getTicketsDTO());
+        List<CompanyIdDTO> companyIdDTOs = ticketsInternalMapper.toCompanyIdDTOs(expeditionServiceGetTicketsResponse.getBody().getTickets());
 
         HttpEntity<List<CompanyIdDTO>> memberServiceGetCompanyNamesRequest = new HttpEntity<>(companyIdDTOs, headers);
         ResponseEntity<CompanyIdNameMapDTO> memberServiceGetCompanyNamesResponse = restTemplate.exchange(

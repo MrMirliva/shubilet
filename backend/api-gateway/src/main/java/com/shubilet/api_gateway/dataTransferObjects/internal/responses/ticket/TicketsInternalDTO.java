@@ -5,16 +5,16 @@ import java.util.List;
 
 public class TicketsInternalDTO {
     private String message;
-    private List<TicketInternalDTO> ticketsDTO;
+    private List<TicketInternalDTO> tickets;
 
     public TicketsInternalDTO(String message) {
         this.message = message;
-        this.ticketsDTO = new ArrayList<>();
+        this.tickets = new ArrayList<>();
     }
 
-    public TicketsInternalDTO(String message, List<TicketInternalDTO> ticketsDTO) {
+    public TicketsInternalDTO(String message, List<TicketInternalDTO> tickets) {
         this.message = message;
-        this.ticketsDTO = ticketsDTO;
+        this.tickets = tickets;
     }
 
     public String getMessage() {
@@ -24,11 +24,11 @@ public class TicketsInternalDTO {
         this.message = message;
     }
 
-    public List<TicketInternalDTO> getTicketsDTO() {
-        return ticketsDTO;
+    public List<TicketInternalDTO> getTickets() {
+        return tickets;
     }
-    public void setTicketsDTO(List<TicketInternalDTO> ticketsDTO) {
-        this.ticketsDTO = ticketsDTO;
+    public void setTickets(List<TicketInternalDTO> tickets) {
+        this.tickets = tickets;
     }
     
 }
