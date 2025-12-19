@@ -36,39 +36,48 @@ export default function CompanyExpeditionList() {
     setIsLoading(true);
     setServerError("");
 
+    let response = null;
+
     try {
-      // ✅ Available daha yok → şimdilik boş liste
       if (nextMode === MODE.AVAILABLE) {
+        response = await fetch("/api/expedition/company/get/futures", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          credentials: "include",
+          body: JSON.stringify({}),
+        });
+      } else if (nextMode === MODE.ALL) {
+        response = await fetch("/api/expedition/company/get/all", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          credentials: "include",
+          body: JSON.stringify({}),
+        });
+      } else {
         setItems([]);
+        setServerError("Unknown mode");
         return;
       }
-
-      // ✅ All Expeditions API
-      const response = await fetch("/api/expedition/company/get/all", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        credentials: "include",
-        body: JSON.stringify({}),
-      });
 
       const data = await safeReadJson(response);
       const backendMessage = data?.message ?? "";
       const list = Array.isArray(data?.expeditions) ? data.expeditions : [];
 
       if (!response.ok) {
-        setServerError(backendMessage);
+        setServerError(backendMessage || `HTTP ${response.status}`);
         setItems([]);
         return;
       }
 
       setItems(list);
-    } catch {
-      setServerError("");
+    } catch (err) {
+      setServerError(err?.message || "Network/JS error");
       setItems([]);
     } finally {
       setIsLoading(false);
     }
   }
+
 
   useEffect(() => {
     loadExpeditions(mode);
