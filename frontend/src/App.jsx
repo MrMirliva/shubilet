@@ -3,27 +3,30 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 
+import AuthLayout from './layouts/AuthLayout.jsx';
 import LoginPage from './pages/login/LoginPage.jsx';
 import RegisterPage from "./pages/register/RegisterPage.jsx";
 import CustomerRegister from "./pages/registerCustomer/CustomerRegister.jsx";
 import CompanyRegister from "./pages/registerCompany/CompanyRegister.jsx";
 import AdminRegister from "./pages/registerAdmin/AdminRegister.jsx";
-import Travel from "./pages/travel/Travel.jsx";
-import CustomerHomePage from './pages/customer/CustomerHomePage.jsx';
-import AuthLayout from './layouts/AuthLayout.jsx';
+
+import CustomerGuard from './routes/guards/CustomerGuard.jsx';
 import CustomerLayout from './layouts/CustomerLayout.jsx';
-import AdminLayout from './layouts/AdminLayout.jsx';
-import AdminHomePage from './pages/Admin/AdminHomePage.jsx';
-import CompanyExpeditionDetail from './pages/companyExpeditionDetail/CompanyExpeditionDetail.jsx';
-import CompanyExpeditionList from './pages/companyExpeditionList/CompanyExpeditionList.jsx';
-import CompanyHome from './pages/companyHome/CompanyHome.jsx';
-import CompanyExpeditionCreate from './pages/expeditionCreate/CompanyExpeditionCreate.jsx';
-import CompanyConfirmPage from './pages/Admin/CompanyConfirmPage.jsx';
-import AdminConfirmPage from './pages/Admin/AdminConfirmPage.jsx';
+import CustomerHomePage from './pages/customer/CustomerHomePage.jsx';
+import Travel from "./pages/travel/Travel.jsx";
 import ProfilePage from './pages/profile/ProfilePage.jsx';
 
-// İleride başka sayfalar da ekleyeceğiz (Register, Home vb.)
-// Şimdilik sadece Login var.
+import CompanyGuard from './routes/guards/CompanyGuard.jsx';
+import AdminLayout from './layouts/AdminLayout.jsx';
+import AdminHomePage from './pages/Admin/AdminHomePage.jsx';
+import CompanyConfirmPage from './pages/Admin/CompanyConfirmPage.jsx';
+import AdminConfirmPage from './pages/Admin/AdminConfirmPage.jsx';
+
+import AdminGuard from './routes/guards/AdminGuard.jsx';
+import CompanyHome from './pages/companyHome/CompanyHome.jsx';
+import CompanyExpeditionCreate from './pages/expeditionCreate/CompanyExpeditionCreate.jsx';
+import CompanyExpeditionList from './pages/companyExpeditionList/CompanyExpeditionList.jsx';
+import CompanyExpeditionDetail from './pages/companyExpeditionDetail/CompanyExpeditionDetail.jsx';
 
 function App() {
   return (
@@ -39,33 +42,34 @@ function App() {
           <Route path="/register/admin" element={<AdminRegister />} />
         </Route>
 
-        <Route element={<CustomerLayout />}>
-          {/* Müşteri ile ilgili sayfalar buraya */}
-          <Route path="/customer/home" element={<CustomerHomePage />} />
-          <Route path="/travel" element={<Travel />} />
-          <Route path="/profile" element={<ProfilePage />} />
+        <Route element={<CustomerGuard />}>
+          <Route element={<CustomerLayout />}>
+            {/* Müşteri ile ilgili sayfalar buraya */}
+            <Route path="/" element={<CustomerHomePage />} />
+            <Route path="/travel" element={<Travel />} />
+            <Route path="/profile" element={<ProfilePage />} />
+          </Route>
         </Route>
 
-        <Route element={<AdminLayout />}>
-          {/* Admin ile ilgili sayfalar buraya */}
-          <Route path="/admin/home" element={<AdminHomePage />} />
-          <Route path="/admin/confirmcompanies" element={<CompanyConfirmPage />} />
-          <Route path="/admin/confirmadmins" element={<AdminConfirmPage />} />
-          {/* Diğer admin sayfaları da buraya eklenecek */}
+        <Route element={<AdminGuard />}>
+          <Route element={<AdminLayout />}>
+            {/* Admin ile ilgili sayfalar buraya */}
+            <Route path="/admin" element={<AdminHomePage />} />
+            <Route path="/admin/confirmcompanies" element={<CompanyConfirmPage />} />
+            <Route path="/admin/confirmadmins" element={<AdminConfirmPage />} />
+          </Route>
         </Route>
-
-        {/* Ana sayfaya girince direkt Login açılsın diye path="/" verdim */}
-        <Route path="/" element={<CustomerHomePage />} />
-
-        {/* "/login" yazınca da açılsın */}
 
         <Route path="/travel" element={<Travel />} />
 
-        {/* Şirket ile ilgili sayfalar buraya */}
-        <Route path="/company" element={<CompanyHome />} />
-        <Route path="/company/expeditions/create" element={<CompanyExpeditionCreate />} />
-        <Route path="/company/expeditions" element={<CompanyExpeditionList />} />
-        <Route path="/company/expeditions/:id" element={<CompanyExpeditionDetail />} />
+        <Route element={<CompanyGuard />}>
+          {/* Şirket ile ilgili sayfalar buraya */}
+          <Route path="/company" element={<CompanyHome />} />
+          <Route path="/company/expeditions/create" element={<CompanyExpeditionCreate />} />
+          <Route path="/company/expeditions" element={<CompanyExpeditionList />} />
+          <Route path="/company/expeditions/:id" element={<CompanyExpeditionDetail />} />
+        </Route>
+
       </Routes>
     </Router>
   );
