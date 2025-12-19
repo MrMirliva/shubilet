@@ -499,5 +499,6 @@ public class ProfileControllerImpl {
         logger.info("Successfully retrieved profile for AdminId: {}", adminIdDTO.getAdminId());
         return ResponseEntity.status(HttpStatus.OK).body(responseDTO);
     }
+
 }
 
