@@ -26,29 +26,36 @@ public class AuthServiceImpl implements AuthService {
     public MemberSessionDTO checkMemberCredentials(String email, String password) {
         Object member;
         member = customerRepository.getCustomerByEmail(email);
-        if (member!=null) {
+        if (member != null) {
             Customer customer = (Customer) member;
-            if (password.equals(customer.getPassword())){
+            if (password.equals(customer.getPassword())) {
                 return new MemberSessionDTO(customer.getId(), "CUSTOMER");
             }
             return null;
         }
         member = companyRepository.getCompanyByEmail(email);
-        if (member!=null) {
+        if (member != null) {
             Company company = (Company) member;
-            if (password.equals(company.getPassword())){
+            if (password.equals(company.getPassword())) {
+                if (!company.isVerified()) {
+                    return new MemberSessionDTO("Company is not verified yet.");
+                }
                 return new MemberSessionDTO(company.getId(), "COMPANY");
             }
             return null;
         }
         member = adminRepository.getAdminByEmail(email);
-        if (member!=null) {
+        if (member != null) {
             Admin admin = (Admin) member;
-            if (password.equals(admin.getPassword())){
+            if (password.equals(admin.getPassword())) {
+                if (admin.getRefAdminId() == null){
+                    return new MemberSessionDTO("Admin is not verified yet.");
+                }
                 return new MemberSessionDTO(admin.getId(), "ADMIN");
             }
             return null;
         }
         return null;
     }
+
 }
