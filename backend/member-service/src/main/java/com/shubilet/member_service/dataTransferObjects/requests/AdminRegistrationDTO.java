@@ -11,7 +11,7 @@ public class AdminRegistrationDTO {
 
     }
 
-    AdminRegistrationDTO(String name, String surname, String email, String password) {
+    public AdminRegistrationDTO(String name, String surname, String email, String password) {
         this.name = name;
         this.surname = surname;
         this.email = email;
