@@ -2,6 +2,8 @@ package com.shubilet.member_service.common.util;
 
 import com.shubilet.member_service.common.constants.ErrorMessages;
 import com.shubilet.member_service.dataTransferObjects.responses.CompanyIdNameMapDTO;
+import com.shubilet.member_service.dataTransferObjects.responses.UnverifiedAdminsDTO;
+import com.shubilet.member_service.dataTransferObjects.responses.UnverifiedCompaniesDTO;
 import com.shubilet.member_service.dataTransferObjects.responses.MemberSessionDTO;
 import com.shubilet.member_service.dataTransferObjects.responses.MessageDTO;
 import org.springframework.http.ResponseEntity;
@@ -51,6 +53,8 @@ public final class ErrorUtils {
 
     private <T> ResponseEntity<T> caster(String errorMessage, int errorCode) {
         Object errorObj = switch (conversionType) {
+            case UnVerifiedAdminsDTO -> new UnverifiedAdminsDTO(errorMessage);
+            case UnVerifiedCompaniesDTO -> new UnverifiedCompaniesDTO(errorMessage);
             case CompanyIdNameMapDTO -> new CompanyIdNameMapDTO(errorMessage);
             case MemberSessionDTO -> new MemberSessionDTO(errorMessage);
             case MessageDTO -> new MessageDTO(errorMessage);
@@ -60,6 +64,8 @@ public final class ErrorUtils {
     }
 
     public enum ConversionType {
+        UnVerifiedAdminsDTO,
+        UnVerifiedCompaniesDTO,
         CompanyIdNameMapDTO,
         MemberSessionDTO,
         MessageDTO
