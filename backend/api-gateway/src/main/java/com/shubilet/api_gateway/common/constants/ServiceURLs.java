@@ -10,6 +10,7 @@ public class ServiceURLs {
     public static final String EXPEDITION_SERVICE_BUY_TICKET = "http://expedition-service/api/reservation/buy_ticket";
     public static final String EXPEDITION_SERVICE_CREATE_EXPEDITION_URL = "http://expedition-service/api/expeditions/create";
     public static final String EXPEDITION_SERVICE_GET_COMPANY_EXPEDITIONS_ALL_URL = "http://expedition-service/api/view/company/allExpeditions";
+    public static final String EXPEDITION_SERVICE_GET_COMPANY_EXPEDITIONS_FUTURE_URL = "http://expedition-service/api/view/company/activeExpeditions";
 
     // Member Service URLs
     public static String MEMBER_SERVICE_CREDENTIALS_CHECK_URL = "http://member-service/api/auth/checkCredentials";

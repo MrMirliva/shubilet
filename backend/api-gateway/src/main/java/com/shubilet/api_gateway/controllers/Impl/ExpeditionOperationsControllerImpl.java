@@ -294,7 +294,6 @@ public class ExpeditionOperationsControllerImpl implements ExpeditionOperationsC
     }
 
 
-
     @PostMapping("/company/get/all")
     @Override
     public ResponseEntity<ExpeditionsForCompanyDTO> sendCompanyExpeditions(HttpSession httpSession) {
@@ -360,4 +359,70 @@ public class ExpeditionOperationsControllerImpl implements ExpeditionOperationsC
 
         return ResponseEntity.status(HttpStatus.OK).body(expeditionServiceGetCompanyExpeditionsResponse.getBody());
     }
+
+    @PostMapping("/company/get/futures")
+    @Override
+    public ResponseEntity<ExpeditionsForCompanyDTO> sendCompanyFutureExpeditions(HttpSession httpSession) {
+        String requestId = UUID.randomUUID().toString();
+        logger.info("Start Getting Company Future Expeditions (requestId={})", requestId);
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("X-Request-Id", requestId);
+        headers.setContentType(MediaType.APPLICATION_JSON);
+
+        // Send Request to Security Service for Checking Existing Session
+        CookieDTO cookieDTO = httpSessionManager.fromSessionToCookieDTO(httpSession);
+        HttpEntity<CookieDTO> securityServiceCheckSessionCompanyRequest = new HttpEntity<>(cookieDTO, headers);
+        ResponseEntity<MemberCheckMessageDTO> securityServiceCheckCompanySessionResponse = restTemplate.exchange(
+                ServiceURLs.SECURITY_SERVICE_CHECK_COMPANY_SESSION_URL,
+                HttpMethod.POST,
+                securityServiceCheckSessionCompanyRequest,
+                MemberCheckMessageDTO.class
+        );
+
+        // Session Existence Clarified by Security Service
+        if (securityServiceCheckCompanySessionResponse.getStatusCode().is2xxSuccessful()) {
+            logger.info("Company Session Exists (requestId={})", requestId);
+        }
+
+        // No User is Logged in Clarified by Security Service
+        if (securityServiceCheckCompanySessionResponse.getStatusCode().is4xxClientError()) {
+            return ResponseEntity
+                    .status(HttpStatus.BAD_REQUEST)
+                    .body(new ExpeditionsForCompanyDTO(securityServiceCheckCompanySessionResponse.getBody().getMessage()));
+        }
+
+        // Something Went Wrong on Security Service
+        if (securityServiceCheckCompanySessionResponse.getStatusCode().is5xxServerError()) {
+            return ResponseEntity
+                    .status(securityServiceCheckCompanySessionResponse.getStatusCode())
+                    .body(new ExpeditionsForCompanyDTO(securityServiceCheckCompanySessionResponse.getBody().getMessage()));
+        }
+
+        CompanyIdDTO companyIdDTO = new CompanyIdDTO(securityServiceCheckCompanySessionResponse.getBody().getUserId());
+        HttpEntity<CompanyIdDTO> expeditionServiceGetCompanyFutureExpeditionsRequest = new HttpEntity<>(companyIdDTO, headers);
+        ResponseEntity<ExpeditionsForCompanyDTO> expeditionServiceGetCompanyFutureExpeditionsResponse = restTemplate.exchange(
+                ServiceURLs.EXPEDITION_SERVICE_GET_COMPANY_EXPEDITIONS_FUTURE_URL,
+                HttpMethod.POST,
+                expeditionServiceGetCompanyFutureExpeditionsRequest,
+                ExpeditionsForCompanyDTO.class
+        );
+        if (expeditionServiceGetCompanyFutureExpeditionsResponse.getStatusCode().is2xxSuccessful()) {
+            logger.info("Getting Company Future Expeditions Successful (requestId={})", requestId);
+
+        } else if (expeditionServiceGetCompanyFutureExpeditionsResponse.getStatusCode().is4xxClientError()) {
+            logger.info("Getting Company Future Expeditions Failed (requestId={})", requestId);
+            return ResponseEntity
+                    .status(expeditionServiceGetCompanyFutureExpeditionsResponse.getStatusCode())
+                    .body(new ExpeditionsForCompanyDTO(expeditionServiceGetCompanyFutureExpeditionsResponse.getBody().getMessage()));
+
+        } else if (expeditionServiceGetCompanyFutureExpeditionsResponse.getStatusCode().is5xxServerError()) {
+            logger.info("Getting Company Future Expeditions Failed at Expedition Service (requestId={})", requestId);
+            return ResponseEntity
+                    .status(expeditionServiceGetCompanyFutureExpeditionsResponse.getStatusCode())
+                    .body(new ExpeditionsForCompanyDTO(expeditionServiceGetCompanyFutureExpeditionsResponse.getBody().getMessage()));
+        }
+
+        return ResponseEntity.status(HttpStatus.OK).body(expeditionServiceGetCompanyFutureExpeditionsResponse.getBody());
+    }   
 }

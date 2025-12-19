@@ -23,4 +23,7 @@ public interface ExpeditionOperationsController {
 
     @PostMapping("/company/get/all")
     ResponseEntity<ExpeditionsForCompanyDTO> sendCompanyExpeditions(HttpSession httpSession);
+
+    @PostMapping("/company/get/future")
+    ResponseEntity<ExpeditionsForCompanyDTO> sendCompanyFutureExpeditions(HttpSession httpSession);
 }
