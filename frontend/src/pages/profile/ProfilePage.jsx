@@ -1,5 +1,5 @@
 // src/pages/profile/ProfilePage.jsx
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import "./ProfilePage.css";
 
 const mockProfile = {
@@ -14,18 +14,70 @@ const mockCards = [
   { cardId: "2", last4Digits: "4412", expirationMonth: "08", expirationYear: "29" },
 ];
 
+const FIELD = {
+  NAME: "name",
+  SURNAME: "surname",
+  GENDER: "gender",
+  EMAIL: "email",
+  PASSWORD: "password",
+};
+
+async function safeReadJson(res) {
+  try {
+    return await res.json();
+  } catch {
+    return null;
+  }
+}
+
+function buildEditEndpoint(field) {
+  // field values match API suffix: name | surname | gender | email | password
+  return `/api/profile/customer/edit/${field}`;
+}
+
+async function updateProfileAttribute(field, attributeValue) {
+  const endpoint = buildEditEndpoint(field);
+
+  const res = await fetch(endpoint, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    credentials: "include",
+    body: JSON.stringify({ attribute: attributeValue }),
+  });
+
+  const data = await safeReadJson(res);
+
+  if (!res.ok) {
+    throw new Error(data?.message || `Update failed (HTTP ${res.status}).`);
+  }
+
+  return data; // MessageDTO
+}
+
 export default function ProfilePage() {
   // --- PROFILE STATE ---
   const [profile, setProfile] = useState(mockProfile);
-  const [draft, setDraft] = useState(mockProfile);
-  const [isEditing, setIsEditing] = useState(false);
+  const [isProfileLoading, setIsProfileLoading] = useState(true);
+  const [profileError, setProfileError] = useState("");
 
-  // --- PASSWORD MODAL ---
-  const [pwOpen, setPwOpen] = useState(false);
-  const [pwForm, setPwForm] = useState({ current: "", next: "", confirm: "" });
-  const [pwTouched, setPwTouched] = useState({ current: false, next: false, confirm: false });
+  // --- SINGLE "FIELD CHANGE" MODAL STATE ---
+  const [fieldModal, setFieldModal] = useState({
+    open: false,
+    field: null, // FIELD.NAME | FIELD.SURNAME | FIELD.GENDER | FIELD.EMAIL | FIELD.PASSWORD
+  });
 
-  // --- CARD STATE ---
+  // --- FOR NON-PASSWORD FIELDS ---
+  const [fieldValue, setFieldValue] = useState(""); // input value
+  const [fieldTouched, setFieldTouched] = useState(false);
+
+  // --- PASSWORD MODAL FORM (NO CURRENT PASSWORD) ---
+  const [pwForm, setPwForm] = useState({ next: "", confirm: "" });
+  const [pwTouched, setPwTouched] = useState({ next: false, confirm: false });
+
+  // --- FIELD SAVE LOADING ---
+  const [isSaving, setIsSaving] = useState(false);
+
+  // --- CARD STATE (unchanged) ---
   const [cards, setCards] = useState(mockCards);
   const [cardModalOpen, setCardModalOpen] = useState(false);
   const [cardForm, setCardForm] = useState({
@@ -37,7 +89,7 @@ export default function ProfilePage() {
   });
   const [cardTouched, setCardTouched] = useState({});
 
-  // --- UI MESSAGE (NO API) ---
+  // --- UI MESSAGE ---
   const [toast, setToast] = useState("");
 
   function showToast(msg) {
@@ -46,79 +98,190 @@ export default function ProfilePage() {
     showToast._t = window.setTimeout(() => setToast(""), 2200);
   }
 
-  // --------- PROFILE VALIDATION ----------
-  const profileErrors = useMemo(() => {
-    const e = {};
-    const name = draft.name?.trim() ?? "";
-    const surname = draft.surname?.trim() ?? "";
-    const email = draft.email?.trim() ?? "";
-    const gender = draft.gender ?? "";
+  // ---------------- LOAD PROFILE (API) ----------------
+  useEffect(() => {
+    let alive = true;
 
-    if (!name) e.name = "Name is required.";
-    if (!surname) e.surname = "Surname is required.";
-    if (!gender) e.gender = "Gender is required.";
-    if (!email) e.email = "Email is required.";
-    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) e.email = "Please enter a valid email.";
+    async function loadProfile() {
+      setIsProfileLoading(true);
+      setProfileError("");
 
-    return e;
-  }, [draft]);
+      try {
+        const res = await fetch("/api/profile/customer/get", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          credentials: "include",
+          body: JSON.stringify({}),
+        });
 
-  const profileHasError = Object.keys(profileErrors).length > 0;
+        const data = await safeReadJson(res);
 
-  function onEdit() {
-    setDraft(profile);
-    setIsEditing(true);
+        if (!res.ok) {
+          const msg = data?.message || `Profile fetch failed (HTTP ${res.status}).`;
+          if (alive) setProfileError(msg);
+          return;
+        }
+
+        const nextProfile = {
+          name: data?.name ?? "",
+          surname: data?.surname ?? "",
+          gender: data?.gender ?? "",
+          email: data?.email ?? "",
+        };
+
+        if (alive) {
+          setProfile(nextProfile);
+          if (data?.message) showToast(data.message);
+        }
+      } catch {
+        if (alive) setProfileError("Profile fetch failed. Please try again.");
+      } finally {
+        if (alive) setIsProfileLoading(false);
+      }
+    }
+
+    loadProfile();
+    return () => {
+      alive = false;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // ---------------- FIELD MODAL HELPERS ----------------
+  function openFieldModal(field) {
+    if (isProfileLoading) return;
+
+    setFieldModal({ open: true, field });
+    setFieldTouched(false);
+
+    if (field === FIELD.PASSWORD) {
+      setPwForm({ next: "", confirm: "" });
+      setPwTouched({ next: false, confirm: false });
+    } else {
+      setFieldValue(String(profile[field] ?? ""));
+    }
   }
 
-  function onCancelEdit() {
-    setDraft(profile);
-    setIsEditing(false);
+  function closeFieldModal() {
+    if (isSaving) return;
+    setFieldModal({ open: false, field: null });
   }
 
-  function onSaveProfile() {
-    // no API: just local save
-    if (profileHasError) return;
-    setProfile(draft);
-    setIsEditing(false);
-    showToast("Profile updated (mock).");
-  }
+  const activeField = fieldModal.field;
 
-  // --------- PASSWORD VALIDATION ----------
+  const fieldTitle = useMemo(() => {
+    switch (activeField) {
+      case FIELD.NAME:
+        return "Change Name";
+      case FIELD.SURNAME:
+        return "Change Surname";
+      case FIELD.GENDER:
+        return "Change Gender";
+      case FIELD.EMAIL:
+        return "Change Email";
+      case FIELD.PASSWORD:
+        return "Change Password";
+      default:
+        return "";
+    }
+  }, [activeField]);
+
+  // ---------------- VALIDATIONS ----------------
+  const fieldError = useMemo(() => {
+    if (!fieldModal.open) return "";
+    if (!activeField || activeField === FIELD.PASSWORD) return "";
+
+    const v = fieldValue.trim();
+
+    if (activeField === FIELD.NAME) {
+      if (!v) return "Name is required.";
+      if (v.length < 2) return "Name must be at least 2 characters.";
+      return "";
+    }
+
+    if (activeField === FIELD.SURNAME) {
+      if (!v) return "Surname is required.";
+      if (v.length < 2) return "Surname must be at least 2 characters.";
+      return "";
+    }
+
+    if (activeField === FIELD.EMAIL) {
+      if (!v) return "Email is required.";
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v)) return "Please enter a valid email.";
+      return "";
+    }
+
+    if (activeField === FIELD.GENDER) {
+      if (!v) return "Gender is required.";
+      return "";
+    }
+
+    return "";
+  }, [fieldModal.open, activeField, fieldValue]);
+
   const pwErrors = useMemo(() => {
     const e = {};
-    const current = pwForm.current;
+    if (!fieldModal.open || activeField !== FIELD.PASSWORD) return e;
+
     const next = pwForm.next;
     const confirm = pwForm.confirm;
 
-    if (!current) e.current = "Current password is required.";
     if (!next) e.next = "New password is required.";
     else if (next.length < 8) e.next = "New password must be at least 8 characters.";
+
     if (!confirm) e.confirm = "Please confirm the new password.";
     else if (confirm !== next) e.confirm = "Passwords do not match.";
 
     return e;
-  }, [pwForm]);
+  }, [fieldModal.open, activeField, pwForm]);
 
-  const pwHasError = Object.keys(pwErrors).length > 0;
+  const canSaveField =
+    !!activeField &&
+    activeField !== FIELD.PASSWORD &&
+    fieldValue.trim().length > 0 &&
+    !fieldError;
 
-  function openPassword() {
-    setPwForm({ current: "", next: "", confirm: "" });
-    setPwTouched({ current: false, next: false, confirm: false });
-    setPwOpen(true);
+  const canSavePassword = activeField === FIELD.PASSWORD && Object.keys(pwErrors).length === 0;
+
+  // ---------------- SAVE HANDLERS (API) ----------------
+  async function onSaveFieldChange() {
+    if (!canSaveField || isSaving) return;
+
+    const v = fieldValue.trim();
+
+    setIsSaving(true);
+    try {
+      const data = await updateProfileAttribute(activeField, v);
+
+      setProfile((p) => ({ ...p, [activeField]: v }));
+      setFieldModal({ open: false, field: null });
+
+      showToast(data?.message || "Updated successfully.");
+    } catch (err) {
+      showToast(err?.message || "Update failed.");
+    } finally {
+      setIsSaving(false);
+    }
   }
 
-  function closePassword() {
-    setPwOpen(false);
+  async function onSavePasswordChange() {
+    if (!canSavePassword || isSaving) return;
+
+    setIsSaving(true);
+    try {
+      // password endpoint expects { attribute: <newPassword> }
+      const data = await updateProfileAttribute(FIELD.PASSWORD, pwForm.next);
+
+      setFieldModal({ open: false, field: null });
+      showToast(data?.message || "Password changed successfully.");
+    } catch (err) {
+      showToast(err?.message || "Password update failed.");
+    } finally {
+      setIsSaving(false);
+    }
   }
 
-  function onSavePassword() {
-    if (pwHasError) return;
-    // no API: just mock success
-    setPwOpen(false);
-    showToast("Password changed (mock).");
-  }
-
-  // --------- CARD VALIDATION ----------
+  // ---------------- CARD HANDLERS (SAME / MOCK) ----------------
   function onlyDigits(s) {
     return (s ?? "").replace(/\D/g, "");
   }
@@ -197,9 +360,22 @@ export default function ProfilePage() {
           <div>
             <h1 className="title">My Profile</h1>
             <p className="subtitle">Manage your account information and saved cards</p>
+
+            {profileError ? (
+              <div className="errorBanner" role="alert">
+                <div>{profileError}</div>
+                <button className="ghostButton" type="button" onClick={() => window.location.reload()}>
+                  Retry
+                </button>
+              </div>
+            ) : null}
           </div>
 
-          {toast ? <div className="toast" role="status">{toast}</div> : null}
+          {toast ? (
+            <div className="toast" role="status">
+              {toast}
+            </div>
+          ) : null}
         </header>
 
         {/* PROFILE CARD */}
@@ -209,85 +385,52 @@ export default function ProfilePage() {
               <h2 className="cardTitle">Profile Information</h2>
               <span className="pill">Account</span>
             </div>
-
-            {!isEditing ? (
-              <button className="ghostButton" type="button" onClick={onEdit}>
-                Edit
-              </button>
-            ) : (
-              <div className="rowActions">
-                <button
-                  className="primaryButton"
-                  type="button"
-                  onClick={onSaveProfile}
-                  disabled={profileHasError}
-                  title={profileHasError ? "Fix validation errors" : "Save"}
-                >
-                  Save
-                </button>
-                <button className="ghostButton" type="button" onClick={onCancelEdit}>
-                  Cancel
-                </button>
-              </div>
-            )}
           </div>
 
           <div className="grid">
-            <Field
+            <InlineRow
               label="Name"
-              value={draft.name}
-              readOnly={!isEditing}
-              error={isEditing ? profileErrors.name : ""}
-              onChange={(v) => setDraft((p) => ({ ...p, name: v }))}
+              value={isProfileLoading ? "Loading..." : profile.name}
+              buttonText="Change"
+              disabled={isProfileLoading}
+              onClick={() => openFieldModal(FIELD.NAME)}
             />
-            <Field
+            <InlineRow
               label="Surname"
-              value={draft.surname}
-              readOnly={!isEditing}
-              error={isEditing ? profileErrors.surname : ""}
-              onChange={(v) => setDraft((p) => ({ ...p, surname: v }))}
+              value={isProfileLoading ? "Loading..." : profile.surname}
+              buttonText="Change"
+              disabled={isProfileLoading}
+              onClick={() => openFieldModal(FIELD.SURNAME)}
             />
-
-            <div className="field">
-              <label className="label">Gender</label>
-              {!isEditing ? (
-                <div className="valueBox">{profile.gender}</div>
-              ) : (
-                <>
-                  <select
-                    className={`input ${profileErrors.gender ? "inputError" : ""}`}
-                    value={draft.gender}
-                    onChange={(e) => setDraft((p) => ({ ...p, gender: e.target.value }))}
-                  >
-                    <option value="">Select</option>
-                    <option value="Male">Male</option>
-                    <option value="Female">Female</option>
-                    <option value="Other">Other</option>
-                  </select>
-                  {profileErrors.gender ? <p className="error">{profileErrors.gender}</p> : null}
-                </>
-              )}
-            </div>
-
-            <Field
+            <InlineRow
+              label="Gender"
+              value={isProfileLoading ? "Loading..." : profile.gender}
+              buttonText="Change"
+              disabled={isProfileLoading}
+              onClick={() => openFieldModal(FIELD.GENDER)}
+            />
+            <InlineRow
               label="Email"
-              value={draft.email}
-              readOnly={!isEditing}
-              error={isEditing ? profileErrors.email : ""}
-              onChange={(v) => setDraft((p) => ({ ...p, email: v }))}
+              value={isProfileLoading ? "Loading..." : profile.email}
+              buttonText="Change"
+              disabled={isProfileLoading}
+              onClick={() => openFieldModal(FIELD.EMAIL)}
             />
 
             <div className="field span2">
               <label className="label">Password</label>
               <div className="passwordRow">
                 <div className="valueBox">********</div>
-                <button className="ghostButton" type="button" onClick={openPassword}>
-                  Change Password
+                <button
+                  className="ghostButton"
+                  type="button"
+                  disabled={isProfileLoading}
+                  onClick={() => openFieldModal(FIELD.PASSWORD)}
+                >
+                  Change
                 </button>
               </div>
-              <p className="hint">
-                For security reasons, your password is never displayed.
-              </p>
+              <p className="hint">For security reasons, your password is never displayed.</p>
             </div>
           </div>
         </section>
@@ -343,48 +486,95 @@ export default function ProfilePage() {
         </section>
       </div>
 
-      {/* PASSWORD MODAL */}
-      {pwOpen ? (
-        <Modal title="Change Password" onClose={closePassword}>
-          <div className="modalBody">
-            <ModalField
-              label="Current Password"
-              type="password"
-              value={pwForm.current}
-              error={pwTouched.current ? pwErrors.current : ""}
-              onBlur={() => setPwTouched((t) => ({ ...t, current: true }))}
-              onChange={(v) => setPwForm((p) => ({ ...p, current: v }))}
-            />
-            <ModalField
-              label="New Password"
-              type="password"
-              value={pwForm.next}
-              error={pwTouched.next ? pwErrors.next : ""}
-              onBlur={() => setPwTouched((t) => ({ ...t, next: true }))}
-              onChange={(v) => setPwForm((p) => ({ ...p, next: v }))}
-            />
-            <ModalField
-              label="Confirm New Password"
-              type="password"
-              value={pwForm.confirm}
-              error={pwTouched.confirm ? pwErrors.confirm : ""}
-              onBlur={() => setPwTouched((t) => ({ ...t, confirm: true }))}
-              onChange={(v) => setPwForm((p) => ({ ...p, confirm: v }))}
-            />
-          </div>
+      {/* FIELD MODAL (NAME/SURNAME/GENDER/EMAIL/PASSWORD) */}
+      {fieldModal.open ? (
+        <Modal title={fieldTitle} onClose={closeFieldModal}>
+          {activeField === FIELD.PASSWORD ? (
+            <>
+              <div className="modalBody">
+                <ModalField
+                  label="New Password"
+                  type="password"
+                  value={pwForm.next}
+                  error={pwTouched.next ? pwErrors.next : ""}
+                  onBlur={() => setPwTouched((t) => ({ ...t, next: true }))}
+                  onChange={(v) => setPwForm((p) => ({ ...p, next: v }))}
+                />
+                <ModalField
+                  label="Confirm New Password"
+                  type="password"
+                  value={pwForm.confirm}
+                  error={pwTouched.confirm ? pwErrors.confirm : ""}
+                  onBlur={() => setPwTouched((t) => ({ ...t, confirm: true }))}
+                  onChange={(v) => setPwForm((p) => ({ ...p, confirm: v }))}
+                />
+              </div>
 
-          <div className="modalActions">
-            <button className="primaryButton" type="button" onClick={onSavePassword} disabled={pwHasError}>
-              Save
-            </button>
-            <button className="ghostButton" type="button" onClick={closePassword}>
-              Cancel
-            </button>
-          </div>
+              <div className="modalActions">
+                <button
+                  className="primaryButton"
+                  type="button"
+                  onClick={onSavePasswordChange}
+                  disabled={!canSavePassword || isSaving}
+                >
+                  {isSaving ? "Saving..." : "Save"}
+                </button>
+                <button className="ghostButton" type="button" onClick={closeFieldModal} disabled={isSaving}>
+                  Cancel
+                </button>
+              </div>
+            </>
+          ) : (
+            <>
+              <div className="modalBody">
+                {activeField === FIELD.GENDER ? (
+                  <div className="field">
+                    <label className="label">Gender</label>
+                    <select
+                      className={`input ${fieldTouched && fieldError ? "inputError" : ""}`}
+                      value={fieldValue}
+                      onBlur={() => setFieldTouched(true)}
+                      onChange={(e) => setFieldValue(e.target.value)}
+                      disabled={isSaving}
+                    >
+                      <option value="">Select</option>
+                      <option value="Male">Male</option>
+                      <option value="Female">Female</option>
+                      <option value="Other">Other</option>
+                    </select>
+                    {fieldTouched && fieldError ? <p className="error">{fieldError}</p> : null}
+                  </div>
+                ) : (
+                  <ModalField
+                    label={activeField === FIELD.NAME ? "Name" : activeField === FIELD.SURNAME ? "Surname" : "Email"}
+                    value={fieldValue}
+                    error={fieldTouched ? fieldError : ""}
+                    onBlur={() => setFieldTouched(true)}
+                    onChange={(v) => setFieldValue(v)}
+                    disabled={isSaving}
+                  />
+                )}
+              </div>
+
+              <div className="modalActions">
+                <button
+                  className="primaryButton"
+                  type="button"
+                  onClick={onSaveFieldChange}
+                  disabled={!canSaveField || isSaving}
+                >
+                  {isSaving ? "Saving..." : "Save"}
+                </button>
+                <button className="ghostButton" type="button" onClick={closeFieldModal} disabled={isSaving}>
+                  Cancel
+                </button>
+              </div>
+            </>
+          )}
         </Modal>
       ) : null}
 
-      {/* ADD CARD MODAL */}
+      {/* ADD CARD MODAL (unchanged) */}
       {cardModalOpen ? (
         <Modal title="Add Card" onClose={closeCardModal}>
           <div className="modalBody">
@@ -433,9 +623,7 @@ export default function ProfilePage() {
               placeholder="3 digits"
             />
 
-            <p className="hint">
-              This is a mock form. In real flow, never store full card data on frontend.
-            </p>
+            <p className="hint">This is a mock form. In real flow, never store full card data on frontend.</p>
           </div>
 
           <div className="modalActions">
@@ -452,27 +640,21 @@ export default function ProfilePage() {
   );
 }
 
-function Field({ label, value, readOnly, onChange, error }) {
+function InlineRow({ label, value, buttonText = "Change", onClick, disabled = false }) {
   return (
     <div className="field">
       <label className="label">{label}</label>
-      {!readOnly ? (
-        <>
-          <input
-            className={`input ${error ? "inputError" : ""}`}
-            value={value ?? ""}
-            onChange={(e) => onChange(e.target.value)}
-          />
-          {error ? <p className="error">{error}</p> : null}
-        </>
-      ) : (
+      <div className="inlineRow">
         <div className="valueBox">{value || "-"}</div>
-      )}
+        <button className="ghostButton" type="button" onClick={onClick} disabled={disabled}>
+          {buttonText}
+        </button>
+      </div>
     </div>
   );
 }
 
-function ModalField({ label, value, onChange, onBlur, error, type = "text", placeholder }) {
+function ModalField({ label, value, onChange, onBlur, error, type = "text", placeholder, disabled = false }) {
   return (
     <div className="field">
       <label className="label">{label}</label>
@@ -483,6 +665,7 @@ function ModalField({ label, value, onChange, onBlur, error, type = "text", plac
         placeholder={placeholder}
         onBlur={onBlur}
         onChange={(e) => onChange(e.target.value)}
+        disabled={disabled}
       />
       {error ? <p className="error">{error}</p> : null}
     </div>
@@ -495,7 +678,7 @@ function Modal({ title, onClose, children }) {
       <div className="modalCard">
         <div className="modalTop">
           <h3 className="modalTitle">{title}</h3>
-          <button className="iconButton" type="button" onClick={onClose} aria-label="Close">
+          <button className="iconButton" type="button" onClick={onClose} aria-label="Close" disabled={false}>
             ✕
           </button>
         </div>
