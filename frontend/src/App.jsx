@@ -20,6 +20,7 @@ import CompanyHome from './pages/companyHome/CompanyHome.jsx';
 import CompanyExpeditionCreate from './pages/expeditionCreate/CompanyExpeditionCreate.jsx';
 import CompanyConfirmPage from './pages/Admin/CompanyConfirmPage.jsx';
 import AdminConfirmPage from './pages/Admin/AdminConfirmPage.jsx';
+import ProfilePage from './pages/profile/ProfilePage.jsx';
 
 // İleride başka sayfalar da ekleyeceğiz (Register, Home vb.)
 // Şimdilik sadece Login var.
@@ -42,6 +43,7 @@ function App() {
           {/* Müşteri ile ilgili sayfalar buraya */}
           <Route path="/customer/home" element={<CustomerHomePage />} />
           <Route path="/travel" element={<Travel />} />
+          <Route path="/profile" element={<ProfilePage />} />
         </Route>
 
         <Route element={<AdminLayout />}>
