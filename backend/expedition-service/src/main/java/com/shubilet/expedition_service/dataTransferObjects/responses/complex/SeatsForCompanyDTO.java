@@ -7,7 +7,7 @@ import com.shubilet.expedition_service.dataTransferObjects.responses.base.SeatFo
 
 public class SeatsForCompanyDTO {
     private String message;
-    private List<SeatForCompanyDTO> tickets;
+    private List<SeatForCompanyDTO> seats;
 
     public SeatsForCompanyDTO() {
 
@@ -15,12 +15,12 @@ public class SeatsForCompanyDTO {
 
     public SeatsForCompanyDTO(String message) {
         this.message = message;
-        tickets = new ArrayList<>();
+        seats = new ArrayList<>();
     }
 
-    public SeatsForCompanyDTO(String message, List<SeatForCompanyDTO> tickets) {
+    public SeatsForCompanyDTO(String message, List<SeatForCompanyDTO> seats) {
         this.message = message;
-        this.tickets = tickets;
+        this.seats = seats;
     }
 
     public String getMessage() {
@@ -30,10 +30,10 @@ public class SeatsForCompanyDTO {
         this.message = message;
     }
 
-    public List<SeatForCompanyDTO> getTickets() {
-        return tickets;
+    public List<SeatForCompanyDTO> getSeats() {
+        return seats;
     }
-    public void setTickets(List<SeatForCompanyDTO> tickets) {
-        this.tickets = tickets;
+    public void setSeats(List<SeatForCompanyDTO> seats) {
+        this.seats = seats;
     }
 }
