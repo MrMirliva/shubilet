@@ -1,6 +1,77 @@
 import React, { useState } from 'react';
 import './Travel.css';
 
+const CITIES = [
+    "Adana", "Adıyaman", "Afyonkarahisar", " Ağrı", "Aksaray", "Amasya", "Ankara", "Antalya", "Ardahan", "Artvin", "Aydın", "Balikesir", "Bartın", "Batman", "Bayburt", "Bilecik", "Bingöl", "Bitlis", "Bolu", "Burdur", "Bursa", "Çanakkale", "Çankiri", "Çorum", "Denizli", "Diyarbakir", "Duzce", "Edirne", "Elazığ", "Erzincan", "Erzurum", "Eskişehir", "Gaziantep", "Giresun", "Gümüşhane", "Hakkari", "Hatay", "Iğdır", "Isparta", "İstanbul", "İzmir", "Kahramanmaras", "Karabük", "Karaman", "Kars", "Kastamonu", "Kayseri", "Kirikkale", "Kirklareli", "Kirşehir", "Kilis", "Kocaeli", "Konya", "Kütahya", "Malatya", "Manisa", "Mardin", "Mersin", "Mugla", "Mus", "Nevşehir", "Niğde", "Ordu", "Osmaniye", "Rize", "Sakarya", "Samsun", "Siirt", "Sinop", "Sivas", "Şanlıurfa", "Şırnak", "Tekirdağ", "Tokat", "Trabzon", "Tunceli", "Usak", "Van", "Yalova", "Yozgat", "Zonguldak"
+];
+
+const CitySearchInput = ({ value, onChange, placeholder }) => {
+    const [suggestions, setSuggestions] = useState([]);
+    const [isFocused, setIsFocused] = useState(false);
+
+    const handleInputChange = (e) => {
+        const inputVal = e.target.value;
+        onChange(inputVal);
+
+        if (inputVal.length > 0) {
+            const filtered = CITIES.filter(city =>
+                city.toLocaleLowerCase('tr-TR').startsWith(inputVal.toLocaleLowerCase('tr-TR'))
+            );
+            setSuggestions(filtered);
+        } else {
+            setSuggestions([]);
+        }
+    };
+
+    const handleSelectCity = (city) => {
+        onChange(city);
+        setSuggestions([]);
+        setIsFocused(false);
+    };
+
+    const handleKeyDown = (e) => {
+        if (e.key === 'Enter') {
+            if (suggestions.length > 0) {
+                // Select the first (top) suggestion
+                handleSelectCity(suggestions[0]);
+                e.preventDefault();
+            }
+        }
+    };
+
+    // Close suggestions after short delay to allow click event to register
+    const handleBlur = () => {
+        setTimeout(() => setIsFocused(false), 200);
+    };
+
+    return (
+        <div className="city-autocomplete-wrapper">
+            <input
+                type="text"
+                value={value}
+                onChange={handleInputChange}
+                onKeyDown={handleKeyDown}
+                onFocus={() => setIsFocused(true)}
+                onBlur={handleBlur}
+                placeholder={placeholder}
+            />
+            {isFocused && suggestions.length > 0 && (
+                <div className="suggestions-list">
+                    {suggestions.map((city, index) => (
+                        <div
+                            key={city}
+                            className={`suggestion-item ${index === 0 ? 'active' : ''}`}
+                            onClick={() => handleSelectCity(city)}
+                        >
+                            {city}
+                        </div>
+                    ))}
+                </div>
+            )}
+        </div>
+    );
+};
+
 const CustomDatePicker = ({ selectedDate, onChange }) => {
     const [isOpen, setIsOpen] = useState(false);
     const dateObj = selectedDate ? new Date(selectedDate) : new Date();
@@ -70,13 +141,14 @@ const CustomDatePicker = ({ selectedDate, onChange }) => {
 const Travel = () => {
     // --- State ---
     const [searchParams, setSearchParams] = useState({
-        from: 'Istanbul Europe',
-        to: 'Ankara',
-        date: '2025-12-18'
+        from: 'İzmir',
+        to: 'Bursa',
+        date: '2026-02-15'
     });
 
     const [expeditions, setExpeditions] = useState([]);
     const [hasSearched, setHasSearched] = useState(false);
+    const [searchError, setSearchError] = useState(null);
 
     // Selection State
     const [selectedExpeditionId, setSelectedExpeditionId] = useState(null);
@@ -87,78 +159,116 @@ const Travel = () => {
 
     // --- Mock Data Generators ---
     const generateSeats = () => {
-        const seats = [];
+        const tickets = [];
         for (let i = 1; i <= 40; i++) {
             // Randomly assign reserved status (approx 30% reserved)
             const isReserved = Math.random() < 0.3;
-            seats.push({
+            tickets.push({
                 id: i,
                 number: i,
                 status: isReserved ? 'reserved' : 'available'
             });
         }
-        return seats;
+        return tickets;
     };
 
-    const mockFetchExpeditions = () => {
-        // Simulate API call result
-        const mockResults = [
-            {
-                id: 1,
-                companyName: 'Metro Turizm',
-                departureTime: '10:00',
-                arrivalTime: '16:00',
-                price: 500,
-                duration: '6h 00m',
-                from: searchParams.from,
-                to: searchParams.to,
-                date: searchParams.date,
-                seats: generateSeats()
-            },
-            {
-                id: 2,
-                companyName: 'Pamukkale',
-                departureTime: '12:30',
-                arrivalTime: '18:45',
-                price: 550,
-                duration: '6h 15m',
-                from: searchParams.from,
-                to: searchParams.to,
-                date: searchParams.date,
-                seats: generateSeats()
-            },
-            {
-                id: 3,
-                companyName: 'Kamil Koc',
-                departureTime: '15:00',
-                arrivalTime: '21:00',
-                price: 520,
-                duration: '6h 00m',
-                from: searchParams.from,
-                to: searchParams.to,
-                date: searchParams.date,
-                seats: generateSeats()
-            },
-            {
-                id: 4,
-                companyName: 'Varan',
-                departureTime: '23:00',
-                arrivalTime: '06:00',
-                price: 600,
-                duration: '7h 00m',
-                from: searchParams.from,
-                to: searchParams.to,
-                date: searchParams.date,
-                seats: generateSeats()
+    const fetchExpeditions = async () => {
+        const body = {
+            departureCity: searchParams.from,
+            arrivalCity: searchParams.to,
+            date: searchParams.date
+        };
+        console.log("Fetching expeditions with:", body);
+        setSearchError(null);
+        try {
+            const response = await fetch('/api/expedition/customer/get/search/expeditions', {
+                method: 'POST',
+                credentials: "include",
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(body)
+            });
+
+            if (!response.ok) {
+                setSearchError("No expedition found or error occurred.");
+                return [];
             }
-        ];
-        return mockResults;
+
+            const data = await response.json();
+            const rawList = data.expeditions || [];
+
+            if (rawList.length === 0) {
+                setSearchError("No expeditions found.");
+            }
+
+            return rawList.map(item => ({
+                id: item.expeditionId,
+                companyName: item.companyName,
+                departureTime: item.time ? item.time.substring(0, 5) : "00:00",
+                arrivalTime: calculateArrival(item.time, item.duration),
+                price: item.price,
+                duration: formatDuration(item.duration),
+                from: item.departureCity,
+                to: item.arrivalCity,
+                date: item.date,
+                tickets: null
+            }));
+
+        } catch (error) {
+            console.error("Error fetching expeditions:", error);
+            setSearchError("No expeditions found (Connection Error).");
+            return [];
+        }
+    };
+
+    const fetchSeats = async (expeditionId) => {
+        try {
+            const response = await fetch('/api/expedition/customer/get/search/seats', {
+                method: 'POST',
+                credentials: "include",
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ expeditionId })
+            });
+
+            if (!response.ok) {
+                console.error("Failed to fetch tickets");
+                return null;
+            }
+
+            const data = await response.json();
+            console.log("Fetched tickets:", data.message);
+            return data.tickets;
+        } catch (error) {
+            console.error("Error fetching tickets:", error);
+            return null;
+        }
+    };
+
+    // Helper to format duration (assuming int minutes from API)
+    const formatDuration = (minutes) => {
+        const h = Math.floor(minutes / 60);
+        const m = minutes % 60;
+        return `${h}h ${m}m`;
+    };
+
+    // Helper to calc arrival
+    const calculateArrival = (timeStr, durationMinutes) => {
+        if (!timeStr) return "00:00";
+        const [hours, mins] = timeStr.split(':').map(Number);
+        const totalMins = hours * 60 + mins + durationMinutes;
+        const newH = Math.floor(totalMins / 60) % 24;
+        const newM = totalMins % 60;
+        return `${newH.toString().padStart(2, '0')}:${newM.toString().padStart(2, '0')}`;
     };
 
     // --- Handlers ---
-    const handleSearch = () => {
+    const handleSearch = async () => {
         console.log("Searching for:", searchParams);
-        const results = mockFetchExpeditions();
+        // const results = mockFetchExpeditions(); // OLD MOCK
+        const results = await fetchExpeditions();
         setExpeditions(results);
         setHasSearched(true);
         setSelectedExpeditionId(null);
@@ -174,12 +284,30 @@ const Travel = () => {
         }));
     };
 
-    const toggleExpedition = (id) => {
+    const toggleExpedition = async (id) => {
         if (selectedExpeditionId === id) {
             setSelectedExpeditionId(null);
         } else {
             setSelectedExpeditionId(id);
-            setSelectedSeat(null); // Reset seat selection when changing bus
+            setSelectedSeat(null);
+            const expIndex = expeditions.findIndex(e => e.id === id);
+            if (expIndex !== -1 && !expeditions[expIndex].tickets) {
+                const tickets = await fetchSeats(id);
+
+                console.log("Fetched tickets:", tickets);
+                setExpeditions(prev => {
+                    const next = [...prev];
+                    if (next[expIndex]) {
+                        // Map raw tickets to internal structure
+                        next[expIndex].tickets = tickets.map(s => ({
+                            id: s.seatNo,
+                            number: s.seatNo,
+                            status: String(s.status).toLowerCase() === 'reserved' ? 'reserved' : 'available'
+                        }));
+                    }
+                    return next;
+                });
+            }
         }
     };
 
@@ -212,11 +340,11 @@ const Travel = () => {
             <div className="search-section">
                 <div className="input-group">
                     <label>From</label>
-                    <div className="input-wrapper">
-                        <input
-                            type="text"
+                    <div className="input-wrapper" style={{ padding: 0 }}>
+                        <CitySearchInput
                             value={searchParams.from}
-                            onChange={(e) => setSearchParams({ ...searchParams, from: e.target.value })}
+                            onChange={(val) => setSearchParams({ ...searchParams, from: val })}
+                            placeholder="Select City"
                         />
                     </div>
                 </div>
@@ -227,11 +355,11 @@ const Travel = () => {
 
                 <div className="input-group">
                     <label>To</label>
-                    <div className="input-wrapper">
-                        <input
-                            type="text"
+                    <div className="input-wrapper" style={{ padding: 0 }}>
+                        <CitySearchInput
                             value={searchParams.to}
-                            onChange={(e) => setSearchParams({ ...searchParams, to: e.target.value })}
+                            onChange={(val) => setSearchParams({ ...searchParams, to: val })}
+                            placeholder="Select City"
                         />
                     </div>
                 </div>
@@ -246,8 +374,6 @@ const Travel = () => {
                         />
                     </div>
                 </div>
-
-
 
                 <button className="search-btn" onClick={handleSearch}>
                     Search
@@ -277,7 +403,12 @@ const Travel = () => {
 
             {/* Expeditions List */}
             <div className="expeditions-container">
-                {hasSearched && expeditions.length === 0 && (
+                {searchError && (
+                    <div className="search-error-message" style={{ color: 'red', textAlign: 'center', padding: '20px' }}>
+                        {searchError}
+                    </div>
+                )}
+                {!searchError && hasSearched && expeditions.length === 0 && (
                     <p>No expeditions found.</p>
                 )}
 
@@ -306,15 +437,19 @@ const Travel = () => {
                             <div className="seat-selection-area">
                                 <h4>Select a Seat</h4>
                                 <div className="bus-layout">
-                                    {exp.seats.map(seat => (
-                                        <div
-                                            key={seat.id}
-                                            className={`seat ${seat.status} ${selectedSeat?.id === seat.id ? 'selected' : ''}`}
-                                            onClick={() => handleSeatClick(seat)}
-                                        >
-                                            {seat.number}
-                                        </div>
-                                    ))}
+                                    {!exp.tickets ? (
+                                        <div className="loading-tickets">Loading tickets...</div>
+                                    ) : (
+                                        exp.tickets.map(seat => (
+                                            <div
+                                                key={seat.id}
+                                                className={`seat ${seat.status} ${selectedSeat?.id === seat.id ? 'selected' : ''}`}
+                                                onClick={() => handleSeatClick(seat)}
+                                            >
+                                                {seat.number}
+                                            </div>
+                                        ))
+                                    )}
                                 </div>
                                 <div className="purchase-action">
                                     <p>Selected Seat: <strong>{selectedSeat ? selectedSeat.number : '-'}</strong></p>

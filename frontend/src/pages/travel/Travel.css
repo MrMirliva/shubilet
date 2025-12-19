@@ -48,6 +48,9 @@
     padding: 10px 15px;
     display: flex;
     align-items: center;
+    height: 50px;
+    /* Enforce consistent height */
+    box-sizing: border-box;
 }
 
 .input-wrapper input {
@@ -58,6 +61,7 @@
     color: #333;
     font-weight: 600;
     outline: none;
+    height: 100%;
 }
 
 .swap-icon {
@@ -324,15 +328,68 @@
     line-height: 1.4;
 }
 
+/* City Autocomplete Styles */
+.city-autocomplete-wrapper {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+}
+
+.suggestions-list {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    width: 100%;
+    background-color: white;
+    border: 1px solid #e0e0e0;
+    border-radius: 0 0 8px 8px;
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+    /* Improved shadow */
+    max-height: 250px;
+    overflow-y: auto;
+    z-index: 1001;
+    margin-top: 5px;
+    padding: 5px 0;
+}
+
+.suggestion-item {
+    padding: 12px 20px;
+    cursor: pointer;
+    border-bottom: 1px solid #f9f9f9;
+    font-size: 15px;
+    color: #444;
+    transition: background-color 0.2s, color 0.2s;
+}
+
+.suggestion-item:last-child {
+    border-bottom: none;
+}
+
+.suggestion-item:hover,
+.suggestion-item.active {
+    background-color: #e3f2fd;
+    /* Light blue highlight */
+    color: #007bff;
+    font-weight: 600;
+}
+
 /* Custom Date Picker Styles */
 .custom-date-picker {
     position: relative;
     width: 100%;
+    height: 100%;
+    /* Fill wrapper */
 }
 
 .date-trigger {
-    background-color: #f1f3f5;
-    padding: 10px 15px;
+    background-color: transparent;
+    /* Wrapper handles bg */
+    padding: 0;
+    /* Wrapper handles padding */
+    height: 100%;
+    width: 100%;
     border-radius: 8px;
     cursor: pointer;
     font-weight: 600;
