@@ -7,16 +7,16 @@ import com.shubilet.expedition_service.dataTransferObjects.responses.base.Ticket
 
 public class TicketsDTO {
     private String message;
-    private List<TicketDTO> ticketsDTO;
+    private List<TicketDTO> tickets;
 
     public TicketsDTO(String message) {
         this.message = message;
-        this.ticketsDTO = new ArrayList<>();
+        this.tickets = new ArrayList<>();
     }
 
-    public TicketsDTO(String message, List<TicketDTO> ticketsDTO) {
+    public TicketsDTO(String message, List<TicketDTO> tickets) {
         this.message = message;
-        this.ticketsDTO = ticketsDTO;
+        this.tickets = tickets;
     }
 
     public String getMessage() {
@@ -26,11 +26,11 @@ public class TicketsDTO {
         this.message = message;
     }
 
-    public List<TicketDTO> getTicketsDTO() {
-        return ticketsDTO;
+    public List<TicketDTO> getTickets() {
+        return tickets;
     }
-    public void setTicketsDTO(List<TicketDTO> ticketsDTO) {
-        this.ticketsDTO = ticketsDTO;
+    public void setTickets(List<TicketDTO> tickets) {
+        this.tickets = tickets;
     }
     
 }
