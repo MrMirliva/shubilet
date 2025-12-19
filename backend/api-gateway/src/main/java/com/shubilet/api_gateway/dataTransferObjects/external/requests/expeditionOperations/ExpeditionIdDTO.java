@@ -14,6 +14,7 @@ public class ExpeditionIdDTO {
     public int getExpeditionId() {
         return expeditionId;
     }
+
     public void setExpeditionId(int expeditionId) {
         this.expeditionId = expeditionId;
     }

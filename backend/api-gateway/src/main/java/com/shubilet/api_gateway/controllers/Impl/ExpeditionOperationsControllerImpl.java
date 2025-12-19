@@ -6,20 +6,25 @@ import com.shubilet.api_gateway.dataTransferObjects.MessageDTO;
 import com.shubilet.api_gateway.dataTransferObjects.external.requests.expeditionOperations.ExpeditionCreationExternalDTO;
 import com.shubilet.api_gateway.dataTransferObjects.external.requests.expeditionOperations.ExpeditionIdDTO;
 import com.shubilet.api_gateway.dataTransferObjects.external.requests.expeditionOperations.ExpeditionSearchDTO;
-import com.shubilet.api_gateway.dataTransferObjects.external.responses.expeditionOperations.ExpeditionSearchResultCustomerDTO;
-import com.shubilet.api_gateway.dataTransferObjects.external.responses.expeditionOperations.ExpeditionSearchResultsCompanyDTO;
-import com.shubilet.api_gateway.dataTransferObjects.external.responses.expeditionOperations.ExpeditionsForCompanyDTO;
-import com.shubilet.api_gateway.dataTransferObjects.external.responses.expeditionOperations.SeatsForCustomerDTO;
+import com.shubilet.api_gateway.dataTransferObjects.external.responses.expeditionOperations.*;
 import com.shubilet.api_gateway.dataTransferObjects.internal.CookieDTO;
 import com.shubilet.api_gateway.dataTransferObjects.internal.requests.CompanyIdDTO;
+import com.shubilet.api_gateway.dataTransferObjects.internal.requests.CustomerIdDTO;
 import com.shubilet.api_gateway.dataTransferObjects.internal.requests.expeditionOperations.ExpeditionCreationInternalDTO;
+import com.shubilet.api_gateway.dataTransferObjects.internal.requests.expeditionOperations.ExpeditionViewForCompanyByIdInternalDTO;
 import com.shubilet.api_gateway.dataTransferObjects.internal.responses.expeditionOperations.CompanyIdNameMapDTO;
+import com.shubilet.api_gateway.dataTransferObjects.internal.responses.expeditionOperations.CustomerIdNameMapDTO;
 import com.shubilet.api_gateway.dataTransferObjects.internal.responses.expeditionOperations.ExpeditionsForCustomerDTO;
 import com.shubilet.api_gateway.dataTransferObjects.internal.responses.auth.MemberCheckMessageDTO;
+import com.shubilet.api_gateway.dataTransferObjects.internal.responses.expeditionOperations.SeatsForCompanyInternalDTO;
 import com.shubilet.api_gateway.managers.HttpSessionManager;
 import com.shubilet.api_gateway.mappers.CompanyIdNameMapper;
+import com.shubilet.api_gateway.mappers.CustomerIdNameMapper;
 import com.shubilet.api_gateway.mappers.expeditionOperations.ExpeditionCreationExternalMapper;
+import com.shubilet.api_gateway.mappers.expeditionOperations.ExpeditionIdMapper;
 import com.shubilet.api_gateway.mappers.expeditionOperations.ExpeditionSearchCompanyResponseMapper;
+import com.shubilet.api_gateway.mappers.expeditionOperations.SeatsForCompanyInternalMapper;
+
 import jakarta.servlet.http.HttpSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -41,12 +46,16 @@ public class ExpeditionOperationsControllerImpl implements ExpeditionOperationsC
     public final HttpSessionManager httpSessionManager;
     public final ExpeditionCreationExternalMapper expeditionCreationExternalMapper;
     private final ExpeditionSearchCompanyResponseMapper expeditionSearchCompanyResponseMapper;
+    private final ExpeditionIdMapper expeditionIdMapper;
+    private final SeatsForCompanyInternalMapper seatsForCompanyInternalMapper;
 
 
-    public ExpeditionOperationsControllerImpl(RestTemplate restTemplate, ExpeditionCreationExternalMapper expeditionCreationExternalMapper, ExpeditionSearchCompanyResponseMapper expeditionSearchCompanyResponseMapper) {
+    public ExpeditionOperationsControllerImpl(RestTemplate restTemplate, ExpeditionCreationExternalMapper expeditionCreationExternalMapper, ExpeditionSearchCompanyResponseMapper expeditionSearchCompanyResponseMapper, ExpeditionIdMapper expeditionIdMapper, SeatsForCompanyInternalMapper seatsForCompanyInternalMapper) {
         this.restTemplate = restTemplate;
         this.expeditionCreationExternalMapper = expeditionCreationExternalMapper;
         this.expeditionSearchCompanyResponseMapper = expeditionSearchCompanyResponseMapper;
+        this.expeditionIdMapper = expeditionIdMapper;
+        this.seatsForCompanyInternalMapper = seatsForCompanyInternalMapper;
         this.httpSessionManager = new HttpSessionManager();
     }
 
@@ -425,4 +434,89 @@ public class ExpeditionOperationsControllerImpl implements ExpeditionOperationsC
 
         return ResponseEntity.status(HttpStatus.OK).body(expeditionServiceGetCompanyFutureExpeditionsResponse.getBody());
     }   
+
+    @PostMapping("/company/get/detail")
+    public ResponseEntity<SeatsForCompanyExternalDTO> sendCompanyExpeditionDetails(HttpSession httpSession, @RequestBody ExpeditionIdDTO expeditionIdDTO) {
+        String requestId = UUID.randomUUID().toString();
+        logger.info("Start Getting Company Expedition Details (requestId={})", requestId);
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("X-Request-Id", requestId);
+        headers.setContentType(MediaType.APPLICATION_JSON);
+
+        // Send Request to Security Service for Checking Existing Session
+        CookieDTO cookieDTO = httpSessionManager.fromSessionToCookieDTO(httpSession);
+        HttpEntity<CookieDTO> securityServiceCheckSessionCompanyRequest = new HttpEntity<>(cookieDTO, headers);
+        ResponseEntity<MemberCheckMessageDTO> securityServiceCheckCompanySessionResponse = restTemplate.exchange(
+                ServiceURLs.SECURITY_SERVICE_CHECK_COMPANY_SESSION_URL,
+                HttpMethod.POST,
+                securityServiceCheckSessionCompanyRequest,
+                MemberCheckMessageDTO.class
+        );
+
+        // Session Existence Clarified by Security Service
+        if (securityServiceCheckCompanySessionResponse.getStatusCode().is2xxSuccessful()) {
+            logger.info("Company Session Exists (requestId={})", requestId);
+        }
+
+        // No User is Logged in Clarified by Security Service
+        if (securityServiceCheckCompanySessionResponse.getStatusCode().is4xxClientError()) {
+            return ResponseEntity
+                    .status(HttpStatus.BAD_REQUEST)
+                    .body(new SeatsForCompanyExternalDTO(securityServiceCheckCompanySessionResponse.getBody().getMessage()));
+        }
+
+        // Something Went Wrong on Security Service
+        if (securityServiceCheckCompanySessionResponse.getStatusCode().is5xxServerError()) {
+            return ResponseEntity
+                    .status(securityServiceCheckCompanySessionResponse.getStatusCode())
+                    .body(new SeatsForCompanyExternalDTO(securityServiceCheckCompanySessionResponse.getBody().getMessage()));
+        }
+        MemberCheckMessageDTO memberCheckMessageDTO = securityServiceCheckCompanySessionResponse.getBody();
+        httpSessionManager.updateSessionCookie(httpSession, memberCheckMessageDTO.getCookie());
+
+        ExpeditionViewForCompanyByIdInternalDTO expeditionViewForCompanyByIdInternalDTO = expeditionIdMapper.toExpeditionViewForCompanyByIdInternalDTO(expeditionIdDTO, memberCheckMessageDTO);
+        HttpEntity<ExpeditionViewForCompanyByIdInternalDTO> expeditionServiceGetCompanyExpeditionDetailsRequest = new HttpEntity<>(expeditionViewForCompanyByIdInternalDTO, headers);
+        ResponseEntity<SeatsForCompanyInternalDTO> expeditionServiceGetCompanyExpeditionDetailsResponse = restTemplate.exchange(
+                ServiceURLs.EXPEDITION_SERVICE_GET_COMPANY_EXPEDITION_DETAIL_URL,
+                HttpMethod.POST,
+                expeditionServiceGetCompanyExpeditionDetailsRequest,
+                SeatsForCompanyInternalDTO.class
+        );
+
+        if (expeditionServiceGetCompanyExpeditionDetailsResponse.getStatusCode().is2xxSuccessful()) {
+            logger.info("Getting Company Expedition Details Successful (requestId={})", requestId);
+
+        } else if (expeditionServiceGetCompanyExpeditionDetailsResponse.getStatusCode().is4xxClientError()) {
+            logger.info("Getting Company Expedition Details Failed (requestId={})", requestId);
+            return ResponseEntity
+                    .status(expeditionServiceGetCompanyExpeditionDetailsResponse.getStatusCode())
+                    .body(new SeatsForCompanyExternalDTO(expeditionServiceGetCompanyExpeditionDetailsResponse.getBody().getMessage()));
+
+        } else if (expeditionServiceGetCompanyExpeditionDetailsResponse.getStatusCode().is5xxServerError()) {
+            logger.info("Getting Company Expedition Details Failed at Expedition Service (requestId={})", requestId);
+            return ResponseEntity
+                    .status(expeditionServiceGetCompanyExpeditionDetailsResponse.getStatusCode())
+                    .body(new SeatsForCompanyExternalDTO(expeditionServiceGetCompanyExpeditionDetailsResponse.getBody().getMessage()));
+        }
+
+        List<CustomerIdDTO> customerIdDTOs = seatsForCompanyInternalMapper.toCustomerIdDTOs(expeditionServiceGetCompanyExpeditionDetailsResponse.getBody().getTickets());
+        for (CustomerIdDTO customerIdDTO : customerIdDTOs) {
+            logger.info("Customer ID: {}", customerIdDTO.getCustomerId());
+        }
+        HttpEntity<List<CustomerIdDTO>> memberServiceGetCustomerNamesRequest = new HttpEntity<>(customerIdDTOs, headers);
+        ResponseEntity<CustomerIdNameMapDTO> memberServiceGetCustomerNamesResponse = restTemplate.exchange(
+                ServiceURLs.MEMBER_SERVICE_GET_CUSTOMER_NAMES_URL,
+                HttpMethod.POST,
+                memberServiceGetCustomerNamesRequest,
+                CustomerIdNameMapDTO.class
+        );
+
+        List<SeatForCompanyExternalDTO> seatsForCompanyExternalDTO = CustomerIdNameMapper.toSeatsForCompanyExternalDTO(
+                expeditionServiceGetCompanyExpeditionDetailsResponse.getBody(),
+                memberServiceGetCustomerNamesResponse.getBody()
+        );
+
+        return ResponseEntity.status(HttpStatus.OK).body(new SeatsForCompanyExternalDTO("Success", seatsForCompanyExternalDTO));
+    }
 }

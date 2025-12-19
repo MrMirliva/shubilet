@@ -7,6 +7,7 @@ import org.springframework.stereotype.Repository;
 
 import com.shubilet.member_service.models.Customer;
 
+import java.util.Collection;
 import java.util.List;
 
 
@@ -25,4 +26,6 @@ public interface CustomerRepository extends JpaRepository<Customer, Integer> {
     );
 
     Customer getCustomerByEmail(String email);
+
+    List<Customer> getCustomersByIdIn(Collection<Integer> ids);
 }

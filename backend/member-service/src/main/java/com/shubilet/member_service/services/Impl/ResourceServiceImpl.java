@@ -1,5 +1,6 @@
 package com.shubilet.member_service.services.Impl;
 
+import com.shubilet.member_service.dataTransferObjects.requests.CustomerIdDTO;
 import com.shubilet.member_service.dataTransferObjects.requests.resourceDTOs.CompanyIdDTO;
 import com.shubilet.member_service.models.Company;
 import com.shubilet.member_service.models.Customer;
@@ -38,6 +39,23 @@ public class ResourceServiceImpl implements ResourceService {
 
         for (Company company : companies) {
             res.put(company.getId(), company.getName());
+        }
+        return res;
+    }
+
+    public HashMap<Integer, String> sendCustomerNames(List<CustomerIdDTO> customerIDsDTO) {
+        List<Integer> customerIds = new LinkedList<>();
+        for (CustomerIdDTO customerIdDTO : customerIDsDTO) {
+            customerIds.add(customerIdDTO.getCustomerId());
+        }
+        List<Customer> customers = customerRepository.getCustomersByIdIn(customerIds);
+        if (customers == null || customers.isEmpty()) {
+            return null;
+        }
+        HashMap<Integer, String> res = new HashMap<>();
+
+        for (Customer customer : customers) {
+            res.put(customer.getId(), customer.getName());
         }
         return res;
     }

@@ -2,12 +2,13 @@ package com.shubilet.member_service.controllers.Impl;
 
 
 import com.shubilet.member_service.common.util.ErrorUtils;
+import com.shubilet.member_service.dataTransferObjects.requests.CustomerIdDTO;
 import com.shubilet.member_service.dataTransferObjects.requests.resourceDTOs.CompanyIdDTO;
 import com.shubilet.member_service.dataTransferObjects.responses.CompanyIdNameMapDTO;
+import com.shubilet.member_service.dataTransferObjects.responses.CustomerIdNameMapDTO;
 import com.shubilet.member_service.services.ResourceService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -47,5 +48,31 @@ public class ResourceControllerImpl {
 
         logger.info("Company Names have been successfully retrieved for the given IDs");
         return ResponseEntity.ok(new CompanyIdNameMapDTO(companyNamesMap, "Successfully Retrieved Company Names"));
+    }
+
+    @PostMapping("/customer/name")
+    public ResponseEntity<CustomerIdNameMapDTO> sendCustomerNames(@RequestBody List<CustomerIdDTO> customerIDsDTO) {
+        ErrorUtils errorUtils = new ErrorUtils(ErrorUtils.ConversionType.CustomerIdNameMapDTO);
+        // DTO Existence Check
+        if (customerIDsDTO == null) {
+            logger.warn("Customer IDs DTO is null");
+            return errorUtils.criticalError();
+        }
+
+        // Attributes Null or Blank Check
+        if (customerIDsDTO.isEmpty()) {
+            logger.info("Customer IDs list is empty");
+            return errorUtils.isNull("Customer IDs List");
+        }
+        HashMap<Integer, String> customerNamesMap = resourceService.sendCustomerNames(customerIDsDTO);
+
+
+        if (customerNamesMap == null || customerNamesMap.isEmpty()) {
+            customerNamesMap = new HashMap<>();
+        }
+
+        logger.info("Customer Names have been successfully retrieved for the given IDs");
+        return ResponseEntity.ok(new CustomerIdNameMapDTO(customerNamesMap, "Successfully Retrieved Customer Names"));
+
     }
 }

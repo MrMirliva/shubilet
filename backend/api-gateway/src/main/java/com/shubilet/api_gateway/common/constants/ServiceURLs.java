@@ -11,6 +11,8 @@ public class ServiceURLs {
     public static final String EXPEDITION_SERVICE_CREATE_EXPEDITION_URL = "http://expedition-service/api/expeditions/create";
     public static final String EXPEDITION_SERVICE_GET_COMPANY_EXPEDITIONS_ALL_URL = "http://expedition-service/api/view/company/allExpeditions";
     public static final String EXPEDITION_SERVICE_GET_COMPANY_EXPEDITIONS_FUTURE_URL = "http://expedition-service/api/view/company/activeExpeditions";
+    public static final String EXPEDITION_SERVICE_GET_COMPANY_EXPEDITION_DETAIL_URL = "http://expedition-service/api/view/company/expeditionDetails";
+
 
     // Member Service URLs
     public static String MEMBER_SERVICE_CREDENTIALS_CHECK_URL = "http://member-service/api/auth/checkCredentials";
@@ -31,14 +33,12 @@ public class ServiceURLs {
 
 
     public static String MEMBER_SERVICE_GET_COMPANY_NAMES_URL = "http://member-service/api/get/company/name";
+    public static final String MEMBER_SERVICE_GET_CUSTOMER_NAMES_URL = "http://member-service/api/get/customer/name";
 
     public static final String MEMBER_SERVICE_GET_UNVERIFIED_ADMINS_URL = "http://member-service/api/verification/get/unverified/admins";
     public static final String MEMBER_SERVICE_GET_UNVERIFIED_COMPANIES_URL = "http://member-service/api/verification/get/unverified/companies";
     public static String MEMBER_SERVICE_VERIFY_COMPANY_URL = "http://member-service//api/verify/company";
     public static String MEMBER_SERVICE_VERIFY_ADMIN_URL = "http://member-service//api/verify/admin";
-
-
-
 
 
     // Security Service URLs
