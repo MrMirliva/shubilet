@@ -93,17 +93,21 @@ public class VerificationControllerImpl implements VerificationController {
         }
 
         if (!verificationService.isAdminExists(adminVerificationDTO.getAdminId())) {
+            logger.warn("Admin with ID {} does not exist", adminVerificationDTO.getAdminId());
             return errorUtils.notFound("Admin with Given ID does not Exist");
         }
 
         if (!verificationService.isAdminExists(adminVerificationDTO.getCandidateAdminId())) {
+            logger.warn("Candidate Admin with ID {} does not exist", adminVerificationDTO.getCandidateAdminId());
             return errorUtils.notFound("Candidate Admin with Given ID does not Exist");
         }
 
         if (!verificationService.hasClearance(adminVerificationDTO.getAdminId())) {
+            logger.warn("Admin with ID {} does not have the Necessary Clearance", adminVerificationDTO.getAdminId());
             return errorUtils.unauthorized("Admin does not have the Necessary Clearance");
         }
         if (!verificationService.markAdminVerified(adminVerificationDTO.getAdminId(), adminVerificationDTO.getCandidateAdminId())){
+            logger.error("Critical Error while marking Admin ID {} as verified by Admin ID {}", adminVerificationDTO.getCandidateAdminId(), adminVerificationDTO.getAdminId());
             return errorUtils.criticalError();
         }
 

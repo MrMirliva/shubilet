@@ -3,21 +3,21 @@ package com.shubilet.member_service.dataTransferObjects.requests.resourceDTOs;
 import java.util.LinkedList;
 
 public class CompanyIdDTO {
-    private Integer companyId;
+    private int companyId;
 
     public CompanyIdDTO() {
 
     }
 
-    public CompanyIdDTO(Integer companyId) {
+    public CompanyIdDTO(int companyId) {
         this.companyId = companyId;
     }
 
-    public Integer getCompanyId() {
+    public int getCompanyId() {
         return companyId;
     }
 
-    public void setCompanyId(Integer companyId) {
+    public void setCompanyId(int companyId) {
         this.companyId = companyId;
     }
 }

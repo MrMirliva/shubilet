@@ -22,15 +22,15 @@ public class ServiceURLs {
     public static String MEMBER_SERVICE_COMPANY_REGISTRATION_URL = "http://member-service/api/register/company";
     public static String MEMBER_SERVICE_ADMIN_REGISTRATION_URL = "http://member-service/api/register/admin";
 
-    public static String MEMBER_SERVICE_CUSTOMER_PROFILE_EDIT_NAME_URL = "http://member-service/api/customer/profile/edit/name";
-    public static String MEMBER_SERVICE_CUSTOMER_PROFILE_EDIT_SURNAME_URL = "http://member-service/api/customer/profile/edit/surname";
-    public static String MEMBER_SERVICE_CUSTOMER_PROFILE_EDIT_GENDER_URL = "http://member-service/api/customer/profile/edit/gender";
-    public static String MEMBER_SERVICE_CUSTOMER_PROFILE_EDIT_EMAIL_URL = "http://member-service/api/customer/profile/edit/email";
-    public static String MEMBER_SERVICE_CUSTOMER_PROFILE_EDIT_PASSWORD_URL = "http://member-service/api/customer/profile/edit/password";
-    public static String MEMBER_SERVICE_FAVORITE_COMPANY_ADD_URL = "http://member-service/api/favorite/company/add";
-    public static String MEMBER_SERVICE_FAVORITE_COMPANY_DELETE_URL = "http://member-service/api/favorite/company/add";
-    public static String MEMBER_SERVICE_CARD_ADD_URL = "http://member-service/api/customer/profile/edit/card/add";
-    public static String MEMBER_SERVICE_CARD_DELETE_URL = "http://member-service/api/customer/profile/edit/card/delete";
+    public static String MEMBER_SERVICE_CUSTOMER_PROFILE_EDIT_NAME_URL = "http://member-service/api/profile/customer/edit/name";
+    public static String MEMBER_SERVICE_CUSTOMER_PROFILE_EDIT_SURNAME_URL = "http://member-service/api/profile/customer/edit/surname";
+    public static String MEMBER_SERVICE_CUSTOMER_PROFILE_EDIT_GENDER_URL = "http://member-service/api/profile/customer/edit/gender";
+    public static String MEMBER_SERVICE_CUSTOMER_PROFILE_EDIT_EMAIL_URL = "http://member-service/api/profile/customer/edit/email";
+    public static String MEMBER_SERVICE_CUSTOMER_PROFILE_EDIT_PASSWORD_URL = "http://member-service/api/profile/customer/edit/password";
+    public static String MEMBER_SERVICE_FAVORITE_COMPANY_ADD_URL = "http://member-service/api/profile/customer/favoriteCompany/add";
+    public static String MEMBER_SERVICE_FAVORITE_COMPANY_DELETE_URL = "http://member-service/api/profile/customer/favoriteCompany/delete";
+    public static String MEMBER_SERVICE_CARD_ADD_URL = "http://member-service/api/profile/customer/card/add";
+    public static String MEMBER_SERVICE_CARD_DELETE_URL = "http://member-service/api/profile/customer/card/delete";
 
 
     public static String MEMBER_SERVICE_GET_COMPANY_NAMES_URL = "http://member-service/api/get/company/name";
@@ -42,8 +42,8 @@ public class ServiceURLs {
 
     public static final String MEMBER_SERVICE_GET_UNVERIFIED_ADMINS_URL = "http://member-service/api/verification/get/unverified/admins";
     public static final String MEMBER_SERVICE_GET_UNVERIFIED_COMPANIES_URL = "http://member-service/api/verification/get/unverified/companies";
-    public static String MEMBER_SERVICE_VERIFY_COMPANY_URL = "http://member-service//api/verify/company";
-    public static String MEMBER_SERVICE_VERIFY_ADMIN_URL = "http://member-service//api/verify/admin";
+    public static String MEMBER_SERVICE_VERIFY_COMPANY_URL = "http://member-service/api/verification/verify/company";
+    public static String MEMBER_SERVICE_VERIFY_ADMIN_URL = "http://member-service/api/verification/verify/admin";
 
 
     // Security Service URLs
