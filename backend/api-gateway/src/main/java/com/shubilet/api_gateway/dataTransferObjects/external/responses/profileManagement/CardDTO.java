@@ -3,8 +3,8 @@ package com.shubilet.api_gateway.dataTransferObjects.external.responses.profileM
 public class CardDTO {
     private int cardId;
     private String cardNo;
-    private String name;
-    private String surname;
+    private String expirationMonth;
+    private String expirationYear;
 
     public CardDTO() {
 
@@ -13,25 +13,25 @@ public class CardDTO {
     public CardDTO(
         int cardId, 
         String cardNo, 
-        String name, 
-        String surname
+        String expirationMonth, 
+        String expirationYear
     ) {
         this.cardId = cardId;
         this.cardNo = cardNo;
-        this.name = name;
-        this.surname = surname;
+        this.expirationMonth = expirationMonth;
+        this.expirationYear = expirationYear;
     }
 
     public CardDTO(
         Integer cardId, 
         String cardNo, 
-        String name, 
-        String surname
+        String expirationMonth,
+        String expirationYear
     ) {
         this.cardId = cardId;
         this.cardNo = cardNo;
-        this.name = name;
-        this.surname = surname;
+        this.expirationMonth = expirationMonth;
+        this.expirationYear = expirationYear;
     }
 
     public int getCardId() {
@@ -48,18 +48,18 @@ public class CardDTO {
         this.cardNo = cardNo;
     }
 
-    public String getName() {
-        return name;
+    public String getExpirationMonth() {
+        return expirationMonth;
     }
-    public void setName(String name) {
-        this.name = name;
+    public void setExpirationMonth(String expirationMonth) {
+        this.expirationMonth = expirationMonth;
     }
 
-    public String getSurname() {
-        return surname;
+    public String getExpirationYear() {
+        return expirationYear;
     }
-    public void setSurname(String surname) {
-        this.surname = surname;
+    public void setExpirationYear(String expirationYear) {
+        this.expirationYear = expirationYear;
     }
 
 }
