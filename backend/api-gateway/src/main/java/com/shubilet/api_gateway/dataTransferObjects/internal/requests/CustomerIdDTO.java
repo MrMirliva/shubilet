@@ -1,21 +1,21 @@
 package com.shubilet.api_gateway.dataTransferObjects.internal.requests;
 
 public class CustomerIdDTO {
-    private Integer customerId;
+    private int customerId;
 
     public CustomerIdDTO() {
     
     }
 
-    public CustomerIdDTO(Integer customerId) {
+    public CustomerIdDTO(int customerId) {
         this.customerId = customerId;
     }
 
-    public Integer getCustomerId() {
+    public int getCustomerId() {
         return customerId;
     }
 
-    public void setCustomerId(Integer customerId) {
+    public void setCustomerId(int customerId) {
         this.customerId = customerId;
     }
 }
