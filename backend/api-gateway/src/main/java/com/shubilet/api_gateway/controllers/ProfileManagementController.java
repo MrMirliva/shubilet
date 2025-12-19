@@ -2,6 +2,10 @@ package com.shubilet.api_gateway.controllers;
 
 import com.shubilet.api_gateway.dataTransferObjects.MessageDTO;
 import com.shubilet.api_gateway.dataTransferObjects.external.requests.profileManagement.*;
+import com.shubilet.api_gateway.dataTransferObjects.external.responses.profileManagement.AdminProfileDTO;
+import com.shubilet.api_gateway.dataTransferObjects.external.responses.profileManagement.CompanyProfileDTO;
+import com.shubilet.api_gateway.dataTransferObjects.external.responses.profileManagement.CustomerProfileDTO;
+
 import jakarta.servlet.http.HttpSession;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -34,4 +38,13 @@ public interface ProfileManagementController {
 
     @PostMapping("/customer/edit/card/delete")
     ResponseEntity<MessageDTO> deleteCard(HttpSession httpSession, @RequestBody CardDeletionExternalDTO cardDeletionExternalDTO);
+
+    @PostMapping("/customer/get")
+    ResponseEntity<CustomerProfileDTO> sendCustomerProfile(HttpSession httpSession);
+
+    @PostMapping("/company/get")
+    ResponseEntity<CompanyProfileDTO> sendCompanyProfile(HttpSession httpSession);
+
+    @PostMapping
+    ResponseEntity<AdminProfileDTO> sendAdminProfile(HttpSession httpSession);
 }

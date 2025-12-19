@@ -1,6 +1,7 @@
 package com.shubilet.member_service.common.util;
 
 import com.shubilet.member_service.common.constants.ErrorMessages;
+import com.shubilet.member_service.dataTransferObjects.requests.profile.CustomerProfileDTO;
 import com.shubilet.member_service.dataTransferObjects.responses.*;
 import org.springframework.http.ResponseEntity;
 
@@ -54,6 +55,7 @@ public final class ErrorUtils {
             case CompanyIdNameMapDTO -> new CompanyIdNameMapDTO(errorMessage);
             case MemberSessionDTO -> new MemberSessionDTO(errorMessage);
             case CustomerIdNameMapDTO -> new CustomerIdNameMapDTO(errorMessage);
+            case CustomerProfileDTO -> new CustomerProfileDTO(errorMessage);
             case MessageDTO -> new MessageDTO(errorMessage);
 
         };
@@ -67,7 +69,7 @@ public final class ErrorUtils {
         CompanyIdNameMapDTO,
         MemberSessionDTO,
         CustomerIdNameMapDTO,
-        MessageDTO,
+        MessageDTO, CustomerProfileDTO,
 
     }
 }

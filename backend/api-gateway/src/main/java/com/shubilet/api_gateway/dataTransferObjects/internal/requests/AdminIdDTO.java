@@ -2,21 +2,21 @@ package com.shubilet.api_gateway.dataTransferObjects.internal.requests;
 
 
 public class AdminIdDTO {
-    private int adminId;
+    private Integer adminId;
 
     public AdminIdDTO() {
 
     }
 
-    public AdminIdDTO(int adminId) {
+    public AdminIdDTO(Integer adminId) {
         this.adminId = adminId;
     }
 
-    public int getAdminId() {
+    public Integer getAdminId() {
         return adminId;
     }
 
-    public void setAdminId(int adminId) {
+    public void setAdminId(Integer adminId) {
         this.adminId = adminId;
     }
 }

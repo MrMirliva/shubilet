@@ -2,6 +2,9 @@ package com.shubilet.member_service.services;
 
 
 import com.shubilet.member_service.common.enums.Gender;
+import com.shubilet.member_service.models.Admin;
+import com.shubilet.member_service.models.Company;
+import com.shubilet.member_service.models.Customer;
 import com.shubilet.member_service.models.FavoriteCompany;
 
 public interface ProfileService {
@@ -24,6 +27,11 @@ public interface ProfileService {
     public boolean addFavoriteCompany(FavoriteCompany favoriteCompany);
 
     public boolean deleteFavoriteCompany(int relationId);
+
+    public Customer getCustomerById(int customerId);
+
+    public Company getCompanyById(int companyId);
+    public Admin getAdminById(int adminId);
 
 
 }

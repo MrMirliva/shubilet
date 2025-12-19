@@ -1,15 +1,19 @@
 package com.shubilet.member_service.dataTransferObjects.requests.profile;
 
-public class AdminDTO {
+public class AdminProfileDTO {
     private String name;
     private String surname;
     private String email;
+    private String message;
 
-    public AdminDTO() {
+    public AdminProfileDTO() {
 
     }
+    public AdminProfileDTO(String message) {
+        this.message = message;
+    }
 
-    public AdminDTO(String name, String surname, String email) {
+    public AdminProfileDTO(String name, String surname, String email) {
         this.name = name;
         this.surname = surname;
         this.email = email;

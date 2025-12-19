@@ -1,20 +1,25 @@
 package com.shubilet.member_service.dataTransferObjects.requests.profile;
 
-public class CustomerDTO {
+public class CustomerProfileDTO {
     private String name;
     private String surname;
     private String gender;
     private String email;
+    private String message;
 
-    public CustomerDTO() {
+    public CustomerProfileDTO() {
 
     }
 
-    public CustomerDTO(String name, String surname, String gender, String email) {
+    public CustomerProfileDTO(String name, String surname, String gender, String email) {
         this.name = name;
         this.surname = surname;
         this.gender = gender;
         this.email = email;
+    }
+
+    public CustomerProfileDTO(String message) {
+        this.message = message;
     }
 
     public String getName() {

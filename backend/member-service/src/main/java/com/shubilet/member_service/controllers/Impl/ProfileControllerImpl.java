@@ -5,16 +5,24 @@ import com.shubilet.member_service.common.util.ErrorUtils;
 import com.shubilet.member_service.common.util.StringUtils;
 import com.shubilet.member_service.common.util.ValidationUtils;
 import com.shubilet.member_service.dataTransferObjects.requests.FavoriteCompanyDeletionDTO;
+import com.shubilet.member_service.dataTransferObjects.requests.resourceDTOs.AdminIdDTO;
 import com.shubilet.member_service.dataTransferObjects.requests.resourceDTOs.CardCreationDTO;
 import com.shubilet.member_service.dataTransferObjects.requests.MemberAttributeChangeDTO;
+import com.shubilet.member_service.dataTransferObjects.requests.profile.AdminProfileDTO;
+import com.shubilet.member_service.dataTransferObjects.requests.profile.CompanyProfileDTO;
+import com.shubilet.member_service.dataTransferObjects.requests.profile.CustomerProfileDTO;
+import com.shubilet.member_service.dataTransferObjects.requests.CustomerIdDTO;
 import com.shubilet.member_service.dataTransferObjects.requests.FavoriteCompanyAdditionDTO;
 import com.shubilet.member_service.dataTransferObjects.requests.resourceDTOs.CardDeletionDTO;
+import com.shubilet.member_service.dataTransferObjects.requests.resourceDTOs.CompanyIdDTO;
 import com.shubilet.member_service.dataTransferObjects.responses.MessageDTO;
+import com.shubilet.member_service.models.Admin;
+import com.shubilet.member_service.models.Company;
+import com.shubilet.member_service.models.Customer;
 import com.shubilet.member_service.models.FavoriteCompany;
 import com.shubilet.member_service.services.ProfileService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.boot.autoconfigure.integration.IntegrationProperties.Error;
 import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
@@ -22,7 +30,7 @@ import org.springframework.web.client.RestTemplate;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/api/customer/profile/edit")
+@RequestMapping("/api/profile")
 public class ProfileControllerImpl {
     private Logger logger = LoggerFactory.getLogger(ProfileControllerImpl.class);
     private ProfileService profileService;
@@ -33,7 +41,7 @@ public class ProfileControllerImpl {
         this.profileService = profileService;
     }
 
-    @PostMapping("/name")
+    @PostMapping("/customer/edit/name")
     public ResponseEntity<MessageDTO> editCustomerProfileName(@RequestBody MemberAttributeChangeDTO memberAttributeChangeDTO) {
 
         ErrorUtils errorUtils = new ErrorUtils(ErrorUtils.ConversionType.MessageDTO);
@@ -69,7 +77,7 @@ public class ProfileControllerImpl {
         return ResponseEntity.status(HttpStatus.CREATED).body(new MessageDTO("Success"));
     }
 
-    @PostMapping("/surname")
+    @PostMapping("/customer/edit/surname")
     public ResponseEntity<MessageDTO> editCustomerProfileSurname(@RequestBody MemberAttributeChangeDTO memberAttributeChangeDTO) {
         ErrorUtils errorUtils = new ErrorUtils(ErrorUtils.ConversionType.MessageDTO);
 
@@ -105,7 +113,7 @@ public class ProfileControllerImpl {
         return ResponseEntity.status(HttpStatus.CREATED).body(new MessageDTO("Success"));
     }
 
-    @PostMapping("/gender")
+    @PostMapping("/customer/edit/gender")
     public ResponseEntity<MessageDTO> editCustomerProfileGender(@RequestBody MemberAttributeChangeDTO memberAttributeChangeDTO) {
         ErrorUtils errorUtils = new ErrorUtils(ErrorUtils.ConversionType.MessageDTO);   
         // DTO Existence Check
@@ -145,7 +153,7 @@ public class ProfileControllerImpl {
         return ResponseEntity.status(HttpStatus.CREATED).body(new MessageDTO("Success"));
     }
 
-    @PostMapping("/email")
+    @PostMapping("/customer/edit/email")
     public ResponseEntity<MessageDTO> editCustomerProfileEmail(@RequestBody MemberAttributeChangeDTO memberAttributeChangeDTO) {
         ErrorUtils errorUtils = new ErrorUtils(ErrorUtils.ConversionType.MessageDTO);
         // DTO Existence Check
@@ -185,7 +193,7 @@ public class ProfileControllerImpl {
         return ResponseEntity.status(HttpStatus.CREATED).body(new MessageDTO("Success"));
     }
 
-    @PostMapping("/password")
+    @PostMapping("/customer/edit/password")
     public ResponseEntity<MessageDTO> editCustomerProfilePassword(@RequestBody MemberAttributeChangeDTO memberAttributeChangeDTO) {
         ErrorUtils errorUtils = new ErrorUtils(ErrorUtils.ConversionType.MessageDTO);
         // DTO Existence Check
@@ -225,7 +233,7 @@ public class ProfileControllerImpl {
         return ResponseEntity.status(HttpStatus.CREATED).body(new MessageDTO("Success"));
     }
 
-    @PostMapping("/favoriteCompany/add")
+    @PostMapping("/customer/favoriteCompany/add")
     public ResponseEntity<MessageDTO> customerProfileAddFavoriteCompany(@RequestBody FavoriteCompanyAdditionDTO favoriteCompanyAdditionDTO) {
         // DTO Existence Check
         if (favoriteCompanyAdditionDTO == null) {
@@ -257,7 +265,7 @@ public class ProfileControllerImpl {
         return ResponseEntity.status(HttpStatus.CREATED).body(new MessageDTO("Successfully Added"));
     }
 
-    @PostMapping("/favoriteCompany/delete")
+    @PostMapping("/customer/favoriteCompany/delete")
     public ResponseEntity<MessageDTO> customerProfileDeleteFavoriteCompany(@RequestBody FavoriteCompanyDeletionDTO favoriteCompanyDeletionDTO) {
         // DTO Existence Check
         if (favoriteCompanyDeletionDTO == null) {
@@ -280,7 +288,7 @@ public class ProfileControllerImpl {
         return ResponseEntity.status(HttpStatus.CREATED).body(new MessageDTO("Successfully Deleted Favorite Company"));
     }
 
-    @PostMapping("/card/add")
+    @PostMapping("/customer/card/add")
     public ResponseEntity<MessageDTO> customerProfileAddCard(@RequestBody CardCreationDTO cardCreationDTO) {
         ErrorUtils errorUtils = new ErrorUtils(ErrorUtils.ConversionType.MessageDTO);
         // DTO Existence Check
@@ -356,7 +364,7 @@ public class ProfileControllerImpl {
         return ResponseEntity.status(HttpStatus.CREATED).body(new MessageDTO("Success"));
     }
 
-    @PostMapping("/card/delete")
+    @PostMapping("/customer/card/delete")
     public ResponseEntity<MessageDTO> customerProfileDeleteCard(@RequestBody CardDeletionDTO cardDeletionDTO) {
         ErrorUtils errorUtils = new ErrorUtils(ErrorUtils.ConversionType.MessageDTO);
 
@@ -416,4 +424,80 @@ public class ProfileControllerImpl {
         logger.info("End Card Deletion Successfully (requestId={})", requestId);
         return ResponseEntity.status(HttpStatus.CREATED).body(new MessageDTO("Success"));
     }
+
+    @PostMapping("/customer/get")
+    public ResponseEntity<CustomerProfileDTO> sendCustomerProfile(@RequestBody CustomerIdDTO customerIdDTO) {
+        ErrorUtils errorUtils = new ErrorUtils(ErrorUtils.ConversionType.CustomerProfileDTO);
+        if (customerIdDTO == null) {
+            logger.warn("Given CustomerIdDTO is null");
+            return errorUtils.criticalError();
+        }
+        if (customerIdDTO.getCustomerId() <= 0) {
+            logger.warn("Given Customer Id is invalid: {}", customerIdDTO.getCustomerId());
+            return errorUtils.isInvalidFormat("Customer Id");
+        }
+        if (!profileService.isCustomerExists(customerIdDTO.getCustomerId())) {
+            logger.warn("Customer not found with given CustomerId: {}", customerIdDTO.getCustomerId());
+            return errorUtils.notFound("Customer");
+        }
+        Customer customer = profileService.getCustomerById(customerIdDTO.getCustomerId());
+        CustomerProfileDTO customerProfileDTO = new CustomerProfileDTO(
+                customer.getName(),
+                customer.getSurname(),
+                customer.getGender().toString(),
+                customer.getEmail()
+        );
+        logger.info("Successfully retrieved profile for CustomerId: {}", customerIdDTO.getCustomerId());
+        return ResponseEntity.status(HttpStatus.OK).body(customerProfileDTO);
+    }
+
+    @PostMapping("/company/get")
+    public ResponseEntity<CompanyProfileDTO> sendCompanyProfile(@RequestBody CompanyIdDTO companyIdDTO) {
+        ErrorUtils errorUtils = new ErrorUtils(ErrorUtils.ConversionType.MessageDTO);
+        if (companyIdDTO == null) {
+            logger.warn("Given CompanyIdDTO is null");
+            return errorUtils.criticalError();
+        }
+        if (companyIdDTO.getCompanyId() <= 0) {
+            logger.warn("Given Company Id is invalid: {}", companyIdDTO.getCompanyId());
+            return errorUtils.isInvalidFormat("Company Id");
+        }
+        if (!profileService.isCompanyExists(companyIdDTO.getCompanyId())) {
+            logger.warn("Company not found with given CompanyId: {}", companyIdDTO.getCompanyId());
+            return errorUtils.notFound("Company");
+        }
+        Company company = profileService.getCompanyById(companyIdDTO.getCompanyId());
+        CompanyProfileDTO companyProfileDTO = new CompanyProfileDTO(
+                company.getName(),
+                company.getEmail()
+        );
+        logger.info("Successfully retrieved profile for CompanyId: {}", companyIdDTO.getCompanyId());
+        return ResponseEntity.status(HttpStatus.OK).body(companyProfileDTO);
+    }
+
+    @PostMapping("/admin/get")
+    public ResponseEntity<AdminProfileDTO> sendAdminProfile(@RequestBody AdminIdDTO adminIdDTO) {
+        ErrorUtils errorUtils = new ErrorUtils(ErrorUtils.ConversionType.MessageDTO);
+        if (adminIdDTO == null) {
+            logger.warn("Given AdminIdDTO is null");
+            return errorUtils.criticalError();
+        }
+        if (adminIdDTO.getAdminId() <= 0) {
+            logger.warn("Given Admin Id is invalid: {}", adminIdDTO.getAdminId());
+            return errorUtils.isInvalidFormat("Admin Id");
+        }
+        if (!profileService.isCustomerExists(adminIdDTO.getAdminId())) {
+            logger.warn("Admin not found with given AdminId: {}", adminIdDTO.getAdminId());
+            return errorUtils.notFound("Admin");
+        }
+        Admin admin = profileService.getAdminById(adminIdDTO.getAdminId());
+        AdminProfileDTO responseDTO = new AdminProfileDTO(
+                admin.getName(),
+                admin.getSurname(),
+                admin.getEmail()
+        );
+        logger.info("Successfully retrieved profile for AdminId: {}", adminIdDTO.getAdminId());
+        return ResponseEntity.status(HttpStatus.OK).body(responseDTO);
+    }
 }
+

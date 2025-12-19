@@ -4,14 +4,22 @@ import com.shubilet.api_gateway.common.constants.ServiceURLs;
 import com.shubilet.api_gateway.controllers.ProfileManagementController;
 import com.shubilet.api_gateway.dataTransferObjects.MessageDTO;
 import com.shubilet.api_gateway.dataTransferObjects.external.requests.profileManagement.*;
+import com.shubilet.api_gateway.dataTransferObjects.external.responses.profileManagement.AdminProfileDTO;
+import com.shubilet.api_gateway.dataTransferObjects.external.responses.profileManagement.CompanyProfileDTO;
+import com.shubilet.api_gateway.dataTransferObjects.external.responses.profileManagement.CustomerProfileDTO;
+import com.shubilet.api_gateway.dataTransferObjects.internal.requests.AdminIdDTO;
+import com.shubilet.api_gateway.dataTransferObjects.internal.requests.CompanyIdDTO;
+import com.shubilet.api_gateway.dataTransferObjects.internal.requests.CustomerIdDTO;
 import com.shubilet.api_gateway.dataTransferObjects.internal.requests.profileManagement.*;
 import com.shubilet.api_gateway.dataTransferObjects.internal.CookieDTO;
 import com.shubilet.api_gateway.dataTransferObjects.internal.responses.auth.MemberCheckMessageDTO;
 import com.shubilet.api_gateway.managers.HttpSessionManager;
+import com.shubilet.api_gateway.mappers.CookieMapper;
 import com.shubilet.api_gateway.mappers.profileManagement.*;
 import jakarta.servlet.http.HttpSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.boot.autoconfigure.kafka.KafkaProperties.Admin;
 import org.springframework.http.*;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -28,6 +36,7 @@ public class ProfileManagementControllerImpl implements ProfileManagementControl
     private static final Logger logger = LoggerFactory.getLogger(ProfileManagementControllerImpl.class);
     private final RestTemplate restTemplate;
     private final HttpSessionManager httpSessionManager;
+    private final CookieMapper cookieMapper;
     private final MemberAttributeChangeExternalMapper memberAttributeChangeExternalMapper;
     private final FavoriteCompanyAdditionExternalMapper favoriteCompanyAdditionExternalMapper;
     private final FavoriteCompanyDeletionExternalMapper favoriteCompanyDeletionExternalMapper;
@@ -36,12 +45,13 @@ public class ProfileManagementControllerImpl implements ProfileManagementControl
 
 
     public ProfileManagementControllerImpl(
-            RestTemplate restTemplate, MemberAttributeChangeExternalMapper memberAttributeChangeExternalMapper,
+            RestTemplate restTemplate, CookieMapper cookieMapper, MemberAttributeChangeExternalMapper memberAttributeChangeExternalMapper,
             FavoriteCompanyAdditionExternalMapper favoriteCompanyAdditionExternalMapper,
             FavoriteCompanyDeletionExternalMapper favoriteCompanyDeletionExternalMapper,
             CardCreationExternalMapper cardCreationExternalMapper, CardDeletionExternalMapper cardDeletionExternalMapper
     ) {
         this.restTemplate = restTemplate;
+        this.cookieMapper = cookieMapper;
         this.memberAttributeChangeExternalMapper = memberAttributeChangeExternalMapper;
         this.favoriteCompanyAdditionExternalMapper = favoriteCompanyAdditionExternalMapper;
         this.favoriteCompanyDeletionExternalMapper = favoriteCompanyDeletionExternalMapper;
@@ -643,5 +653,207 @@ public class ProfileManagementControllerImpl implements ProfileManagementControl
                     .body(memberServiceCardCreationResponse.getBody());
         }
         return ResponseEntity.status(HttpStatus.OK).body(memberServiceCardCreationResponse.getBody());
+    }
+
+
+    @PostMapping("/customer/get")
+    @Override
+    public ResponseEntity<CustomerProfileDTO> sendCustomerProfile(HttpSession httpSession) {
+        String requestId = UUID.randomUUID().toString();
+        logger.info("Start Getting Customer Profile (requestId={})", requestId);
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("X-Request-Id", requestId);
+        headers.setContentType(MediaType.APPLICATION_JSON);
+
+        // Send Request to Security Service for Checking Existing Session
+        CookieDTO cookieDTO = httpSessionManager.fromSessionToCookieDTO(httpSession);
+        HttpEntity<CookieDTO> securityServiceCheckSessionCustomerRequest = new HttpEntity<>(cookieDTO, headers);
+        ResponseEntity<MemberCheckMessageDTO> securityServiceCheckCustomerSessionResponse = restTemplate.exchange(
+                ServiceURLs.SECURITY_SERVICE_CHECK_CUSTOMER_SESSION_URL,
+                HttpMethod.POST,
+                securityServiceCheckSessionCustomerRequest,
+                MemberCheckMessageDTO.class
+        );
+
+        // There is already an Existing Session
+        if (securityServiceCheckCustomerSessionResponse.getStatusCode().is2xxSuccessful()) {
+            logger.info("Customer Session Exists (requestId={})", requestId);
+        }
+
+        // No User is Logged in Clarified by Security Service
+        if (securityServiceCheckCustomerSessionResponse.getStatusCode().is4xxClientError()) {
+            return ResponseEntity
+                    .status(securityServiceCheckCustomerSessionResponse.getStatusCode())
+                    .body(null);
+        }
+
+        // Something Went Wrong on Security Service
+        if (securityServiceCheckCustomerSessionResponse.getStatusCode().is5xxServerError()) {
+            return ResponseEntity
+                    .status(securityServiceCheckCustomerSessionResponse.getStatusCode())
+                    .body(null);
+        }
+
+        MemberCheckMessageDTO memberCheckMessageDTO = securityServiceCheckCustomerSessionResponse.getBody();
+        CustomerIdDTO customerIdDTO = cookieMapper.toCustomerIdDTO(memberCheckMessageDTO.getCookie());
+
+        HttpEntity<CustomerIdDTO> memberServiceGetCustomerProfileRequest = new HttpEntity<>(customerIdDTO, headers);
+        ResponseEntity<CustomerProfileDTO> memberServiceGetCustomerProfileResponse = restTemplate.exchange(
+                ServiceURLs.MEMBER_SERVICE_GET_CUSTOMER_PROFILE_URL,
+                HttpMethod.POST,
+                memberServiceGetCustomerProfileRequest,
+                CustomerProfileDTO.class
+        );
+
+        // Customer Profile has been Successfully Retrieved from Member Service
+        if (memberServiceGetCustomerProfileResponse.getStatusCode().is2xxSuccessful()) {
+            logger.info("Customer Profile Retrieval Succeeded (requestId={})", requestId);
+        } else if (memberServiceGetCustomerProfileResponse.getStatusCode().is4xxClientError()) {
+            logger.info("Customer Profile Retrieval Failed (requestId={})", requestId);
+            return ResponseEntity
+                    .status(memberServiceGetCustomerProfileResponse.getStatusCode())
+                    .body(null);
+        } else if (memberServiceGetCustomerProfileResponse.getStatusCode().is5xxServerError()) {
+            logger.warn("Member service returned error (status={} requestId={})", memberServiceGetCustomerProfileResponse.getStatusCode(), requestId);
+            return ResponseEntity
+                    .status(memberServiceGetCustomerProfileResponse.getStatusCode())
+                    .body(null);
+        }
+        return ResponseEntity.status(HttpStatus.OK).body(memberServiceGetCustomerProfileResponse.getBody());
+    }
+
+    @PostMapping("/company/get")
+    @Override
+    public ResponseEntity<CompanyProfileDTO> sendCompanyProfile(HttpSession httpSession) {
+        String requestId = UUID.randomUUID().toString();
+        logger.info("Start Getting Company Profile (requestId={})", requestId);
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("X-Request-Id", requestId);
+        headers.setContentType(MediaType.APPLICATION_JSON);
+
+        // Send Request to Security Service for Checking Existing Session
+        CookieDTO cookieDTO = httpSessionManager.fromSessionToCookieDTO(httpSession);
+        HttpEntity<CookieDTO> securityServiceCheckSessionCompanyRequest = new HttpEntity<>(cookieDTO, headers);
+        ResponseEntity<MemberCheckMessageDTO> securityServiceCheckCompanySessionResponse = restTemplate.exchange(
+                ServiceURLs.SECURITY_SERVICE_CHECK_COMPANY_SESSION_URL,
+                HttpMethod.POST,
+                securityServiceCheckSessionCompanyRequest,
+                MemberCheckMessageDTO.class
+        );
+
+        // There is already an Existing Session
+        if (securityServiceCheckCompanySessionResponse.getStatusCode().is2xxSuccessful()) {
+            logger.info("Company Session Exists (requestId={})", requestId);
+        }
+
+        // No User is Logged in Clarified by Security Service
+        if (securityServiceCheckCompanySessionResponse.getStatusCode().is4xxClientError()) {
+            return ResponseEntity
+                    .status(securityServiceCheckCompanySessionResponse.getStatusCode())
+                    .body(null);
+        }
+
+        // Something Went Wrong on Security Service
+        if (securityServiceCheckCompanySessionResponse.getStatusCode().is5xxServerError()) {
+            return ResponseEntity
+                    .status(securityServiceCheckCompanySessionResponse.getStatusCode())
+                    .body(null);
+        }
+
+        MemberCheckMessageDTO memberCheckMessageDTO = securityServiceCheckCompanySessionResponse.getBody();
+        CompanyIdDTO companyIdDTO = cookieMapper.toCompanyIdDTO(memberCheckMessageDTO.getCookie());
+
+        HttpEntity<CompanyIdDTO> memberServiceGetCompanyProfileRequest = new HttpEntity<>(companyIdDTO, headers);
+        ResponseEntity<CompanyProfileDTO> memberServiceGetCompanyProfileResponse = restTemplate.exchange(
+                ServiceURLs.MEMBER_SERVICE_GET_COMPANY_PROFILE_URL,
+                HttpMethod.POST,
+                memberServiceGetCompanyProfileRequest,
+                CompanyProfileDTO.class
+        );
+
+        // Company Profile has been Successfully Retrieved from Member Service
+        if (memberServiceGetCompanyProfileResponse.getStatusCode().is2xxSuccessful()) {
+            logger.info("Company Profile Retrieval Succeeded (requestId={})", requestId);
+        } else if (memberServiceGetCompanyProfileResponse.getStatusCode().is4xxClientError()) {
+            logger.info("Company Profile Retrieval Failed (requestId={})", requestId);
+            return ResponseEntity
+                    .status(memberServiceGetCompanyProfileResponse.getStatusCode())
+                    .body(null);
+        } else if (memberServiceGetCompanyProfileResponse.getStatusCode().is5xxServerError()) {
+            logger.warn("Member service returned error (status={} requestId={})", memberServiceGetCompanyProfileResponse.getStatusCode(), requestId);
+            return ResponseEntity
+                    .status(memberServiceGetCompanyProfileResponse.getStatusCode())
+                    .body(null);
+        }
+        return ResponseEntity.status(HttpStatus.OK).body(memberServiceGetCompanyProfileResponse.getBody());
+    }
+
+    @PostMapping("/admin/get")
+    @Override
+    public ResponseEntity<AdminProfileDTO> sendAdminProfile(HttpSession httpSession) {
+        String requestId = UUID.randomUUID().toString();
+        logger.info("Start Getting Admin Profile (requestId={})", requestId);
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("X-Request-Id", requestId);
+        headers.setContentType(MediaType.APPLICATION_JSON);
+
+        // Send Request to Security Service for Checking Existing Session
+        CookieDTO cookieDTO = httpSessionManager.fromSessionToCookieDTO(httpSession);
+        HttpEntity<CookieDTO> securityServiceCheckSessionAdminRequest = new HttpEntity<>(cookieDTO, headers);
+        ResponseEntity<MemberCheckMessageDTO> securityServiceCheckAdminSessionResponse = restTemplate.exchange(
+                ServiceURLs.SECURITY_SERVICE_CHECK_ADMIN_SESSION_URL,
+                HttpMethod.POST,
+                securityServiceCheckSessionAdminRequest,
+                MemberCheckMessageDTO.class
+        );
+
+        // There is already an Existing Session
+        if (securityServiceCheckAdminSessionResponse.getStatusCode().is2xxSuccessful()) {
+            logger.info("Admin Session Exists (requestId={})", requestId);
+        }
+
+        // No User is Logged in Clarified by Security Service
+        if (securityServiceCheckAdminSessionResponse.getStatusCode().is4xxClientError()) {
+            return ResponseEntity
+                    .status(securityServiceCheckAdminSessionResponse.getStatusCode())
+                    .body(null);
+        }
+
+        // Something Went Wrong on Security Service
+        if (securityServiceCheckAdminSessionResponse.getStatusCode().is5xxServerError()) {
+            return ResponseEntity
+                    .status(securityServiceCheckAdminSessionResponse.getStatusCode())
+                    .body(null);
+        }
+
+        MemberCheckMessageDTO memberCheckMessageDTO = securityServiceCheckAdminSessionResponse.getBody();
+        AdminIdDTO adminIdDTO = cookieMapper.toAdminIdDTO(memberCheckMessageDTO.getCookie());
+
+        HttpEntity<AdminIdDTO> memberServiceGetAdminProfileRequest = new HttpEntity<>(adminIdDTO, headers);
+        ResponseEntity<AdminProfileDTO> memberServiceGetAdminProfileResponse = restTemplate.exchange(
+                ServiceURLs.MEMBER_SERVICE_GET_ADMIN_PROFILE_URL,
+                HttpMethod.POST,
+                memberServiceGetAdminProfileRequest,
+                AdminProfileDTO.class
+        );
+
+        // Admin Profile has been Successfully Retrieved from Member Service
+        if (memberServiceGetAdminProfileResponse.getStatusCode().is2xxSuccessful()) {
+            logger.info("Admin Profile Retrieval Succeeded (requestId={})", requestId);
+        } else if (memberServiceGetAdminProfileResponse.getStatusCode().is4xxClientError()) {
+            logger.info("Admin Profile Retrieval Failed (requestId={})", requestId);
+            return ResponseEntity
+                    .status(memberServiceGetAdminProfileResponse.getStatusCode())
+                    .body(null);
+        } else if (memberServiceGetAdminProfileResponse.getStatusCode().is5xxServerError()) {
+            logger.warn("Member service returned error (status={} requestId={})", memberServiceGetAdminProfileResponse.getStatusCode(), requestId);
+            return ResponseEntity
+                    .status(memberServiceGetAdminProfileResponse.getStatusCode())
+                    .body(null);
+        }
+        return ResponseEntity.status(HttpStatus.OK).body(memberServiceGetAdminProfileResponse.getBody());
     }
 }

@@ -1,12 +1,19 @@
 package com.shubilet.member_service.dataTransferObjects.requests.profile;
 
-public class CompanyDTO {
+public class CompanyProfileDTO {
     private String title;
     private String email;
-    private boolean isVerified;
+    private String message;
 
-    public CompanyDTO() {
+    public CompanyProfileDTO() {
 
+    }
+    public CompanyProfileDTO(String message) {
+        this.message = message;
+    }
+    public CompanyProfileDTO(String title, String email) {
+        this.title = title;
+        this.email = email;
     }
 
     public String getTitle() {
@@ -23,13 +30,5 @@ public class CompanyDTO {
 
     public void setEmail(String email) {
         this.email = email;
-    }
-
-    public boolean isVerified() {
-        return isVerified;
-    }
-
-    public void setVerified(boolean verified) {
-        isVerified = verified;
     }
 }

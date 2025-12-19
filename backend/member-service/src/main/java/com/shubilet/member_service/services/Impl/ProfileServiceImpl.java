@@ -1,6 +1,8 @@
 package com.shubilet.member_service.services.Impl;
 
 import com.shubilet.member_service.common.enums.Gender;
+import com.shubilet.member_service.models.Admin;
+import com.shubilet.member_service.models.Company;
 import com.shubilet.member_service.models.Customer;
 import com.shubilet.member_service.models.FavoriteCompany;
 import com.shubilet.member_service.repositories.AdminRepository;
@@ -79,4 +81,15 @@ public class ProfileServiceImpl implements ProfileService {
         favoriteCompanyRepository.deleteById(relationId);
         return true;
     }
+    public Customer getCustomerById(int customerId) {
+        return customerRepository.findById(customerId).orElse(null);
+    }
+    public Company getCompanyById(int companyId) {
+        return companyRepository.findById(companyId).orElse(null);
+    }
+
+    public Admin getAdminById(int adminId) {
+        return adminRepository.findById(adminId).orElse(null);
+    }
+    
 }

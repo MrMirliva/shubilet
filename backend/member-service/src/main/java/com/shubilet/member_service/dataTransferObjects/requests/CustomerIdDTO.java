@@ -1,21 +1,21 @@
 package com.shubilet.member_service.dataTransferObjects.requests;
 
 public class CustomerIdDTO {
-    private int customerId;
+    private Integer customerId;
 
     public CustomerIdDTO() {
 
     }
 
-    public CustomerIdDTO(int customerId) {
+    public CustomerIdDTO(Integer customerId) {
         this.customerId = customerId;
     }
 
-    public int getCustomerId() {
+    public Integer getCustomerId() {
         return customerId;
     }
 
-    public void setCustomerId(int customerId) {
+    public void setCustomerId(Integer customerId) {
         this.customerId = customerId;
     }
 
