@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.HttpStatusCodeException;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -410,22 +411,22 @@ public class ReservationControllerImpl implements RezervationController {
             HttpEntity<CustomerIdRequestDTO> request =
                 new HttpEntity<>(new CustomerIdRequestDTO(customerId), headers);
 
-            ResponseEntity<CardSummaryDTO[]> response = restTemplate.exchange(
+            ResponseEntity<List<CardSummaryDTO>> response = restTemplate.exchange(
                 ServiceURLs.PAYMENT_SERVICE_CUSTOMER_CARDS,
                 HttpMethod.POST,
                 request,
-                CardSummaryDTO[].class
+                new ParameterizedTypeReference<List<CardSummaryDTO>>() {}
             );
 
-            CardSummaryDTO[] body = response.getBody();
+            List<CardSummaryDTO> body = response.getBody();
 
-            if (body == null || body.length == 0) {
+            if (body == null || body.isEmpty()) {
                 logger.info("No cards found for customerId={}", customerId);
                 return errorUtils.notFound("Cards");
             }
 
             // Map Payment DTO → Expedition DTO
-            List<CardDTO> cards = Arrays.stream(body)
+            List<CardDTO> cards = body.stream()
                 .map(c -> new CardDTO(
                     Integer.parseInt(c.getCardId()),   // String → int
                     c.getLast4Digits(),
