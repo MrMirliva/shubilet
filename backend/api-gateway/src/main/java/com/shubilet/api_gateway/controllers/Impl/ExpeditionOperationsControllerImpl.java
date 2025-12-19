@@ -512,6 +512,22 @@ public class ExpeditionOperationsControllerImpl implements ExpeditionOperationsC
                 CustomerIdNameMapDTO.class
         );
 
+        if (memberServiceGetCustomerNamesResponse.getStatusCode().is2xxSuccessful()) {
+            logger.info("Customer Names Successfully Retrieved (requestId={})", requestId);
+
+        } else if (memberServiceGetCustomerNamesResponse.getStatusCode().is4xxClientError()) {
+            logger.warn("Bad Request for Member Service (requestId={})", requestId);
+            return ResponseEntity
+                    .status(memberServiceGetCustomerNamesResponse.getStatusCode())
+                    .body(new SeatsForCompanyExternalDTO(memberServiceGetCustomerNamesResponse.getBody().getMessage()));
+
+        } else if (memberServiceGetCustomerNamesResponse.getStatusCode().is5xxServerError()) {
+            logger.warn("Internal Server Error of Member Service (requestId={})", requestId);
+            return ResponseEntity
+                    .status(memberServiceGetCustomerNamesResponse.getStatusCode())
+                    .body(new SeatsForCompanyExternalDTO(memberServiceGetCustomerNamesResponse.getBody().getMessage()));
+        }
+
         List<SeatForCompanyExternalDTO> seatsForCompanyExternalDTO = CustomerIdNameMapper.toSeatsForCompanyExternalDTO(
                 expeditionServiceGetCompanyExpeditionDetailsResponse.getBody(),
                 memberServiceGetCustomerNamesResponse.getBody()
