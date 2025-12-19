@@ -18,6 +18,8 @@ import CompanyExpeditionDetail from './pages/companyExpeditionDetail/CompanyExpe
 import CompanyExpeditionList from './pages/companyExpeditionList/CompanyExpeditionList.jsx';
 import CompanyHome from './pages/companyHome/CompanyHome.jsx';
 import CompanyExpeditionCreate from './pages/expeditionCreate/CompanyExpeditionCreate.jsx';
+import CompanyConfirmPage from './pages/Admin/CompanyConfirmPage.jsx';
+import AdminConfirmPage from './pages/Admin/AdminConfirmPage.jsx';
 
 // İleride başka sayfalar da ekleyeceğiz (Register, Home vb.)
 // Şimdilik sadece Login var.
@@ -45,6 +47,8 @@ function App() {
         <Route element={<AdminLayout />}>
           {/* Admin ile ilgili sayfalar buraya */}
           <Route path="/admin/home" element={<AdminHomePage />} />
+          <Route path="/admin/confirmcompanies" element={<CompanyConfirmPage />} />
+          <Route path="/admin/confirmadmins" element={<AdminConfirmPage />} />
           {/* Diğer admin sayfaları da buraya eklenecek */}
         </Route>
 

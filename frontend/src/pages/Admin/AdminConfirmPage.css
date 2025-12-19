@@ -1,0 +1,120 @@
+/* src/pages/admin/AdminConfirmPage.css */
+
+.adminConfirmPage {
+  min-height: calc(100vh - 64px);
+  width: 100vw;
+  background: #F0F4F8;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  box-sizing: border-box;
+}
+
+.adminConfirmCard {
+  width: 100%;
+  max-width: 980px;
+  background: #ffffff;
+  border-radius: 12px;
+  padding: 28px;
+  box-shadow: 0 20px 40px rgba(30, 41, 59, 0.12);
+  box-sizing: border-box;
+}
+
+.title {
+  margin: 0;
+  font-size: 26px;
+  color: #1E293B;
+}
+
+.subtitle {
+  margin: 6px 0 20px;
+  font-size: 14px;
+  color: #64748B;
+}
+
+.info {
+  font-size: 14px;
+  color: #64748B;
+}
+
+.error {
+  font-size: 14px;
+  color: #DC2626;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 12px;
+}
+
+.table th,
+.table td {
+  padding: 12px;
+  text-align: left;
+  border-bottom: 1px solid #E2E8F0;
+  font-size: 14px;
+  vertical-align: middle;
+}
+
+.table th {
+  color: #1E293B;
+  font-weight: 600;
+}
+
+.actionCol {
+  text-align: right;
+  white-space: nowrap;
+}
+
+.approveBtn {
+  padding: 8px 14px;
+  background: #0056D2;
+  color: #ffffff;
+  border: none;
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.approveBtn:hover {
+  background: #0044A6;
+}
+
+.badge {
+  display: inline-block;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.badge.pending {
+  background: rgba(0, 86, 210, 0.10);
+  color: #0056D2;
+}
+
+.badge.ok {
+  background: rgba(16, 185, 129, 0.12);
+  color: #065F46;
+}
+
+.footerRow {
+  margin-top: 16px;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.refreshBtn {
+  padding: 10px 14px;
+  background: #ffffff;
+  color: #1E293B;
+  border: 1px solid #CBD5E1;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.refreshBtn:hover {
+  border-color: #0056D2;
+}
