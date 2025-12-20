@@ -13,7 +13,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 public interface TicketController {
     public ResponseEntity<TicketsExternalDTO> sendTicketDetailsForCustomer(HttpSession httpSession);
 
-
     @PostMapping("/buy")
     ResponseEntity<TicketInfoDTO> buyTicketForCustomer(HttpSession httpSession, BuyTicketExternalDTO buyTicketExternalDTO);
 }

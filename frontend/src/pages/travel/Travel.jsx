@@ -3,17 +3,6 @@ import React, { useState, useEffect, useRef } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import "./Travel.css";
 
-// Simple top bar if needed, or we rely on the in-page header
-function TravelHeader() {
-    return (
-        <div style={{ position: "absolute", top: 20, left: 20, zIndex: 10 }}>
-            <Link to="/" style={{ textDecoration: "none", fontWeight: "bold", color: "#0056D2" }}>
-                ← Home
-            </Link>
-        </div>
-    );
-}
-
 const CITIES = [
     "Adana",
     "Adıyaman",
@@ -99,12 +88,7 @@ const CITIES = [
     "Zonguldak"
 ];
 
-// Mock Saved Cards
-const MOCK_SAVED_CARDS = [
-    { cardId: "card_1", last4Digits: "4242", expirationMonth: "12", expirationYear: "25" },
-    { cardId: "card_2", last4Digits: "8888", expirationMonth: "08", expirationYear: "28" },
-    { cardId: "card_3", last4Digits: "1111", expirationMonth: "01", expirationYear: "30" },
-];
+// Mocks removed
 
 export default function Travel() {
     const navigate = useNavigate();
@@ -140,6 +124,8 @@ export default function Travel() {
     // Payment Modal State
     const [showPaymentModal, setShowPaymentModal] = useState(false);
     const [isProcessingPayment, setIsProcessingPayment] = useState(false);
+    const [savedCards, setSavedCards] = useState([]);
+    const [isCardsLoading, setIsCardsLoading] = useState(false);
 
     // Close calendar when clicking outside
     useEffect(() => {
@@ -158,6 +144,34 @@ export default function Travel() {
             setCalendarViewDate(new Date(date));
         }
     }, [showCalendar, date]);
+
+    // Fetch Cards when Modal Opens
+    useEffect(() => {
+        if (showPaymentModal) {
+            fetchCards();
+        }
+    }, [showPaymentModal]);
+
+    const fetchCards = async () => {
+        setIsCardsLoading(true);
+        try {
+            const response = await fetch("/api/profile/customer/get/cards", {
+                method: "POST"
+            });
+            if (!response.ok) {
+                console.error("Failed to fetch cards");
+                return;
+            }
+            const data = await response.json();
+            if (data.cards) {
+                setSavedCards(data.cards);
+            }
+        } catch (error) {
+            console.error("Error fetching cards:", error);
+        } finally {
+            setIsCardsLoading(false);
+        }
+    };
 
     const fetchExpeditions = async () => {
         setIsLoading(true);
@@ -215,23 +229,32 @@ export default function Travel() {
         setIsSeatsLoading(true);
         setSeats([]);
 
-        // Mock Seat API Call
-        await new Promise(resolve => setTimeout(resolve, 600));
-
-        // Generate mock seats (e.g. 40 seats)
-        const mockSeats = [];
-        for (let i = 1; i <= 40; i++) {
-            // Randomly assign status
-            const isReserved = Math.random() < 0.3; // 30% chance reserved
-            mockSeats.push({
-                expeditionId: expeditionId,
-                seatNo: i,
-                status: isReserved ? "RESERVED" : "AVAILABLE"
+        try {
+            const response = await fetch("/api/expedition/customer/get/search/seats", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    expeditionId: expeditionId
+                })
             });
-        }
 
-        setSeats(mockSeats);
-        setIsSeatsLoading(false);
+            if (!response.ok) {
+                console.error("Failed to fetch seats:", response.statusText);
+                setIsSeatsLoading(false);
+                return;
+            }
+
+            const data = await response.json();
+            if (data.seats) {
+                setSeats(data.seats);
+            }
+        } catch (error) {
+            console.error("Error fetching seats:", error);
+        } finally {
+            setIsSeatsLoading(false);
+        }
     };
 
     const onSelectSeat = (seatNo) => {
@@ -249,12 +272,45 @@ export default function Travel() {
 
     const handlePayWithCard = async (cardId) => {
         setIsProcessingPayment(true);
-        // Simulate payment delay
-        await new Promise(resolve => setTimeout(resolve, 1500));
-        setIsProcessingPayment(false);
-        setShowPaymentModal(false);
-        alert(`Payment Successful with card ${cardId}! Ticket for Seat ${selectedSeat} booked.`);
-        setExpandedExpeditionId(null); // Close expansion
+        try {
+            const response = await fetch("/api/ticket/buy", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    expeditionId: expandedExpeditionId,
+                    seatNo: selectedSeat,
+                    cardId: cardId
+                })
+            });
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                alert(data.message || "Payment failed. Please try again.");
+                setIsProcessingPayment(false);
+                return;
+            }
+
+            // Success
+            // We hold ticketInternalDTO in console or state for future use as requested
+            console.log("Ticket Created:", data.ticketInternalDTO);
+
+            alert(data.message || "Payment Successful! Your ticket has been booked.");
+
+            setShowPaymentModal(false);
+            setExpandedExpeditionId(null); // Close expansion and reset view
+
+            // Optional: Refresh search to update seat availability if user searches again
+            // fetchExpeditions(); 
+
+        } catch (error) {
+            console.error("Payment error:", error);
+            alert("An error occurred during payment.");
+        } finally {
+            setIsProcessingPayment(false);
+        }
     };
 
     // --- Custom Calendar Helpers ---
@@ -312,8 +368,6 @@ export default function Travel() {
 
     return (
         <>
-            <TravelHeader />
-
             <div className="travelPage">
                 <div className="travelCard">
 
@@ -516,20 +570,26 @@ export default function Travel() {
                         <div className="modalBody">
                             <p className="modalSubtitle">Choose a saved card to complete your purchase for <span style={{ fontWeight: 'bold', color: '#0056D2' }}>Seat {selectedSeat}</span></p>
 
-                            <div className="savedCardsList">
-                                {MOCK_SAVED_CARDS.map(card => (
-                                    <div key={card.cardId} className="savedCardItem" onClick={() => handlePayWithCard(card.cardId)}>
-                                        <div className="cardIcon">💳</div>
-                                        <div className="cardDetails">
-                                            <div className="cardNumber">**** **** **** {card.last4Digits}</div>
-                                            <div className="cardExpiry">Expires {card.expirationMonth}/{card.expirationYear}</div>
+                            {isCardsLoading ? (
+                                <div className="seatsLoading">Loading cards...</div>
+                            ) : savedCards.length === 0 ? (
+                                <div className="emptyBox">No saved cards found.</div>
+                            ) : (
+                                <div className="savedCardsList">
+                                    {savedCards.map(card => (
+                                        <div key={card.cardId} className="savedCardItem" onClick={() => handlePayWithCard(card.cardId)}>
+                                            <div className="cardIcon">💳</div>
+                                            <div className="cardDetails">
+                                                <div className="cardNumber">**** **** **** {card.cardNo}</div>
+                                                <div className="cardExpiry">Expires {card.expirationMonth}/{card.expirationYear}</div>
+                                            </div>
+                                            <button className="payNowBtn" disabled={isProcessingPayment}>
+                                                {isProcessingPayment ? "Processing..." : "Pay"}
+                                            </button>
                                         </div>
-                                        <button className="payNowBtn" disabled={isProcessingPayment}>
-                                            {isProcessingPayment ? "Processing..." : "Pay"}
-                                        </button>
-                                    </div>
-                                ))}
-                            </div>
+                                    ))}
+                                </div>
+                            )}
                         </div>
                     </div>
                 </div>

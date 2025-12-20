@@ -24,6 +24,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.*;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestTemplate;
@@ -41,7 +42,9 @@ public class TicketControllerImpl implements TicketController {
     private final BuyTicketExternalMapper buyTicketExternalMapper;
     private final TicketsInternalMapper ticketsInternalMapper;
 
-    public TicketControllerImpl(RestTemplate restTemplate, MemberCheckMessageMapper memberCheckMessageMapper, CookieMapper cookieMapper, BuyTicketExternalMapper buyTicketExternalMapper, TicketsInternalMapper ticketsInternalMapper) {
+    public TicketControllerImpl(RestTemplate restTemplate, MemberCheckMessageMapper memberCheckMessageMapper,
+                                CookieMapper cookieMapper, BuyTicketExternalMapper buyTicketExternalMapper,
+                                TicketsInternalMapper ticketsInternalMapper) {
         this.restTemplate = restTemplate;
         this.cookieMapper = cookieMapper;
         this.buyTicketExternalMapper = buyTicketExternalMapper;
@@ -66,8 +69,7 @@ public class TicketControllerImpl implements TicketController {
                 ServiceURLs.SECURITY_SERVICE_CHECK_CUSTOMER_SESSION_URL,
                 HttpMethod.POST,
                 securityServiceCheckCustomerSessionRequest,
-                MemberCheckMessageDTO.class
-        );
+                MemberCheckMessageDTO.class);
 
         cookieDTO = securityServiceCheckCustomerSessionResponse.getBody().getCookie();
         httpSessionManager.updateSessionCookie(httpSession, cookieDTO);
@@ -97,8 +99,7 @@ public class TicketControllerImpl implements TicketController {
                 ServiceURLs.EXPEDITION_SERVICE_SEARCH_SEAT_URL,
                 HttpMethod.POST,
                 expeditionServiceGetTicketsRequest,
-                TicketsInternalDTO.class
-        );
+                TicketsInternalDTO.class);
 
         // Successfully Returned Expeditions from Expedition Service
         if (expeditionServiceGetTicketsResponse.getStatusCode().is2xxSuccessful()) {
@@ -117,15 +118,15 @@ public class TicketControllerImpl implements TicketController {
                     .body(new TicketsExternalDTO(expeditionServiceGetTicketsResponse.getBody().getMessage()));
         }
 
-        List<CompanyIdDTO> companyIdDTOs = ticketsInternalMapper.toCompanyIdDTOs(expeditionServiceGetTicketsResponse.getBody().getTickets());
+        List<CompanyIdDTO> companyIdDTOs = ticketsInternalMapper
+                .toCompanyIdDTOs(expeditionServiceGetTicketsResponse.getBody().getTickets());
 
         HttpEntity<List<CompanyIdDTO>> memberServiceGetCompanyNamesRequest = new HttpEntity<>(companyIdDTOs, headers);
         ResponseEntity<CompanyIdNameMapDTO> memberServiceGetCompanyNamesResponse = restTemplate.exchange(
                 ServiceURLs.MEMBER_SERVICE_GET_COMPANY_NAMES_URL,
                 HttpMethod.POST,
                 memberServiceGetCompanyNamesRequest,
-                CompanyIdNameMapDTO.class
-        );
+                CompanyIdNameMapDTO.class);
 
         if (memberServiceGetCompanyNamesResponse.getStatusCode().is2xxSuccessful()) {
             logger.info("Company Names Successfully Retrieved (requestId={})", requestId);
@@ -143,17 +144,15 @@ public class TicketControllerImpl implements TicketController {
                     .body(new TicketsExternalDTO(memberServiceGetCompanyNamesResponse.getBody().getMessage()));
         }
 
-
         List<TicketExternalDTO> ticketGetResults = CompanyIdNameMapper.toTicketsExternalDTO(
                 expeditionServiceGetTicketsResponse.getBody(),
-                memberServiceGetCompanyNamesResponse.getBody()
-        );
+                memberServiceGetCompanyNamesResponse.getBody());
         return ResponseEntity.status(HttpStatus.OK).body(new TicketsExternalDTO("Success", ticketGetResults));
     }
 
     @PostMapping("/buy")
     @Override
-    public ResponseEntity<TicketInfoDTO> buyTicketForCustomer(HttpSession httpSession, BuyTicketExternalDTO buyTicketExternalDTO) {
+    public ResponseEntity<TicketInfoDTO> buyTicketForCustomer(HttpSession httpSession, @RequestBody BuyTicketExternalDTO buyTicketExternalDTO) {
         String requestId = UUID.randomUUID().toString();
         logger.info("Start Expedition Search (requestId={})", requestId);
 
@@ -168,8 +167,7 @@ public class TicketControllerImpl implements TicketController {
                 ServiceURLs.SECURITY_SERVICE_CHECK_CUSTOMER_SESSION_URL,
                 HttpMethod.POST,
                 securityServiceCheckSessionCustomerRequest,
-                MemberCheckMessageDTO.class
-        );
+                MemberCheckMessageDTO.class);
 
         // Session Existence Clarified by Security Service
         if (securityServiceCheckCustomerSessionResponse.getStatusCode().is2xxSuccessful()) {
@@ -190,16 +188,15 @@ public class TicketControllerImpl implements TicketController {
 
         BuyTicketInternalDTO buyTicketInternalDTO = buyTicketExternalMapper.toBuyTicketInternalDTO(
                 buyTicketExternalDTO,
-                securityServiceCheckCustomerSessionResponse.getBody()
-        );
+                securityServiceCheckCustomerSessionResponse.getBody());
 
-        HttpEntity<BuyTicketInternalDTO> expeditionServiceTicketBuyRequest = new HttpEntity<>(buyTicketInternalDTO, headers);
+        HttpEntity<BuyTicketInternalDTO> expeditionServiceTicketBuyRequest = new HttpEntity<>(buyTicketInternalDTO,
+                headers);
         ResponseEntity<TicketInfoDTO> expeditionServiceTicketBuyResponse = restTemplate.exchange(
                 ServiceURLs.EXPEDITION_SERVICE_BUY_TICKET,
                 HttpMethod.POST,
                 expeditionServiceTicketBuyRequest,
-                TicketInfoDTO.class
-        );
+                TicketInfoDTO.class);
 
         // Session Existence Clarified by Expedition Service
         if (expeditionServiceTicketBuyResponse.getStatusCode().is2xxSuccessful()) {
