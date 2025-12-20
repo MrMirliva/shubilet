@@ -146,7 +146,7 @@ docker compose up --build
 
 ### Access Points (Host)
 
-- Frontend: `http://localhost:3000`
+- Frontend: `http://localhost:3000` (admin user: `shubilet@example.com`, password ``)
 - API Gateway: `http://localhost:8080`
 - Eureka Dashboard: `http://localhost:8761`
 - pgAdmin: `http://localhost:5051` (user: `admin@example.com`, password: `admin`)

@@ -33,7 +33,7 @@ const handleLogout = async () => {
   return (
     <header className="customerTopBar">
       <div className="left">
-        <NavLink to="/customer/home" className="brand">
+        <NavLink to="/" className="brand">
           Shu<span>Bilet</span>
         </NavLink>
       </div>
