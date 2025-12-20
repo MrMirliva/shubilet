@@ -27,12 +27,12 @@
 .subtitle {
   margin: 6px 0 20px;
   font-size: 14px;
-  color: #64748B;
+  color: #000000;
 }
 
 .info {
   font-size: 14px;
-  color: #64748B;
+  color: #000000;
 }
 
 .error {
@@ -46,17 +46,12 @@
   margin-top: 12px;
 }
 
-.table th,
-.table td {
+.table th{
+  background: #000000;
   padding: 12px;
   text-align: left;
-  border-bottom: 1px solid #E2E8F0;
+  border-bottom: 2px solid #000000;
   font-size: 14px;
-}
-
-.table th {
-  color: #1E293B;
-  font-weight: 600;
 }
 
 .approveBtn {
@@ -71,4 +66,41 @@
 
 .approveBtn:hover {
   background: #0044A6;
+}
+tbody td {
+  background: #000000;
+}
+.refreshBtn {
+  margin-top: 16px;
+  padding: 8px 14px;
+  background: #ffffff;
+  color: #0056D2;
+  border: 2px solid #0056D2;
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.table th {
+  background: #F8FAFC; /* Siyah yerine çok açık gri */
+  padding: 12px;
+  text-align: left;
+  border-bottom: 2px solid #E2E8F0; /* Siyah border yerine gri */
+  font-size: 14px;
+  color: #1E293B; /* Başlık rengi */
+}
+
+.table td {
+  padding: 12px;
+  text-align: left;
+  border-bottom: 1px solid #E2E8F0;
+  font-size: 14px;
+  background: transparent; /* Arka planı temizle */
+}
+
+/* ÖNEMLİ: Mevcut dosyadaki şu bloğu tamamen SİL */
+/* tbody td { background: #000000; } */
+
+.textColor {
+  color: #334155; /* Yazı rengini koyu gri yap */
 }

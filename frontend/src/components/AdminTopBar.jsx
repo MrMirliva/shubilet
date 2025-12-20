@@ -34,16 +34,16 @@ const handleLogout = async () => {
 
   return (
     <header className="adminTopBar">
-      <NavLink to="/admin/home" className="brand">
+      <NavLink to="/admin" className="brand">
         Shu<span>Bilet</span>
       </NavLink>
 
       <nav className="nav">
-        <NavLink to="/admin/confirm-company" className={linkClass}>
+        <NavLink to="/admin/confirmcompanies" className={linkClass}>
           Company Confirm
         </NavLink>
 
-        <NavLink to="/admin/confirm-admin" className={linkClass}>
+        <NavLink to="/admin/confirmadmins" className={linkClass}>
           Admin Confirm
         </NavLink>
 

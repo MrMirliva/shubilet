@@ -7,9 +7,7 @@ export default function CompanyConfirmPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
-  // 👉 geçici olarak adminId sabit
-  // login entegrasyonunda burası localStorage / session’dan alınacak
-  const adminId = 1;
+
 
   useEffect(() => {
     fetchUnverifiedCompanies();
@@ -24,7 +22,7 @@ export default function CompanyConfirmPage() {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           credentials: "include",
-          body: JSON.stringify({ adminId }),
+          body: JSON.stringify({companyId: null}),
         }
       );
 
@@ -43,33 +41,31 @@ export default function CompanyConfirmPage() {
     }
   };
 
-  const handleVerify = async (companyId) => {
-    try {
-      const res = await fetch("/api/verification/verify/company", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        credentials: "include",
-        body: JSON.stringify({
-          adminId,
-          candidateCompanyId: companyId,
-        }),
-      });
+const handleVerify = async (companyId) => {
+  try {
+    const res = await fetch("/api/verification/verify/company", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
+      body: JSON.stringify({
+        companyId: companyId // Şirket DTO'sunda isim sadece 'companyId'
+      }),
+    });
 
-      const data = await res.json();
+    const data = await res.json();
 
-      if (!res.ok) {
-        alert(data.message || "Verification failed.");
-        return;
-      }
-
-      // başarıyla onaylananı listeden düş
-      setCompanies((prev) =>
-        prev.filter((c) => c.id !== companyId)
-      );
-    } catch {
-      alert("Server error during verification.");
+    if (res.ok) {
+      setCompanies((prev) => prev.filter((c) => c.id !== companyId));
+      alert("Company successfully verified!");
+      // listeyi yenile
+      fetchUnverifiedCompanies();
+    } else {
+      alert(data.message || "Verification failed.");
     }
-  };
+  } catch (error) {
+    alert("Server error!");
+  }
+};
 
   return (
     <div className="companyConfirmPage">
@@ -96,7 +92,7 @@ export default function CompanyConfirmPage() {
                 <th>Action</th>
               </tr>
             </thead>
-            <tbody>
+            <tbody className="textColor">
               {companies.map((company) => (
                 <tr key={company.id}>
                   <td>{company.id}</td>
