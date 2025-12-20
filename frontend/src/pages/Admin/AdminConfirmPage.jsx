@@ -1,6 +1,7 @@
 // src/pages/admin/AdminConfirmPage.jsx
 import { useEffect, useState } from "react";
 import "./AdminConfirmPage.css";
+import { NavLink } from "react-router-dom";
 
 export default function AdminConfirmPage() {
   const [admins, setAdmins] = useState([]);
@@ -24,7 +25,7 @@ export default function AdminConfirmPage() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
-        body: JSON.stringify({ adminId }),
+        body: JSON.stringify({  }),
       });
 
       const data = await res.json();
@@ -44,15 +45,14 @@ export default function AdminConfirmPage() {
     }
   };
 
-  const handleVerify = async (candidateAdminId) => {
+  const handleVerify = async (adminId) => {
     try {
-      const res = await fetch("/api/verification/verify/admin", {
+      const res = await fetch("http://localhost:3000/api/verification/verify/admin", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
         body: JSON.stringify({
-          adminId,
-          candidateAdminId,
+          candidateAdminId: adminId
         }),
       });
 
@@ -64,7 +64,10 @@ export default function AdminConfirmPage() {
       }
 
       // başarıyla onaylananı listeden düş
-      setAdmins((prev) => prev.filter((a) => a.id !== candidateAdminId));
+      setAdmins((prev) => prev.filter((a) => a.id !== adminId));
+      alert("Admin successfully verified!");
+
+
     } catch {
       alert("Server error during verification.");
     }
@@ -94,15 +97,15 @@ export default function AdminConfirmPage() {
                 <th className="actionCol">Action</th>
               </tr>
             </thead>
-            <tbody>
+            <tbody className="textColor">
               {admins.map((admin) => (
                 <tr key={admin.id}>
                   <td>{admin.id}</td>
                   <td>{admin.name} {admin.surname}</td>
                   <td>{admin.email}</td>
                   <td>
-                    <span className={`badge ${admin.verified ? "ok" : "pending"}`}>
-                      {admin.verified ? "Verified" : "Pending"}
+                    <span className={`badge ${admin.isVerified ? "ok" : "pending"}`}>
+                      {admin.isVerified ? "Verified" : "Pending"}
                     </span>
                   </td>
                   <td className="actionCol">

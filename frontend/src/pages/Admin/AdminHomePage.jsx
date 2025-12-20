@@ -20,7 +20,7 @@ export default function AdminHomePage() {
             <button
               className="quickCard"
               type="button"
-              onClick={() => navigate("/admin/confirm-company")}
+              onClick={() => navigate("/admin/confirmcompanies")}
             >
               <div className="quickTop">
                 <div className="quickTitle">Company Confirmation</div>
@@ -34,7 +34,7 @@ export default function AdminHomePage() {
             <button
               className="quickCard"
               type="button"
-              onClick={() => navigate("/admin/confirm-admin")}
+              onClick={() => navigate("/admin/confirmadmins")}
             >
               <div className="quickTop">
                 <div className="quickTitle">Admin Confirmation</div>

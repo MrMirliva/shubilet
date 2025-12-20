@@ -7,17 +7,15 @@
   display: grid;
   place-items: center;
   padding: 24px;
-  box-sizing: border-box;
 }
 
 .adminConfirmCard {
   width: 100%;
-  max-width: 980px;
+  max-width: 900px;
   background: #ffffff;
   border-radius: 12px;
   padding: 28px;
   box-shadow: 0 20px 40px rgba(30, 41, 59, 0.12);
-  box-sizing: border-box;
 }
 
 .title {
@@ -48,18 +46,19 @@
   margin-top: 12px;
 }
 
-.table th,
+.table th{
+  background: #000000;
+  padding: 12px;
+  text-align: left;
+  border-bottom: 2px solid #E2E8F0;
+  font-size: 14px;
+}
 .table td {
   padding: 12px;
   text-align: left;
   border-bottom: 1px solid #E2E8F0;
   font-size: 14px;
   vertical-align: middle;
-}
-
-.table th {
-  color: #1E293B;
-  font-weight: 600;
 }
 
 .actionCol {
@@ -117,4 +116,18 @@
 
 .refreshBtn:hover {
   border-color: #0056D2;
+}
+
+.table th {
+  background: #F8FAFC; /* Siyah yerine açık gri */
+  padding: 12px;
+  text-align: left;
+  border-bottom: 2px solid #E2E8F0;
+  font-size: 14px;
+  color: #1E293B;
+}
+
+/* Eğer varsa bu satırı sil veya değiştir */
+.textColor {
+  color: #334155;
 }

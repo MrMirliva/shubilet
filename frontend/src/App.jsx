@@ -28,6 +28,7 @@ import CompanyHome from './pages/companyHome/CompanyHome.jsx';
 import CompanyExpeditionCreate from './pages/expeditionCreate/CompanyExpeditionCreate.jsx';
 import CompanyExpeditionList from './pages/companyExpeditionList/CompanyExpeditionList.jsx';
 import CompanyExpeditionDetail from './pages/companyExpeditionDetail/CompanyExpeditionDetail.jsx';
+import MyTicketsPage from './pages/tickets/MyTicketsPage.jsx';
 
 function App() {
   return (
@@ -51,6 +52,7 @@ function App() {
             <Route path="/" element={<CustomerHomePage />} />
             <Route path="/travel" element={<Travel />} />
             <Route path="/profile" element={<ProfilePage />} />
+            <Route path="/mytickets" element={<MyTicketsPage />} />
           </Route>
         </Route>
 
