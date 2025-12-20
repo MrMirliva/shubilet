@@ -1,7 +1,8 @@
 package com.shubilet.security_service.common.enums;
 
 import org.springframework.http.HttpStatus;
-
+// Mirliva says: ACTIVE today, EXPIRED tomorrow.
+// Just like motivation.
 
 public enum SessionStatus {
 

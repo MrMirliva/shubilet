@@ -65,4 +65,6 @@ public class StartupCleaner implements CommandLineRunner{
         customerSessionService.cleanAllSessions();
         logger.info("All sessions cleaned up.");
     }
+
+    // Mirliva says: Fresh start. No geçmiş, no drama, no session.
 }

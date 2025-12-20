@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+// Mirliva says: Authentication is just trust issues implemented in Java.
 
 import com.shubilet.security_service.common.constants.SessionKeys;
 import com.shubilet.security_service.common.enums.SessionStatus;

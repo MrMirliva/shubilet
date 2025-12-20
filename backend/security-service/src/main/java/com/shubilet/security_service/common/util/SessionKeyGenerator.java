@@ -75,6 +75,8 @@ public class SessionKeyGenerator {
         // Step 1: Generate validation digits (1st, 5th, 17th)
         int d1, d5, d17;
 
+        // Mirliva says: Randomness is just controlled chaos with good PR.
+        
         while (true) {
             d1 = RANDOM.nextInt(9);
             d5 = RANDOM.nextInt(9);
@@ -108,5 +110,9 @@ public class SessionKeyGenerator {
 
         // Total length = 32 raw + 7 dash = 39
         return formatted.toString();
+
+        // Mirliva says: Say my name.
+        // You're the session.
+        // You're goddamn right.
     }
 }

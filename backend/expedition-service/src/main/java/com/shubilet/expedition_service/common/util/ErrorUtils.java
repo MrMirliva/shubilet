@@ -149,4 +149,7 @@ public class ErrorUtils {
         SEATS_FOR_COMPANY_DTO,
         TICKETS_DTO
     }
+
+    // Mirliva says: Bug varsa kaderdir.
+    // Yoksa log eksiktir.
 }

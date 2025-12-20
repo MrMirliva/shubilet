@@ -30,6 +30,8 @@ public class SeatServiceImpl implements SeatService {
     
     public void generateSeats(int expeditionId, int capacity) {
         for(int i = 0; i < capacity; i++) {
+            // Mirliva says: Seats are born equal.
+            // But some get booked faster.
             Seat seat = new Seat(expeditionId, i + 1);
             seatRepository.save(seat);
         }
