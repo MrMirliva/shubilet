@@ -112,7 +112,7 @@ export default function CompanyExpeditionList() {
               onClick={() => setMode(MODE.AVAILABLE)}
               title="Coming soon (API is not connected yet)"
             >
-              Available Expeditions
+              Future Expeditions
               <span className="pill">Soon</span>
             </button>
 
