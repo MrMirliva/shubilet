@@ -94,6 +94,24 @@ async function addCard(cardDto) {
   return data; // MessageDTO
 }
 
+// ✅ NEW: delete card API
+async function deleteCard(cardId) {
+  const res = await fetch("/api/profile/customer/edit/card/delete", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    credentials: "include",
+    body: JSON.stringify({ cardId: Number(cardId) }),
+  });
+
+  const data = await safeReadJson(res);
+
+  if (!res.ok) {
+    throw new Error(data?.message || `Delete card failed (HTTP ${res.status}).`);
+  }
+
+  return data; // MessageDTO
+}
+
 export default function ProfilePage() {
   // --- PROFILE STATE ---
   const [profile, setProfile] = useState(mockProfile);
@@ -464,13 +482,25 @@ export default function ProfilePage() {
   }
 
   // ---------------- CARD ACTIONS ----------------
-  function onRemoveCard(cardId) {
-    // Backend delete endpoint verilmediği için mock olarak listeden siliyoruz.
+  // ✅ UPDATED: real delete API call + reload
+  async function onRemoveCard(cardId) {
     const ok = window.confirm("Remove this card?");
     if (!ok) return;
 
-    setCards((prev) => prev.filter((c) => c.cardId !== cardId));
-    showToast("Card removed (mock).");
+    try {
+      // optimistic UI remove (hızlı his)
+      setCards((prev) => prev.filter((c) => c.cardId !== cardId));
+
+      const data = await deleteCard(cardId);
+      showToast(data?.message || "Card removed successfully.");
+
+      // backend ile senkron
+      await reloadCards();
+    } catch (err) {
+      // hata olursa tekrar çekip UI'yi düzelt
+      await reloadCards();
+      showToast(err?.message || "Delete failed.");
+    }
   }
 
   return (
