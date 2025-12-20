@@ -96,7 +96,7 @@ public class TicketControllerImpl implements TicketController {
         CustomerIdDTO customerIdDTO = cookieMapper.toCustomerIdDTO(cookieDTO);
         HttpEntity<CustomerIdDTO> expeditionServiceGetTicketsRequest = new HttpEntity<>(customerIdDTO, headers);
         ResponseEntity<TicketsInternalDTO> expeditionServiceGetTicketsResponse = restTemplate.exchange(
-                ServiceURLs.EXPEDITION_SERVICE_SEARCH_SEAT_URL,
+                ServiceURLs.EXPEDITION_SERVICE_GET_CUSTOMER_TICKETS_SEAT_URL,
                 HttpMethod.POST,
                 expeditionServiceGetTicketsRequest,
                 TicketsInternalDTO.class);
