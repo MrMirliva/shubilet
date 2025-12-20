@@ -86,7 +86,7 @@ export default function CompanyExpeditionDetail() {
       const data = await safeReadJson(response);
 
       const backendMessage = data?.message ?? "";
-      const list = Array.isArray(data?.tickets) ? data.tickets : [];
+      const list = Array.isArray(data?.seats) ? data.seats : [];
 
       if (!response.ok) {
         setServerError(backendMessage || `HTTP ${response.status}`);

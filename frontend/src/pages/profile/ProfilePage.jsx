@@ -56,6 +56,10 @@ function maskCardNo(cardNo) {
   return `**** **** **** ${last4}`;
 }
 
+function onlyDigits(s) {
+  return String(s ?? "").replace(/\D/g, "");
+}
+
 async function fetchCards() {
   const res = await fetch("/api/profile/customer/get/cards", {
     method: "POST",
@@ -71,6 +75,23 @@ async function fetchCards() {
   }
 
   return data; // CardsDTO: { message, cards: [...] }
+}
+
+async function addCard(cardDto) {
+  const res = await fetch("/api/profile/customer/edit/card/add", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    credentials: "include",
+    body: JSON.stringify(cardDto),
+  });
+
+  const data = await safeReadJson(res);
+
+  if (!res.ok) {
+    throw new Error(data?.message || `Add card failed (HTTP ${res.status}).`);
+  }
+
+  return data; // MessageDTO
 }
 
 export default function ProfilePage() {
@@ -100,6 +121,26 @@ export default function ProfilePage() {
   const [cards, setCards] = useState([]); // CardDTO[]
   const [isCardsLoading, setIsCardsLoading] = useState(true);
   const [cardsError, setCardsError] = useState("");
+
+  // --- ADD CARD MODAL STATE ---
+  const [isAddCardOpen, setIsAddCardOpen] = useState(false);
+  const [isAddingCard, setIsAddingCard] = useState(false);
+
+  const [cardForm, setCardForm] = useState({
+    cardHolderName: "",
+    cardNumber: "",
+    expirationMonth: "",
+    expirationYear: "",
+    cvc: "",
+  });
+
+  const [cardTouched, setCardTouched] = useState({
+    cardHolderName: false,
+    cardNumber: false,
+    expirationMonth: false,
+    expirationYear: false,
+    cvc: false,
+  });
 
   // --- UI MESSAGE ---
   const [toast, setToast] = useState("");
@@ -189,6 +230,21 @@ export default function ProfilePage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  async function reloadCards() {
+    setIsCardsLoading(true);
+    setCardsError("");
+
+    try {
+      const data = await fetchCards();
+      const list = Array.isArray(data?.cards) ? data.cards : [];
+      setCards(list);
+    } catch (err) {
+      setCardsError(err?.message || "Cards fetch failed. Please try again.");
+    } finally {
+      setIsCardsLoading(false);
+    }
+  }
+
   // ---------------- FIELD MODAL HELPERS ----------------
   function openFieldModal(field) {
     if (isProfileLoading) return;
@@ -277,6 +333,35 @@ export default function ProfilePage() {
     return e;
   }, [fieldModal.open, activeField, pwForm]);
 
+  const cardErrors = useMemo(() => {
+    const e = {};
+    if (!isAddCardOpen) return e;
+
+    const holder = cardForm.cardHolderName.trim();
+    const number = onlyDigits(cardForm.cardNumber);
+    const mm = cardForm.expirationMonth.trim();
+    const yy = cardForm.expirationYear.trim();
+    const cvc = onlyDigits(cardForm.cvc);
+
+    if (!holder) e.cardHolderName = "Card holder name is required.";
+    else if (holder.length < 2) e.cardHolderName = "Card holder name must be at least 2 characters.";
+    else if (holder.length > 50) e.cardHolderName = "Card holder name must be at most 50 characters.";
+
+    if (!number) e.cardNumber = "Card number is required.";
+    else if (!/^\d{16}$/.test(number)) e.cardNumber = "Card number must be exactly 16 digits.";
+
+    if (!mm) e.expirationMonth = "Expiration month is required.";
+    else if (!/^(0[1-9]|1[0-2])$/.test(mm)) e.expirationMonth = "Month must be between 01 and 12.";
+
+    if (!yy) e.expirationYear = "Expiration year is required.";
+    else if (!/^\d{2}$/.test(yy)) e.expirationYear = "Year must be 2 digits (e.g. 25).";
+
+    if (!cvc) e.cvc = "CVC is required.";
+    else if (!/^\d{3}$/.test(cvc)) e.cvc = "CVC must be exactly 3 digits.";
+
+    return e;
+  }, [isAddCardOpen, cardForm]);
+
   const canSaveField =
     !!activeField &&
     activeField !== FIELD.PASSWORD &&
@@ -284,6 +369,8 @@ export default function ProfilePage() {
     !fieldError;
 
   const canSavePassword = activeField === FIELD.PASSWORD && Object.keys(pwErrors).length === 0;
+
+  const canAddCard = isAddCardOpen && Object.keys(cardErrors).length === 0 && !isAddingCard;
 
   // ---------------- SAVE HANDLERS (API) ----------------
   async function onSaveFieldChange() {
@@ -319,6 +406,60 @@ export default function ProfilePage() {
       showToast(err?.message || "Password update failed.");
     } finally {
       setIsSaving(false);
+    }
+  }
+
+  // ---------------- ADD CARD MODAL HELPERS ----------------
+  function openAddCardModal() {
+    if (isCardsLoading) return;
+
+    setIsAddCardOpen(true);
+    setIsAddingCard(false);
+    setCardForm({
+      cardHolderName: "",
+      cardNumber: "",
+      expirationMonth: "",
+      expirationYear: "",
+      cvc: "",
+    });
+    setCardTouched({
+      cardHolderName: false,
+      cardNumber: false,
+      expirationMonth: false,
+      expirationYear: false,
+      cvc: false,
+    });
+  }
+
+  function closeAddCardModal() {
+    if (isAddingCard) return;
+    setIsAddCardOpen(false);
+  }
+
+  async function onAddCardSubmit() {
+    if (!canAddCard) return;
+
+    setIsAddingCard(true);
+    try {
+      const payload = {
+        cardHolderName: cardForm.cardHolderName.trim(),
+        cardNumber: onlyDigits(cardForm.cardNumber),
+        expirationMonth: cardForm.expirationMonth.trim(),
+        expirationYear: cardForm.expirationYear.trim(),
+        cvc: onlyDigits(cardForm.cvc),
+      };
+
+      const data = await addCard(payload);
+
+      showToast(data?.message || "Card added successfully.");
+      setIsAddCardOpen(false);
+
+      // MessageDTO döndüğü için listeyi tekrar çekiyoruz
+      await reloadCards();
+    } catch (err) {
+      showToast(err?.message || "Add card failed.");
+    } finally {
+      setIsAddingCard(false);
     }
   }
 
@@ -422,8 +563,7 @@ export default function ProfilePage() {
               <span className="pill">Payment</span>
             </div>
 
-            {/* Backend add endpoint yok, şimdilik disable */}
-            <button className="primaryButton" type="button" disabled title="Add Card endpoint not connected yet">
+            <button className="primaryButton" type="button" onClick={openAddCardModal} disabled={isCardsLoading}>
               Add Card
             </button>
           </div>
@@ -561,6 +701,72 @@ export default function ProfilePage() {
               </div>
             </>
           )}
+        </Modal>
+      ) : null}
+
+      {/* ADD CARD MODAL */}
+      {isAddCardOpen ? (
+        <Modal title="Add Card" onClose={closeAddCardModal}>
+          <div className="modalBody">
+            <ModalField
+              label="Card Holder Name"
+              value={cardForm.cardHolderName}
+              error={cardTouched.cardHolderName ? cardErrors.cardHolderName : ""}
+              onBlur={() => setCardTouched((t) => ({ ...t, cardHolderName: true }))}
+              onChange={(v) => setCardForm((p) => ({ ...p, cardHolderName: v }))}
+              disabled={isAddingCard}
+            />
+
+            <ModalField
+              label="Card Number"
+              value={cardForm.cardNumber}
+              error={cardTouched.cardNumber ? cardErrors.cardNumber : ""}
+              onBlur={() => setCardTouched((t) => ({ ...t, cardNumber: true }))}
+              onChange={(v) => setCardForm((p) => ({ ...p, cardNumber: v }))}
+              placeholder="16 digits"
+              disabled={isAddingCard}
+            />
+
+            <div className="grid2">
+              <ModalField
+                label="Exp. Month (MM)"
+                value={cardForm.expirationMonth}
+                error={cardTouched.expirationMonth ? cardErrors.expirationMonth : ""}
+                onBlur={() => setCardTouched((t) => ({ ...t, expirationMonth: true }))}
+                onChange={(v) => setCardForm((p) => ({ ...p, expirationMonth: v }))}
+                placeholder="01-12"
+                disabled={isAddingCard}
+              />
+              <ModalField
+                label="Exp. Year (YY)"
+                value={cardForm.expirationYear}
+                error={cardTouched.expirationYear ? cardErrors.expirationYear : ""}
+                onBlur={() => setCardTouched((t) => ({ ...t, expirationYear: true }))}
+                onChange={(v) => setCardForm((p) => ({ ...p, expirationYear: v }))}
+                placeholder="25"
+                disabled={isAddingCard}
+              />
+            </div>
+
+            <ModalField
+              label="CVC"
+              value={cardForm.cvc}
+              error={cardTouched.cvc ? cardErrors.cvc : ""}
+              onBlur={() => setCardTouched((t) => ({ ...t, cvc: true }))}
+              onChange={(v) => setCardForm((p) => ({ ...p, cvc: v }))}
+              placeholder="3 digits"
+              disabled={isAddingCard}
+            />
+          </div>
+
+          <div className="modalActions">
+            <button className="primaryButton" type="button" onClick={onAddCardSubmit} disabled={!canAddCard}>
+              {isAddingCard ? "Saving..." : "Save"}
+            </button>
+            <button className="ghostButton" type="button" onClick={closeAddCardModal} disabled={isAddingCard}>
+              Cancel
+            </button>
+          </div>
         </Modal>
       ) : null}
     </div>
