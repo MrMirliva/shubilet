@@ -52,7 +52,7 @@ function App() {
             <Route path="/" element={<CustomerHomePage />} />
             <Route path="/travel" element={<Travel />} />
             <Route path="/profile" element={<ProfilePage />} />
-            <Route path="/mytickets" element={<MyTicketsPage />} />
+            <Route path="/my-tickets" element={<MyTicketsPage />} />
           </Route>
         </Route>
 
