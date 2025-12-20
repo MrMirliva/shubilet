@@ -211,6 +211,12 @@ public class AuthControllerImpl implements AuthController {
         if (memberServiceResponse.getStatusCode().is2xxSuccessful()) {
             logger.info("Registration succeeded (requestId={})", requestId);
         }
+        else if (memberServiceResponse.getStatusCode().is4xxClientError()) {
+            logger.info("Registration failed (requestId={})", requestId);
+            return ResponseEntity
+                    .status(memberServiceResponse.getStatusCode())
+                    .body(memberServiceResponse.getBody());
+        }
         // Something Went Wrong on Member Service
         else if (memberServiceResponse.getStatusCode().is5xxServerError()) {
             logger.warn("Member service returned error (status={} requestId={})", memberServiceResponse.getStatusCode(), requestId);
@@ -274,6 +280,12 @@ public class AuthControllerImpl implements AuthController {
         // New Customer has been Successfully Registered on Member Service
         if (memberServiceResponse.getStatusCode().is2xxSuccessful()) {
             logger.info("Registration succeeded (requestId={})", requestId);
+        }
+        else if (memberServiceResponse.getStatusCode().is4xxClientError()) {
+            logger.info("Registration failed (requestId={})", requestId);
+            return ResponseEntity
+                    .status(memberServiceResponse.getStatusCode())
+                    .body(memberServiceResponse.getBody());
         }
         // Something Went Wrong on Member Service
         else if (memberServiceResponse.getStatusCode().is5xxServerError()) {
