@@ -86,7 +86,7 @@ export default function CompanyExpeditionList() {
 
   const titleText = useMemo(() => {
     if (mode === MODE.ALL) return "All Expeditions";
-    return "Available Expeditions";
+    return "Future Expeditions";
   }, [mode]);
 
   return (
