@@ -140,6 +140,13 @@
   gap: 12px;
 }
 
+/* ✅ Add Card modal uses this */
+.grid2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
 .field {
   display: flex;
   flex-direction: column;
@@ -403,6 +410,11 @@
   }
   .span2 {
     grid-column: span 1;
+  }
+
+  /* ✅ Add Card modal responsive */
+  .grid2 {
+    grid-template-columns: 1fr;
   }
 }
 
