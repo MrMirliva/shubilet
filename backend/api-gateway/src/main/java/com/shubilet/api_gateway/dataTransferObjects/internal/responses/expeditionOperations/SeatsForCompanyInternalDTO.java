@@ -5,7 +5,7 @@ import java.util.List;
 
 public class SeatsForCompanyInternalDTO {
     private String message;
-    private List<SeatForCompanyInternalDTO> tickets;
+    private List<SeatForCompanyInternalDTO> seats;
 
     public SeatsForCompanyInternalDTO() {
 
@@ -13,12 +13,12 @@ public class SeatsForCompanyInternalDTO {
 
     public SeatsForCompanyInternalDTO(String message) {
         this.message = message;
-        tickets = new ArrayList<>();
+        seats = new ArrayList<>();
     }
 
-    public SeatsForCompanyInternalDTO(String message, List<SeatForCompanyInternalDTO> tickets) {
+    public SeatsForCompanyInternalDTO(String message, List<SeatForCompanyInternalDTO> seats) {
         this.message = message;
-        this.tickets = tickets;
+        this.seats = seats;
     }
 
     public String getMessage() {
@@ -29,11 +29,11 @@ public class SeatsForCompanyInternalDTO {
         this.message = message;
     }
 
-    public List<SeatForCompanyInternalDTO> getTickets() {
-        return tickets;
+    public List<SeatForCompanyInternalDTO> getSeats() {
+        return seats;
     }
 
-    public void setTickets(List<SeatForCompanyInternalDTO> tickets) {
-        this.tickets = tickets;
+    public void setSeats(List<SeatForCompanyInternalDTO> seats) {
+        this.seats = seats;
     }
 }

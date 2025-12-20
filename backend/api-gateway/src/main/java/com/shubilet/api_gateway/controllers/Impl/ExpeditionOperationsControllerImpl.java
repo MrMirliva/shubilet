@@ -500,7 +500,7 @@ public class ExpeditionOperationsControllerImpl implements ExpeditionOperationsC
                     .body(new SeatsForCompanyExternalDTO(expeditionServiceGetCompanyExpeditionDetailsResponse.getBody().getMessage()));
         }
 
-        List<CustomerIdDTO> customerIdDTOs = seatsForCompanyInternalMapper.toCustomerIdDTOs(expeditionServiceGetCompanyExpeditionDetailsResponse.getBody().getTickets());
+        List<CustomerIdDTO> customerIdDTOs = seatsForCompanyInternalMapper.toCustomerIdDTOs(expeditionServiceGetCompanyExpeditionDetailsResponse.getBody().getSeats());
         for (CustomerIdDTO customerIdDTO : customerIdDTOs) {
             logger.info("Customer ID: {}", customerIdDTO.getCustomerId());
         }

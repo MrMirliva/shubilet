@@ -1,13 +1,7 @@
 package com.shubilet.api_gateway.mappers;
 
-import com.shubilet.api_gateway.dataTransferObjects.external.responses.expeditionOperations.ExpeditionSearchResultCustomerDTO;
 import com.shubilet.api_gateway.dataTransferObjects.external.responses.expeditionOperations.SeatForCompanyExternalDTO;
-import com.shubilet.api_gateway.dataTransferObjects.external.responses.expeditionOperations.SeatForCustomerDTO;
-import com.shubilet.api_gateway.dataTransferObjects.external.responses.expeditionOperations.SeatsForCompanyExternalDTO;
-import com.shubilet.api_gateway.dataTransferObjects.external.responses.ticket.TicketExternalDTO;
 import com.shubilet.api_gateway.dataTransferObjects.internal.responses.expeditionOperations.*;
-import com.shubilet.api_gateway.dataTransferObjects.internal.responses.ticket.TicketInternalDTO;
-import com.shubilet.api_gateway.dataTransferObjects.internal.responses.ticket.TicketsInternalDTO;
 
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -23,7 +17,7 @@ public class CustomerIdNameMapper {
         List<SeatForCompanyExternalDTO> matchedSeats = new LinkedList<>();
         HashMap<Integer, String> customerMap = customerIdNameMapDTO.getCustomers();
 
-        for (SeatForCompanyInternalDTO seat : seatsForCompanyInternalDTO.getTickets()) {
+        for (SeatForCompanyInternalDTO seat : seatsForCompanyInternalDTO.getSeats()) {
             matchedSeats.add(new SeatForCompanyExternalDTO(
                     seat.getSeatId(),
                     seat.getExpeditionId(),
