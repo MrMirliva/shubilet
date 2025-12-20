@@ -597,7 +597,7 @@ public class ProfileManagementControllerImpl implements ProfileManagementControl
         return ResponseEntity.status(HttpStatus.OK).body(memberServiceCardCreationResponse.getBody());
     }
 
-    @PostMapping("/customer/edit/card/delte")
+    @PostMapping("/customer/edit/card/delete")
     @Override
     public ResponseEntity<MessageDTO> deleteCard(HttpSession httpSession, @RequestBody CardDeletionExternalDTO cardDeletionExternalDTO) {
         String requestId = UUID.randomUUID().toString();
