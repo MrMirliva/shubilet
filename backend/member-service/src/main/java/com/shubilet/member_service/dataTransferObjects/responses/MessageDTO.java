@@ -6,6 +6,10 @@ public class MessageDTO {
     private Date timestamp;
     private String message;
 
+    public MessageDTO() {
+        this.message = "";
+        this.timestamp = new Date();
+    }
     public MessageDTO(String message) {
         this.timestamp = new Date();
         this.message = message;
