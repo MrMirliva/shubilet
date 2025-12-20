@@ -99,4 +99,7 @@ public class SessionSweeper {
 
         logger.info("SessionSweeper completed - session cleanup finished.");
     }
+
+    // Mirliva says: Some sessions just need to be... cleaned.
+    // No witnesses. No logs. Just peace.
 }

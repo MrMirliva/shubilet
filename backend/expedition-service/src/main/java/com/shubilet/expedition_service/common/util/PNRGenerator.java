@@ -38,3 +38,5 @@ public class PNRGenerator {
         return pnr.toString();
     }
 }
+// Mirliva says: This PNR is unique.
+// Just like everyone else.

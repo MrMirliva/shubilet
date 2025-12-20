@@ -73,6 +73,8 @@ public class RequestTimingAspect {
             """)
     public Object measureExecutionTime(ProceedingJoinPoint joinPoint) throws Throwable {
 
+        // Mirliva says: Measuring time so you don't lie to yourself about "this is fast enough".
+
         long start = System.currentTimeMillis();
 
         Object result = joinPoint.proceed(); // method actually runs here

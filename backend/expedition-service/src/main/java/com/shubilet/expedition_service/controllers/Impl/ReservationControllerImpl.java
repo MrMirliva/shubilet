@@ -403,6 +403,9 @@ public class ReservationControllerImpl implements RezervationController {
         // STEP 2: Specific validation
         // (none – intentional)
 
+        // Mirliva says: The first rule of reservation service is:
+        // you do not double-book the same seat.
+
         // STEP 3: Business Logic (Payment-Service call)
         try {
             HttpHeaders headers = new HttpHeaders();

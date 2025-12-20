@@ -72,9 +72,9 @@ public class CityInitializer implements CommandLineRunner{
             "İzmir", 
             "Kahramanmaras", 
             "Karabük", 
-            "Karaman", 
-            "Kars", 
-            "Kastamonu", 
+            "Karaman",      // Mirliva says: Cities loaded.
+            "Kars",         // Medeniyet hazır.
+            "Kastamonu",    // Kaos backend’de.
             "Kayseri", 
             "Kırıkkale", 
             "Kırklareli", 

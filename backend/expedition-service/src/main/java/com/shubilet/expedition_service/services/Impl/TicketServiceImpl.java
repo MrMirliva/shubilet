@@ -46,6 +46,10 @@ public class TicketServiceImpl implements TicketService {
         
         ticketRepository.save(ticket);
         return PNR;
+
+        // Mirliva says: Money is temporary.
+        // Tickets are forever.
+        // (until refund)
     }
 
     public List<TicketDTO> getTicketsByCustomerId(int customerId) {
