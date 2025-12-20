@@ -99,49 +99,6 @@ const CITIES = [
     "Zonguldak"
 ];
 
-const MOCK_EXPEDITIONS = [
-    {
-        expeditionId: 101,
-        departureCity: "İstanbul",
-        arrivalCity: "Ankara",
-        date: "2023-12-25",
-        time: "14:30",
-        price: 450.0,
-        duration: 360, // minutes
-        companyName: "Metro Turizm",
-    },
-    {
-        expeditionId: 102,
-        departureCity: "İzmir",
-        arrivalCity: "İstanbul",
-        date: "2023-12-26",
-        time: "09:00",
-        price: 600.0,
-        duration: 480,
-        companyName: "Kamil Koç",
-    },
-    {
-        expeditionId: 103,
-        departureCity: "İstanbul",
-        arrivalCity: "Antalya",
-        date: "2023-12-27",
-        time: "22:00",
-        price: 750.5,
-        duration: 540,
-        companyName: "Pamukkale",
-    },
-    {
-        expeditionId: 104,
-        departureCity: "Ankara",
-        arrivalCity: "İstanbul",
-        date: "2023-12-25",
-        time: "10:00",
-        price: 500.0,
-        duration: 300,
-        companyName: "Varan",
-    }
-];
-
 // Mock Saved Cards
 const MOCK_SAVED_CARDS = [
     { cardId: "card_1", last4Digits: "4242", expirationMonth: "12", expirationYear: "25" },
@@ -155,6 +112,7 @@ export default function Travel() {
     // Search filter states
     const [fromCity, setFromCity] = useState("");
     const [toCity, setToCity] = useState("");
+
 
     // Default date: Tomorrow
     const [date, setDate] = useState(() => {
@@ -207,20 +165,37 @@ export default function Travel() {
         setHasSearched(true);
         setExpandedExpeditionId(null); // Reset expansion
 
-        // Simulate API delay
-        await new Promise(resolve => setTimeout(resolve, 800));
+        try {
+            const response = await fetch("/api/expedition/customer/get/search/expeditions", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    departureCity: fromCity,
+                    arrivalCity: toCity,
+                    date: date
+                })
+            });
 
-        // Filter logic (simulated backend)
-        const results = MOCK_EXPEDITIONS.filter(exp => {
-            const matchFrom = fromCity ? exp.departureCity.toLowerCase().includes(fromCity.toLowerCase()) : true;
-            const matchTo = toCity ? exp.arrivalCity.toLowerCase().includes(toCity.toLowerCase()) : true;
-            const matchDate = date ? exp.date === date : true;
-            return matchFrom && matchTo && matchDate;
-        });
+            if (!response.ok) {
+                // Handle error (could show a toast or alert)
+                console.error("Search failed:", response.statusText);
+                setIsLoading(false);
+                return;
+            }
 
-        setExpeditions(results);
-        setIsLoading(false);
+            const data = await response.json();
+            if (data.expeditions) {
+                setExpeditions(data.expeditions);
+            }
+        } catch (error) {
+            console.error("Error fetching expeditions:", error);
+        } finally {
+            setIsLoading(false);
+        }
     };
+
 
     const handleSearch = (e) => {
         e.preventDefault();
