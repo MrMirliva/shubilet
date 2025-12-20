@@ -1,5 +1,5 @@
 
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import "./Travel.css";
 
@@ -19,6 +19,7 @@ const CITIES = [
     "Adıyaman",
     "Afyonkarahisar",
     "Ağrı",
+    // ... (keeping full list)
     "Aksaray",
     "Amasya",
     "Ankara",
@@ -154,7 +155,18 @@ export default function Travel() {
     // Search filter states
     const [fromCity, setFromCity] = useState("");
     const [toCity, setToCity] = useState("");
-    const [date, setDate] = useState("");
+
+    // Default date: Tomorrow
+    const [date, setDate] = useState(() => {
+        const d = new Date();
+        d.setDate(d.getDate() + 1);
+        return d.toISOString().split("T")[0];
+    });
+
+    // Custom Date Picker State
+    const [showCalendar, setShowCalendar] = useState(false);
+    const [calendarViewDate, setCalendarViewDate] = useState(new Date()); // For navigation
+    const calendarRef = useRef(null);
 
     // Data states
     const [expeditions, setExpeditions] = useState([]); // Start empty
@@ -170,6 +182,24 @@ export default function Travel() {
     // Payment Modal State
     const [showPaymentModal, setShowPaymentModal] = useState(false);
     const [isProcessingPayment, setIsProcessingPayment] = useState(false);
+
+    // Close calendar when clicking outside
+    useEffect(() => {
+        function handleClickOutside(event) {
+            if (calendarRef.current && !calendarRef.current.contains(event.target)) {
+                setShowCalendar(false);
+            }
+        }
+        document.addEventListener("mousedown", handleClickOutside);
+        return () => document.removeEventListener("mousedown", handleClickOutside);
+    }, []);
+
+    // Sync calendar view date with selected date on open
+    useEffect(() => {
+        if (showCalendar && date) {
+            setCalendarViewDate(new Date(date));
+        }
+    }, [showCalendar, date]);
 
     const fetchExpeditions = async () => {
         setIsLoading(true);
@@ -217,11 +247,11 @@ export default function Travel() {
         const mockSeats = [];
         for (let i = 1; i <= 40; i++) {
             // Randomly assign status
-            const isBooked = Math.random() < 0.3; // 30% chance booked
+            const isReserved = Math.random() < 0.3; // 30% chance reserved
             mockSeats.push({
                 expeditionId: expeditionId,
                 seatNo: i,
-                status: isBooked ? "BOOKED" : "AVAILABLE"
+                status: isReserved ? "RESERVED" : "AVAILABLE"
             });
         }
 
@@ -251,6 +281,59 @@ export default function Travel() {
         alert(`Payment Successful with card ${cardId}! Ticket for Seat ${selectedSeat} booked.`);
         setExpandedExpeditionId(null); // Close expansion
     };
+
+    // --- Custom Calendar Helpers ---
+    const getDaysInMonth = (year, month) => new Date(year, month + 1, 0).getDate();
+    const getFirstDayOfMonth = (year, month) => {
+        // 0 = Sun, 1 = Mon ... 
+        // We want 1 = Mon, ... 7 = Sun for our grid
+        let day = new Date(year, month, 1).getDay();
+        return day === 0 ? 6 : day - 1; // Shift so Mon is 0 index
+    };
+
+    const renderCalendarDays = () => {
+        const year = calendarViewDate.getFullYear();
+        const month = calendarViewDate.getMonth();
+        const daysInMonth = getDaysInMonth(year, month);
+        const startDay = getFirstDayOfMonth(year, month);
+
+        const days = [];
+        // Empty slots for start
+        for (let i = 0; i < startDay; i++) {
+            days.push(<div key={`empty-${i}`} className="calendarDay empty"></div>);
+        }
+
+        for (let d = 1; d <= daysInMonth; d++) {
+            const currentDayStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+            const isSelected = date === currentDayStr;
+            const isToday = currentDayStr === new Date().toISOString().split("T")[0];
+
+            days.push(
+                <div
+                    key={d}
+                    className={`calendarDay ${isSelected ? "selected" : ""} ${isToday ? "today" : ""}`}
+                    onClick={() => {
+                        setDate(currentDayStr);
+                        setShowCalendar(false);
+                    }}
+                >
+                    {d}
+                </div>
+            );
+        }
+        return days;
+    };
+
+    const nextMonth = () => {
+        setCalendarViewDate(new Date(calendarViewDate.getFullYear(), calendarViewDate.getMonth() + 1, 1));
+    };
+
+    const prevMonth = () => {
+        setCalendarViewDate(new Date(calendarViewDate.getFullYear(), calendarViewDate.getMonth() - 1, 1));
+    };
+
+    const MONTH_NAMES = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+
 
     return (
         <>
@@ -297,14 +380,33 @@ export default function Travel() {
                                 </select>
                             </div>
 
-                            <div className="formGroup">
+                            <div className="formGroup dateGroup" ref={calendarRef}>
                                 <label className="formLabel">Date</label>
-                                <input
-                                    type="date"
-                                    className="formInput dateInput"
-                                    value={date}
-                                    onChange={(e) => setDate(e.target.value)}
-                                />
+                                {/* Custom Date Input Display */}
+                                <div
+                                    className="customDateInput"
+                                    onClick={() => setShowCalendar(!showCalendar)}
+                                >
+                                    <span className="dateText">{date || "Select Date"}</span>
+                                    <span className="calendarIcon">📅</span>
+                                </div>
+
+                                {/* Custom Calendar Popup */}
+                                {showCalendar && (
+                                    <div className="calendarPopup">
+                                        <div className="calendarHeader">
+                                            <button type="button" onClick={prevMonth}>&lt;</button>
+                                            <span>{MONTH_NAMES[calendarViewDate.getMonth()]} {calendarViewDate.getFullYear()}</span>
+                                            <button type="button" onClick={nextMonth}>&gt;</button>
+                                        </div>
+                                        <div className="calendarWeekdays">
+                                            <span>Mo</span><span>Tu</span><span>We</span><span>Th</span><span>Fr</span><span>Sa</span><span>Su</span>
+                                        </div>
+                                        <div className="calendarGrid">
+                                            {renderCalendarDays()}
+                                        </div>
+                                    </div>
+                                )}
                             </div>
 
                             <button type="submit" className="searchBtn" disabled={isLoading}>
@@ -373,7 +475,7 @@ export default function Travel() {
                                                         <h3>Select your Seat</h3>
                                                         <div className="seatLegend">
                                                             <span className="legendItem"><span className="dot available"></span> Available</span>
-                                                            <span className="legendItem"><span className="dot booked"></span> Booked</span>
+                                                            <span className="legendItem"><span className="dot booked"></span> Reserved</span>
                                                             <span className="legendItem"><span className="dot selected"></span> Selected</span>
                                                         </div>
                                                     </div>
@@ -391,7 +493,7 @@ export default function Travel() {
                                                                         key={seat.seatNo}
                                                                         type="button"
                                                                         className={`seat ${seat.status.toLowerCase()} ${selectedSeat === seat.seatNo ? "selected" : ""}`}
-                                                                        disabled={seat.status === "BOOKED"}
+                                                                        disabled={seat.status === "RESERVED"}
                                                                         onClick={() => onSelectSeat(seat.seatNo)}
                                                                     >
                                                                         {seat.seatNo}
