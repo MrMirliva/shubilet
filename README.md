@@ -54,7 +54,7 @@ api-gateway (edge orchestrator, @LoadBalanced RestTemplate)
          └──── consumed by expedition-service and member-service
 
 eureka-server (service discovery)
-postgres (mainDB + paymentDB)
+postgres (expeditionDB + memberDB + securityDB + paymentDB)
 pgadmin (DB UI)
 ```
 
@@ -100,7 +100,9 @@ To improve traceability across hops, the gateway commonly emits an `X-Request-Id
 
 The Docker runtime provisions a single PostgreSQL instance and creates two databases via `db/init.sql`:
 
-- `mainDB`: used by `member-service`, `security-service`, `expedition-service`
+- `expeditionDB`: used by `expedition-serivce`
+- `memberDB`: used by `member-service`
+- `securityDB`: used by `security-service`
 - `paymentDB`: used by `payment-service`
 
 Schema evolution in the local environment is handled by JPA with:
@@ -146,7 +148,7 @@ docker compose up --build
 
 ### Access Points (Host)
 
-- Frontend: `http://localhost:3000` (admin user: `shubilet@example.com`, password ``)
+- Frontend: `http://localhost:3000` (admin user: `shubilet@example.com`, password `SecurePassword123!`)
 - API Gateway: `http://localhost:8080`
 - Eureka Dashboard: `http://localhost:8761`
 - pgAdmin: `http://localhost:5051` (user: `admin@example.com`, password: `admin`)
