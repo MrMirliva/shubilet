@@ -1,7 +1,5 @@
 package com.shubilet.api_gateway.common.constants;
 
-import java.net.URI;
-
 public class ServiceURLs {
     // Expedition Service URLs
     public static final String EXPEDITION_SERVICE_SEARCH_EXPEDITION_URL = "http://expedition-service/api/view/customer/availableExpeditions";

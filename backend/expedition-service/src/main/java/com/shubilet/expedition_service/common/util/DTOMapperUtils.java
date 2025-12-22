@@ -7,8 +7,12 @@ import com.shubilet.expedition_service.dataTransferObjects.responses.base.Expedi
 import com.shubilet.expedition_service.dataTransferObjects.responses.base.SeatForCompanyDTO;
 import com.shubilet.expedition_service.dataTransferObjects.responses.base.SeatForCustomerDTO;
 import com.shubilet.expedition_service.dataTransferObjects.responses.base.TicketDTO;
+import com.shubilet.expedition_service.dataTransferObjects.responses.forRepositories.ExpeditionForCompanyRepoDTO;
+import com.shubilet.expedition_service.dataTransferObjects.responses.forRepositories.ExpeditionForCustomerRepoDTO;
+import com.shubilet.expedition_service.dataTransferObjects.responses.forRepositories.SeatForCompanyRepoDTO;
+import com.shubilet.expedition_service.dataTransferObjects.responses.forRepositories.SeatForCustomerRepoDTO;
+import com.shubilet.expedition_service.dataTransferObjects.responses.forRepositories.TicketRepoDTO;
 
-import com.shubilet.expedition_service.dataTransferObjects.responses.forRepositories.*;
 
 /****
 

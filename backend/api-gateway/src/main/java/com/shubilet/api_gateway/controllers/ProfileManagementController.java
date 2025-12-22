@@ -1,7 +1,11 @@
 package com.shubilet.api_gateway.controllers;
 
 import com.shubilet.api_gateway.dataTransferObjects.MessageDTO;
-import com.shubilet.api_gateway.dataTransferObjects.external.requests.profileManagement.*;
+import com.shubilet.api_gateway.dataTransferObjects.external.requests.profileManagement.CardCreationExternalDTO;
+import com.shubilet.api_gateway.dataTransferObjects.external.requests.profileManagement.CardDeletionExternalDTO;
+import com.shubilet.api_gateway.dataTransferObjects.external.requests.profileManagement.FavoriteCompanyAdditionExternalDTO;
+import com.shubilet.api_gateway.dataTransferObjects.external.requests.profileManagement.FavoriteCompanyDeletionExternalDTO;
+import com.shubilet.api_gateway.dataTransferObjects.external.requests.profileManagement.MemberAttributeChangeExternalDTO;
 import com.shubilet.api_gateway.dataTransferObjects.external.responses.profileManagement.AdminProfileDTO;
 import com.shubilet.api_gateway.dataTransferObjects.external.responses.profileManagement.CardsDTO;
 import com.shubilet.api_gateway.dataTransferObjects.external.responses.profileManagement.CompanyProfileDTO;

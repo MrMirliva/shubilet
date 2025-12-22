@@ -1,7 +1,9 @@
 package com.shubilet.api_gateway.mappers;
 
 import com.shubilet.api_gateway.dataTransferObjects.external.responses.expeditionOperations.SeatForCompanyExternalDTO;
-import com.shubilet.api_gateway.dataTransferObjects.internal.responses.expeditionOperations.*;
+import com.shubilet.api_gateway.dataTransferObjects.internal.responses.expeditionOperations.SeatsForCompanyInternalDTO;
+import com.shubilet.api_gateway.dataTransferObjects.internal.responses.expeditionOperations.CustomerIdNameMapDTO;
+import com.shubilet.api_gateway.dataTransferObjects.internal.responses.expeditionOperations.SeatForCompanyInternalDTO;
 
 import java.util.HashMap;
 import java.util.LinkedList;

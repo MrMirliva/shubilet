@@ -6,7 +6,13 @@ import com.shubilet.api_gateway.dataTransferObjects.MessageDTO;
 import com.shubilet.api_gateway.dataTransferObjects.external.requests.expeditionOperations.ExpeditionCreationExternalDTO;
 import com.shubilet.api_gateway.dataTransferObjects.external.requests.expeditionOperations.ExpeditionIdDTO;
 import com.shubilet.api_gateway.dataTransferObjects.external.requests.expeditionOperations.ExpeditionSearchDTO;
-import com.shubilet.api_gateway.dataTransferObjects.external.responses.expeditionOperations.*;
+import com.shubilet.api_gateway.dataTransferObjects.external.responses.expeditionOperations.ExpeditionSearchResultCustomerDTO;
+import com.shubilet.api_gateway.dataTransferObjects.external.responses.expeditionOperations.ExpeditionSearchResultsCompanyDTO;
+import com.shubilet.api_gateway.dataTransferObjects.external.responses.expeditionOperations.ExpeditionsForCompanyDTO;
+import com.shubilet.api_gateway.dataTransferObjects.external.responses.expeditionOperations.SeatForCompanyExternalDTO;
+import com.shubilet.api_gateway.dataTransferObjects.external.responses.expeditionOperations.SeatsForCompanyExternalDTO;
+import com.shubilet.api_gateway.dataTransferObjects.external.responses.expeditionOperations.SeatsForCustomerDTO;
+
 import com.shubilet.api_gateway.dataTransferObjects.internal.CookieDTO;
 import com.shubilet.api_gateway.dataTransferObjects.internal.requests.CompanyIdDTO;
 import com.shubilet.api_gateway.dataTransferObjects.internal.requests.CustomerIdDTO;
@@ -28,7 +34,12 @@ import com.shubilet.api_gateway.mappers.expeditionOperations.SeatsForCompanyInte
 import jakarta.servlet.http.HttpSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.http.*;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;

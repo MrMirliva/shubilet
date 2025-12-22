@@ -1,6 +1,7 @@
 package com.shubilet.payment_service.common.util;
 
-import static com.shubilet.payment_service.common.constants.ValidationPatterns.*;
+import static com.shubilet.payment_service.common.constants.ValidationPatterns.CARD_NUMBER_16_DIGITS;
+import static com.shubilet.payment_service.common.constants.ValidationPatterns.CVC_3_DIGITS;
 
 public final class ValidationUtils {
 
