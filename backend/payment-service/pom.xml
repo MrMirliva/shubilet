@@ -15,9 +15,56 @@
 
     <groupId>com.shubilet</groupId>
     <artifactId>payment-service</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
-    <name>Payment Service</name>
-    <description>Handles payment processing and transactions</description>
+    <version>1.0</version>
+    <name>shubilet-payment-service</name>
+    <description>
+        ShuBilet Payment Service that manages payment cards and payment-related workflows
+        for ticket purchasing and account payment methods.
+    </description>
+    <url>https://github.com/MrMirliva/shubilet</url>
+
+    <developers>
+        <developer>
+            <id>Mirliva</id>
+            <name>Abdullah Gündüz</name>
+            <url>https://github.com/MrMirliva</url>
+            <roles>
+                <role>Team Lead</role>
+                <role>System Design</role>
+                <role>Backend Developer</role>
+                <role>Frontend Developer</role>
+            </roles>
+        </developer>
+
+        <developer>
+            <id>Fixie</id>
+            <name>Murat Furkan Şen</name>
+            <url>https://github.com/MuratFurkanSen</url>
+            <roles>
+                <role>System Design</role>
+                <role>Backend Developer</role>
+                <role>Frontend Developer</role>
+            </roles>
+        </developer>
+
+        <developer>
+            <id>omertahsintaskin</id>
+            <name>Ömer Tahsin Taşkın</name>
+            <url>https://github.com/omertahsintaskin</url>
+            <roles>
+                <role>Backend Developer</role>
+                <role>UI/UX</role>
+                <role>Frontend Developer</role>
+            </roles>
+        </developer>
+    </developers>
+
+    <scm>
+        <connection>scm:git:git://github.com/MrMirliva/shubilet.git</connection>
+        <developerConnection>scm:git:ssh://github.com/MrMirliva/shubilet.git</developerConnection>
+        <tag>HEAD</tag>
+        <url>https://github.com/MrMirliva/shubilet</url>
+    </scm>
 
     <properties>
         <java.version>21</java.version>
