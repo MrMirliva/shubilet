@@ -3,8 +3,6 @@ package com.shubilet.member_service.initializers;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 
-import com.shubilet.member_service.controllers.RegistrationController;
-import com.shubilet.member_service.controllers.VerificationController;
 import com.shubilet.member_service.models.Admin;
 import com.shubilet.member_service.repositories.AdminRepository;
 

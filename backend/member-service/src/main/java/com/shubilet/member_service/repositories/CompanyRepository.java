@@ -8,7 +8,6 @@ import org.springframework.stereotype.Repository;
 import com.shubilet.member_service.models.Company;
 
 import java.util.Collection;
-import java.util.LinkedList;
 import java.util.List;
 
 

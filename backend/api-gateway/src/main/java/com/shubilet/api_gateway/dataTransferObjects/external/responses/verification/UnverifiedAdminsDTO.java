@@ -1,8 +1,5 @@
 package com.shubilet.api_gateway.dataTransferObjects.external.responses.verification;
 
-
-import com.shubilet.api_gateway.dataTransferObjects.external.responses.verification.UnverifiedAdminDTO;
-
 import java.util.LinkedList;
 import java.util.List;
 

@@ -1,7 +1,5 @@
 package com.shubilet.api_gateway.dataTransferObjects.external.responses.profileManagement;
 
-import com.shubilet.api_gateway.dataTransferObjects.external.responses.profileManagement.CardDTO;
-
 import java.util.ArrayList;
 import java.util.List;
 

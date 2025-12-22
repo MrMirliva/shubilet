@@ -1,7 +1,5 @@
 package com.shubilet.member_service.dataTransferObjects.requests.resourceDTOs;
 
-import java.io.Serializable;
-
 public class CardDeletionDTO  {
     private int cardId;
     private int customerId;

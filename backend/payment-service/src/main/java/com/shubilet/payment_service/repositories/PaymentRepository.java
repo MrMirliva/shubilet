@@ -4,8 +4,6 @@ import com.shubilet.payment_service.models.Payment;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
-import java.util.List;
-
 /**
 
     Repository interface for Payment entities. Provides CRUD operations

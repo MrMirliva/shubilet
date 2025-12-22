@@ -1,6 +1,5 @@
 package com.shubilet.member_service.services;
 
-import com.shubilet.member_service.dataTransferObjects.responses.UnverifiedAdminDTO;
 import com.shubilet.member_service.dataTransferObjects.responses.UnverifiedAdminsDTO;
 import com.shubilet.member_service.dataTransferObjects.responses.UnverifiedCompaniesDTO;
 

@@ -17,7 +17,6 @@ import com.shubilet.api_gateway.mappers.CookieMapper;
 import com.shubilet.api_gateway.mappers.verification.AdminVerificationExternalMapper;
 import com.shubilet.api_gateway.mappers.verification.CompanyVerificationExternalMapper;
 
-import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

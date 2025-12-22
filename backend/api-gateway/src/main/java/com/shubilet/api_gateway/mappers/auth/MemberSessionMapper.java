@@ -1,10 +1,7 @@
 package com.shubilet.api_gateway.mappers.auth;
 
 import com.shubilet.api_gateway.dataTransferObjects.internal.CookieDTO;
-import com.shubilet.api_gateway.dataTransferObjects.internal.requests.AdminIdDTO;
 import com.shubilet.api_gateway.dataTransferObjects.internal.requests.auth.SessionCreationDTO;
-import com.shubilet.api_gateway.dataTransferObjects.internal.requests.CompanyIdDTO;
-import com.shubilet.api_gateway.dataTransferObjects.internal.requests.CustomerIdDTO;
 import com.shubilet.api_gateway.dataTransferObjects.internal.responses.auth.MemberSessionInfoDTO;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;

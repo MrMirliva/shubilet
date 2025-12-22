@@ -1,7 +1,5 @@
 package com.shubilet.member_service.dataTransferObjects.requests.resourceDTOs;
 
-import java.util.LinkedList;
-
 public class CompanyIdDTO {
     private int companyId;
 

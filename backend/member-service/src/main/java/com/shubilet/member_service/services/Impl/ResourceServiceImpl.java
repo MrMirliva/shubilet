@@ -4,7 +4,6 @@ import com.shubilet.member_service.dataTransferObjects.requests.CustomerIdDTO;
 import com.shubilet.member_service.dataTransferObjects.requests.resourceDTOs.CompanyIdDTO;
 import com.shubilet.member_service.models.Company;
 import com.shubilet.member_service.models.Customer;
-import com.shubilet.member_service.repositories.AdminRepository;
 import com.shubilet.member_service.repositories.CompanyRepository;
 import com.shubilet.member_service.repositories.CustomerRepository;
 import com.shubilet.member_service.services.ResourceService;
@@ -18,12 +17,10 @@ import java.util.List;
 public class ResourceServiceImpl implements ResourceService {
     private final CustomerRepository customerRepository;
     private final CompanyRepository companyRepository;
-    private final AdminRepository adminRepository;
 
-    public ResourceServiceImpl(CustomerRepository customerRepository, CompanyRepository companyRepository, AdminRepository adminRepository) {
+    public ResourceServiceImpl(CustomerRepository customerRepository, CompanyRepository companyRepository) {
         this.customerRepository = customerRepository;
         this.companyRepository = companyRepository;
-        this.adminRepository = adminRepository;
     }
 
     public HashMap<Integer, String> sendCompanyNames(List<CompanyIdDTO> companyIdDTOS) {
