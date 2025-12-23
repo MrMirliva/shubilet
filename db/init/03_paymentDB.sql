@@ -1,7 +1,7 @@
 -- =========================
 -- paymentDB Initialization
 -- =========================
-\connect paymentDB;
+\connect "paymentDB";
 
 CREATE TABLE cards
 (

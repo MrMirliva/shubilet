@@ -1,7 +1,7 @@
 -- ============================
 -- memberDB Initialization
 -- ============================
-\connect memberDB;
+\connect "memberDB";
 -- admins, companies, customers, favorites
 
 

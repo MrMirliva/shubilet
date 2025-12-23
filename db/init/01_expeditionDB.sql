@@ -2,7 +2,7 @@
 -- expeditionDB Initialization
 -- ============================
 
-\connect expeditionDB;
+\connect "expeditionDB";
 
 -- ============================
 -- Cities

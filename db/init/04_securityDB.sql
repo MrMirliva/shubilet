@@ -2,7 +2,7 @@
 -- securityDB Initialization
 -- =========================
 
-\connect securitydb;
+\connect "securityDB";
 
 -- =========================
 -- admin_sessions
